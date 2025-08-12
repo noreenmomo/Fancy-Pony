@@ -202,7 +202,7 @@
 
   // list (text only)
   async function loadRecent(){
-    const box = $('list');
+    const box = document.getElementById('list');
     box.innerHTML = '<div class="item">Loading…</div>';
     try{
       const r = await fetch(SCRIPT_URL + '?action=recent&limit=12', {cache:'no-store'});
@@ -210,16 +210,17 @@
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || 'API error');
 
-      const items = j.items || [];
+      const items = Array.isArray(j.items) ? j.items : [];
       if (!items.length){ box.innerHTML = '<div class="item">No items yet.</div>'; return; }
 
       box.innerHTML = '';
       for (const it of items){
-        const title = (it.title || 'Untitled');
-        const name  = (it.name  || 'Anonymous');
+        // 先轉成字串再使用，避免 .trim() 對非字串報錯
+        const title = (String(it.title ?? '').trim() || 'Untitled');
+        const name  = (String(it.name  ?? '').trim() || 'Anonymous');
         const ts    = timeStr(it.timestamp);
-        const desc  = (it.description || '').trim();
-        const url   = (it.fileUrl || '').trim();
+        const desc  = String(it.description ?? '').trim();   // <-- 這行修正
+        const url   = String(it.fileUrl ?? '').trim();
 
         const row = document.createElement('div');
         row.className = 'item';
