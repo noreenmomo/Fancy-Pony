@@ -14,24 +14,17 @@
     .sub { color:var(--muted); margin:0 0 16px; }
     .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
     label { display:block; margin:12px 0 6px; font-weight:600; }
-    input[type=text], input[type=email], textarea {
-      width:100%; padding:10px; border:1px solid var(--bd); border-radius:10px; font:inherit;
-    }
+    input[type=text], input[type=email], textarea { width:100%; padding:10px; border:1px solid var(--bd); border-radius:10px; font:inherit; }
     input[type=file]{ margin:8px 0 12px; }
     textarea { resize: vertical; }
     .muted { color:var(--muted); font-size:13px; }
     .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
-    button, .btn {
-      appearance:none; border:1px solid var(--bd); background:#fff; color:var(--fg);
-      padding:10px 16px; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
-    }
+    button, .btn { appearance:none; border:1px solid var(--bd); background:#fff; color:var(--fg); padding:10px 16px; border-radius:10px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
     button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
     .status { margin-top:12px; min-height:22px; }
-    .count { font-weight:600; margin: 4px 0 18px; }
     .badge { display:inline-block; padding:2px 8px; border:1px solid var(--bd); border-radius:999px; font-size:12px; color:var(--muted); }
-    .hr { height:1px; background:var(--bd); margin:18px 0; }
-    code.small { background:#f9fafb; border:1px solid var(--bd); padding:2px 6px; border-radius:6px; font-size:12px; }
     @media (max-width:640px){ .row{ grid-template-columns:1fr; } }
+    code.small { background:#f9fafb; border:1px solid var(--bd); padding:2px 6px; border-radius:6px; font-size:12px; }
   </style>
 </head>
 <body>
@@ -39,11 +32,9 @@
     <div class="card" role="region" aria-label="Fancy Pony Submission">
       <h1>Fancy Pony</h1>
       <p class="sub">Artwork Submission</p>
-      <div class="count">
-        <span id="count" class="badge">Loading total…</span>
-      </div>
+      <p><span id="count" class="badge">Loading total…</span></p>
 
-      <form id="form" enctype="multipart/form-data" novalidate>
+      <form id="form" novalidate>
         <div class="row">
           <div>
             <label for="name">Name</label>
@@ -77,79 +68,75 @@
         </div>
         <div id="status" class="status" aria-live="polite"></div>
 
-        <div class="hr"></div>
         <p class="muted">API URL: <code class="small" id="apiEcho"></code></p>
       </form>
     </div>
   </div>
 
   <script>
-    // ← REPLACE THIS with your exact /exec URL (no spaces, no ellipsis)
+    // ---- SET THIS to your exact Web App /exec URL ----
     const API = 'https://script.google.com/macros/s/AKfycbxsLbUN-3aqmAWSyuxAkmsmUvi77DfE8lQgkIKSJzGEdR4MkSpH3JL1OrAgyZ4aM_M_/exec'.trim();
-
-    // Echo API for sanity check
     document.getElementById('apiEcho').textContent = API;
 
-    // Basic validation of API format
-    try {
-      const u = new URL(API);
-      if (!u.pathname.endsWith('/exec')) throw new Error('API must end with /exec');
-    } catch (err) {
-      alert('Invalid API URL. Paste the exact Web App /exec URL.\n\n' + err);
-    }
-
     const $ = id => document.getElementById(id);
+
+    // Convert a File to base64 (without the "data:*;base64," prefix)
+    function fileToBase64(file){
+      return new Promise((resolve, reject)=>{
+        const fr = new FileReader();
+        fr.onload = () => {
+          const s = String(fr.result || '');
+          const idx = s.indexOf('base64,');
+          resolve(idx >= 0 ? s.slice(idx + 7) : s);
+        };
+        fr.onerror = () => reject(fr.error || new Error('File read error'));
+        fr.readAsDataURL(file);
+      });
+    }
 
     async function refreshCount(){
       const badge = $('count');
       try{
         const r = await fetch(API + '?action=count', { cache: 'no-store' });
-        const text = await r.text(); // read raw first for easier debugging
-        let data;
-        try { data = JSON.parse(text); }
-        catch { throw new Error('Non-JSON response:\n' + text.slice(0, 200)); }
-        if (data && data.ok) {
-          badge.textContent = `Total submissions: ${data.count ?? 0}`;
-        } else {
-          throw new Error(data && data.error ? data.error : 'Unknown error');
-        }
-      } catch (e) {
+        const text = await r.text();
+        const j = JSON.parse(text);
+        badge.textContent = `Total submissions: ${j.count ?? 0}`;
+      }catch(e){
         badge.textContent = 'Total submissions: (failed to load)';
         console.error('Count error:', e);
       }
     }
 
     $('btnRefresh').addEventListener('click', refreshCount);
-
-    $('btnCsv').addEventListener('click', (e)=>{
-      e.preventDefault();
-      window.open(API + '?action=csv', '_blank');
-    });
+    $('btnCsv').addEventListener('click', (e)=>{ e.preventDefault(); window.open(API + '?action=csv', '_blank'); });
 
     $('form').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const status = $('status');
-
       const file = $('file').files[0];
       if (!file) { status.textContent = 'Please choose a file.'; return; }
 
-      const fd = new FormData();
-      fd.append('name', $('name').value.trim());
-      fd.append('class', $('class').value.trim());
-      fd.append('title', $('title').value.trim());
-      fd.append('description', $('description').value.trim());
-      fd.append('email', $('email').value.trim());
-      fd.append('consent', $('consent').checked ? 'true' : 'false');
-      fd.append('file', file, file.name);
-
-      status.textContent = 'Uploading…';
+      status.textContent = 'Preparing upload…';
       try{
-        // IMPORTANT: no custom headers — keeps it a simple POST (no preflight)
-        const r = await fetch(API, { method:'POST', body: fd });
-        const text = await r.text(); // show raw on failure
+        // Build multipart with text fields + base64 file fields
+        const fd = new FormData();
+        fd.append('name', $('name').value.trim());
+        fd.append('class', $('class').value.trim());
+        fd.append('title', $('title').value.trim());
+        fd.append('description', $('description').value.trim());
+        fd.append('email', $('email').value.trim());
+        fd.append('consent', $('consent').checked ? 'true' : 'false');
+
+        const b64 = await fileToBase64(file);
+        fd.append('filebase64', b64);
+        fd.append('mimetype', file.type || 'application/octet-stream');
+        fd.append('filename', file.name || 'upload.bin');
+
+        status.textContent = 'Uploading…';
+        const r = await fetch(API, { method:'POST', body: fd }); // no custom headers
+        const text = await r.text();
         let data;
-        try { data = JSON.parse(text); }
-        catch { throw new Error('Non-JSON response:\n' + text.slice(0, 200)); }
+        try { data = JSON.parse(text); } catch { throw new Error('Non-JSON response:\n' + text.slice(0,200)); }
 
         if (data.ok){
           status.innerHTML = 'Uploaded. File link: <a target="_blank" rel="noopener" href="' + data.fileUrl + '">Open</a>';
@@ -158,13 +145,12 @@
         } else {
           status.textContent = 'Upload failed: ' + (data.error || 'Unknown error');
         }
-      } catch (err){
-        status.textContent = 'Network error: ' + err.message;
+      } catch(err){
+        status.textContent = 'Upload failed: ' + err.message;
         console.error('POST error:', err);
       }
     });
 
-    // Initial load
     refreshCount();
   </script>
 </body>
