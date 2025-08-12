@@ -1,99 +1,81 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>Fancy Pony — Direct Form Upload</title>
-<form method="post" enctype="multipart/form-data"
-      action="https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec">
-  <label>Your Name <input name="name" required></label><br><br>
-  <label>Choose File (JPG/PNG/PDF)
-    <input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required>
-  </label><br><br>
-  <button type="submit">Submit</button>
-</form>
+<meta charset="utf-8" />
+<title>Fancy Pony — Safe Uploader</title>
 <style>
-  :root { color-scheme: light; }
-  body { font-family: system-ui, Arial, sans-serif; margin: 24px; background:#fafafa; }
-  h1 { margin: 0 0 16px; }
-  .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06); max-width:720px; }
-  label { font-weight:600; display:block; margin:.75rem 0 .25rem; }
-  input[type="text"], input[type="file"] {
-    width:100%; padding:.6rem .7rem; border:1px solid #d1d5db; border-radius:8px; font-size:15px; background:#fff;
-  }
-  button { margin-top:14px; padding:.7rem 1.1rem; border:0; border-radius:8px; cursor:pointer; color:#fff;
-           background:#2563eb; font-weight:600; }
-  button:disabled { opacity:.6; cursor:not-allowed; }
-  .ok    { margin-top:12px; padding:10px 12px; border-radius:8px; background:#ecfdf5; color:#065f46; }
-  .err   { margin-top:12px; padding:10px 12px; border-radius:8px; background:#fef2f2; color:#991b1b; white-space:pre-wrap;}
-  .muted { color:#6b7280; font-size:12px; }
+  body { font-family: Arial, sans-serif; margin: 2rem; }
+  label { display:block; margin:.6rem 0 .25rem; }
+  input, button { font-size: 14px; }
+  #status { margin-top: .75rem; white-space: pre-wrap; }
 </style>
-</head>
-<body>
-  <h1>Fancy Pony — Minimal Upload</h1>
 
-  <div class="card">
-    <form id="u" novalidate>
-      <label for="name">Your Name</label>
-      <input id="name" name="name" type="text" required placeholder="e.g. Alex Chen">
+<h1>Fancy Pony — Safe Uploader</h1>
 
-      <label for="file">Choose File (JPG / PNG / PDF)</label>
-      <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+<form id="f" onsubmit="return false;">
+  <label>Your name</label>
+  <input id="name" type="text" required>
 
-      <button id="btn" type="submit">Upload</button>
-      <div class="muted" style="margin-top:8px;">Tip: scan at 150–300 ppi before uploading.</div>
-    </form>
+  <label>Choose file (JPG/PNG/PDF)</label>
+  <input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
 
-    <div id="out"></div>
+  <div style="margin-top:.8rem">
+    <button id="btn">Upload</button>
   </div>
+</form>
+
+<div id="status"></div>
 
 <script>
-  // Your Apps Script Web App (EXEC) URL:
+  // 換成你的 Web App /exec
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
-  const $ = s => document.querySelector(s);
-  const form = $('#u');
-  const out  = $('#out');
-  const btn  = $('#btn');
+  const $ = id => document.getElementById(id);
+  $('btn').addEventListener('click', upload);
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    out.textContent = '';
-    const name = $('#name').value.trim();
-    const file = $('#file').files[0];
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => {
+        const s = String(fr.result || '');
+        const i = s.indexOf('base64,');
+        resolve(i >= 0 ? s.slice(i + 7) : s);
+      };
+      fr.onerror = () => reject(fr.error || new Error('read error'));
+      fr.readAsDataURL(file);
+    });
+  }
 
-    if (!name) { out.innerHTML = '<div class="err">Please enter your name.</div>'; return; }
-    if (!file) { out.innerHTML = '<div class="err">Please choose a file.</div>'; return; }
+  async function upload() {
+    const status = $('status');
+    const file = $('file').files[0];
+    if (!file) { status.textContent = 'Please choose a file.'; return; }
 
-    // Build multipart/form-data. Do NOT set headers manually.
-    const fd = new FormData();
-    fd.append('name', name);
-    fd.append('file', file, file.name); // the field name MUST be "file"
-
-    btn.disabled = true;
-    btn.textContent = 'Uploading…';
+    status.textContent = 'Uploading…';
 
     try {
-      const res = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
-      const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); } catch { throw new Error('Server returned non‑JSON:\n' + text); }
-      console.log('server response:', data);
+      // 先走「標準」路徑：multipart/form-data + file 欄位
+      const fd = new FormData();
+      fd.append('name', $('name').value.trim());
+      fd.append('file', file, file.name); // 重點：欄位名一定叫「file」
 
+      // 同時附上 base64 備援（後端也有支援）
+      fd.append('filename', file.name);
+      fd.append('mimetype', file.type || 'application/octet-stream');
+      fd.append('filebase64', await fileToBase64(file));
+
+      const r = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
+      const txt = await r.text();
+      let data;
+      try { data = JSON.parse(txt); } catch { throw new Error('Server returned non-JSON: ' + txt); }
+
+      console.log('server response:', data);
       if (data.ok) {
-        const link = data.fileUrl ? `<br><a target="_blank" rel="noopener" href="${data.fileUrl}">Open file</a>` : '';
-        out.innerHTML = `<div class="ok">Upload successful.${link}</div>`;
-        form.reset();
-        $('#name').focus();
+        status.textContent = `OK\nfileId: ${data.fileId || '(n/a)'}\nfileUrl: ${data.fileUrl || '(n/a)'}\ncount: ${data.count}`;
       } else {
-        const diag = data.diag ? '\n' + JSON.stringify(data.diag, null, 2) : '';
-        out.innerHTML = `<div class="err">Upload failed: ${data.error || 'Unknown error'}${diag}</div>`;
+        status.textContent = `Failed: ${data.error}\n` + (data.diag ? JSON.stringify(data.diag, null, 2) : '');
       }
     } catch (err) {
-      out.innerHTML = `<div class="err">${err.message}</div>`;
+      status.textContent = 'Error: ' + err.message;
       console.error(err);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Upload';
     }
-  });
+  }
 </script>
-</body>
-</html>
