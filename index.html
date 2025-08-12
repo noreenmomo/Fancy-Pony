@@ -2,236 +2,289 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fancy Pony — Artwork Submission</title>
 <style>
-  :root{color-scheme:light;}
+  :root { color-scheme: light; }
   body{
-    margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background:#fff url("https://i.postimg.cc/jSmGH445/Pony.png") repeat;
-    background-size:120px 120px;
+    margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background-image:url("https://i.postimg.cc/jSmGH445/Pony.png");
+    background-repeat:repeat;
+    background-size:140px auto; /* small repeating ponies */
   }
-  .wrap{max-width:760px; margin:36px auto; padding:16px;}
-  .card{
+  .wrap{ max-width: 920px; margin: 32px auto; padding: 24px; }
+  .cardish{
     background:#fff; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.08);
-    padding:18px; margin-bottom:16px;
+    padding:20px;
   }
-  h1{margin:0 0 12px; font-size:28px}
-  label{font-weight:600; display:block; margin:.6rem 0 .25rem}
-  input[type=text],input[type=email],textarea{
-    width:100%; padding:.65rem .75rem; border:1px solid #d1d5db; border-radius:10px; font:inherit;
-    background:#f8fafc;
+  h1{ margin:0 0 8px; font-size: clamp(28px, 4vw, 36px); }
+  .muted{ color:#6b7280; }
+  label{ display:block; font-weight:600; margin:14px 0 6px; }
+  input[type="text"], input[type="email"], textarea, input[type="file"]{
+    width:100%; padding:.7rem .75rem; border:1px solid #d1d5db; border-radius:10px; font-size:16px;
+    background:#fff;
   }
-  textarea{min-height:110px; resize:vertical}
-  input[type=file]{width:100%}
-  .row{display:grid; grid-template-columns:1fr; gap:12px}
-  .muted{color:#6b7280; font-size:12px}
-  .checkbox{display:flex; align-items:flex-start; gap:.6rem; margin-top:.5rem}
-  .btn{
-    display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.1rem; border:0; border-radius:10px;
-    background:#2563eb; color:#fff; font-weight:700; cursor:pointer;
+  textarea{ resize:vertical; min-height:110px; }
+  .row{ display:grid; grid-template-columns: 1fr; gap:14px; }
+  .consent{ display:flex; gap:.6rem; align-items:flex-start; margin-top:10px; }
+  .consent input{ margin-top:.2rem; }
+  button{
+    display:inline-flex; gap:.5rem; align-items:center;
+    margin-top:14px; padding:.75rem 1.1rem;
+    background:#2563eb; color:#fff; border:0; border-radius:10px; font-weight:700; cursor:pointer;
+    box-shadow:0 6px 18px rgba(37,99,235,.25);
   }
-  .btn[disabled]{opacity:.5; cursor:not-allowed}
-  .ok{background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:.6rem .8rem; border-radius:10px}
-  .err{background:#fef2f2; color:#991b1b; border:1px solid #fecaca; padding:.6rem .8rem; border-radius:10px}
-  .list{list-style:none; padding:0; margin:0}
-  .item{padding:12px 0; border-top:1px solid #e5e7eb}
-  .item:first-child{border-top:0}
-  .item h3{margin:0 0 4px; font-size:16px}
-  .meta{color:#6b7280; font-size:12px}
-  .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  button[disabled]{ opacity:.6; cursor:not-allowed; }
+  .spinner{ width:16px; height:16px; border:2px solid #fff; border-right-color:transparent; border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin{ to { transform:rotate(360deg); } }
+
+  .status{ margin-top:10px; min-height:20px; }
+  .ok{ color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; padding:8px 10px; border-radius:8px; display:inline-block; }
+  .err{ color:#991b1b; background:#fef2f2; border:1px solid #fecaca; padding:8px 10px; border-radius:8px; display:inline-block; }
+
+  .bar{ margin:18px 0 10px; display:flex; justify-content:space-between; align-items:center; }
+  .count{ font-weight:600; }
+
+  /* gallery */
+  .galleryWrap{ margin-top:18px; }
+  .gTitle{ text-align:center; font-weight:800; font-size: clamp(22px, 3vw, 28px); margin: 8px 0 14px; }
+  #galleryError{ color:#b91c1c; margin-bottom:8px; }
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+    gap:16px;
+  }
+  figure.card{
+    background:#fff; border-radius:14px; box-shadow:0 8px 22px rgba(0,0,0,.06); margin:0; overflow:hidden;
+    display:flex; flex-direction:column; min-height:280px;
+  }
+  figure.card img{
+    width:100%; height:200px; object-fit:cover; background:#f3f4f6; display:block;
+  }
+  figure.card figcaption{ padding:10px 12px; }
+  .title{ font-weight:700; }
+  .by{ color:#6b7280; }
+  .desc{ margin-top:4px; color:#374151; font-size:14px; line-height:1.25; }
 </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
+    <div class="cardish">
       <h1>Fancy Pony — Artwork Submission</h1>
-      <div class="flex">
-        <div class="muted">Total drawings collected: <span id="count">—</span></div>
-        <div class="muted" id="backendMeta"></div>
+      <div class="muted" id="meta"></div>
+
+      <div class="row" style="margin-top:8px;">
+        <label>Your Name *<input id="name" type="text" required></label>
+        <label>Your Email *<input id="email" type="email" required></label>
+        <label>Pony Name *<input id="title" type="text" required></label>
+      </div>
+
+      <label>Upload File *<input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required></label>
+      <div class="muted">File size must be between <b>1 MB</b> and <b>5 MB</b>. Recommended: <b>150–300 ppi</b> (Letter size scans are typically &gt; 1 MB).</div>
+
+      <label>Description (optional)
+        <textarea id="description" placeholder="Tell us about your pony…"></textarea>
+      </label>
+
+      <div class="consent">
+        <input id="consent" type="checkbox" value="true" />
+        <label for="consent" style="margin:0;font-weight:500;">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
+      </div>
+
+      <button id="btn"><span class="btnText">Upload</span></button>
+      <div class="status" id="status"></div>
+
+      <div class="bar">
+        <div class="count">Total drawings collected: <span id="count">—</span></div>
       </div>
     </div>
 
-    <div class="card">
-      <form id="uploadForm" novalidate>
-        <label>Your Name *</label>
-        <input id="name" name="name" type="text" required />
-
-        <label>Your Email *</label>
-        <input id="email" name="email" type="email" required />
-
-        <label>Pony Name *</label>
-        <input id="title" name="title" type="text" required />
-
-        <label>Upload File *</label>
-        <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
-        <div class="muted">File size must be between <b>1 MB</b> and <b>5 MB</b>. Recommended: <b>150–300 ppi</b> (Letter size scans are typically &gt; 1 MB).</div>
-
-        <label>Description (optional)</label>
-        <textarea id="description" name="description" placeholder="Tell us about your pony…"></textarea>
-
-        <div class="checkbox">
-          <input id="consent" name="consent" type="checkbox" value="true" required />
-          <label for="consent" style="margin:0;font-weight:400;">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
-        </div>
-
-        <div class="flex" style="margin-top:12px">
-          <button id="btn" class="btn" type="submit">Upload</button>
-          <span id="status" class="muted"></span>
-        </div>
-      </form>
-    </div>
-
-    <div class="card">
-      <h2 style="margin:0 0 8px">Latest submissions</h2>
-      <ul id="list" class="list"><li class="muted">Loading…</li></ul>
+    <div class="cardish galleryWrap">
+      <div class="gTitle">Gallery</div>
+      <div id="galleryError"></div>
+      <div id="gallery" class="grid"></div>
     </div>
   </div>
 
 <script>
-  // CHANGE THIS to your current /exec URL
+  // ==== CONFIG: replace with your latest /exec URL ====
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
+  // small helpers
   const $ = id => document.getElementById(id);
+  const S = v => (v === null || v === undefined) ? '' : String(v);
 
-  /* ---------- helpers ---------- */
+  function setBusy(busy){
+    const btn = $('btn');
+    const t = btn.querySelector('.btnText');
+    if (busy){
+      btn.setAttribute('disabled','disabled');
+      t.innerHTML = '<span class="spinner"></span> Uploading…';
+    } else{
+      btn.removeAttribute('disabled');
+      t.textContent = 'Upload';
+    }
+  }
+
   function toBase64(file){
-    return new Promise((res, rej)=>{
-      const r = new FileReader();
-      r.onload = () => res(String(r.result).split('base64,').pop());
-      r.onerror = () => rej(r.error || new Error('read error'));
-      r.readAsDataURL(file);
+    return new Promise((res,rej)=>{
+      const fr = new FileReader();
+      fr.onload = () => {
+        const s = String(fr.result||'');
+        const i = s.indexOf('base64,');
+        res(i>=0 ? s.slice(i+7) : s);
+      };
+      fr.onerror = () => rej(fr.error || new Error('read error'));
+      fr.readAsDataURL(file);
     });
   }
-  function fmtTime(ts){
-    try{
-      const d = new Date(ts);
-      return d.toLocaleString();
-    }catch{ return String(ts||''); }
+
+  async function fetchJSON(url, opts){
+    const r = await fetch(url, opts);
+    const text = await r.text();
+    try { return JSON.parse(text); } catch { throw new Error('Bad JSON: '+text.slice(0,200)); }
   }
 
   async function refreshCount(){
     try{
-      const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
-      const j = await r.json();
-      if (j.ok){
-        $('count').textContent = j.count ?? 0;
-        $('backendMeta').textContent = j.version ? `backend: ${j.version}` : '';
-      }
-    }catch{}
-  }
-
-  async function refreshList(){
-    const box = $('list');
-    box.innerHTML = '<li class="muted">Loading…</li>';
-    try{
-      const r = await fetch(SCRIPT_URL + '?action=list', {cache:'no-store'});
-      const j = await r.json();
-      if (!j.ok){ box.innerHTML = `<li class="err">Failed: ${j.error||'Unknown error'}</li>`; return; }
-      const items = Array.isArray(j.items) ? j.items : [];
-      if (items.length === 0){ box.innerHTML = '<li class="muted">No items yet.</li>'; return; }
-      box.innerHTML = '';
-      items.forEach(it=>{
-        const li = document.createElement('li');
-        li.className = 'item';
-        const title = (it.title || 'Untitled').toString();
-        const name  = (it.name  || '').toString();
-        const desc  = (it.description || '').toString(); // may be empty in old rows
-        const when  = fmtTime(it.timestamp);
-        const link  = it.fileId ? `${SCRIPT_URL}?action=img&id=${encodeURIComponent(it.fileId)}`
-                                : (it.directUrl || it.fileUrl || '#');
-        li.innerHTML = `
-          <h3>${title}</h3>
-          <div class="meta">${name ? `by <b>${name}</b> • ` : ''}${when}</div>
-          ${desc ? `<div style="margin:.4rem 0">${desc.replace(/</g,'&lt;')}</div>` : ''}
-          <div><a href="${link}" target="_blank" rel="noopener">Open file</a></div>
-        `;
-        box.appendChild(li);
-      });
+      const j = await fetchJSON(SCRIPT_URL + '?action=count&cache=' + Date.now());
+      $('count').textContent = j.ok ? (j.count ?? 0) : '—';
+      $('meta').textContent = j.ok ? `${j.version || ''} ${j.marker || ''}`.trim() : '';
     }catch(e){
-      box.innerHTML = `<li class="err">Error: ${e.message}</li>`;
+      $('count').textContent = '—';
     }
   }
 
-  /* ---------- upload flow (multipart first, base64 fallback) ---------- */
-  $('uploadForm').addEventListener('submit', async (ev)=>{
-    ev.preventDefault();
-    const btn = $('btn');
-    const st  = $('status');
-    const f   = $('file').files[0];
+  async function refreshGallery(){
+    const box = $('gallery'), errBox = $('galleryError');
+    errBox.textContent = '';
+    box.innerHTML = '<div class="muted" style="padding:8px;">Loading…</div>';
 
-    // basic validation
-    if (!f){ st.textContent = 'Error: No file selected'; st.className='err'; return; }
-    if (f.size < 1*1024*1024 || f.size > 5*1024*1024){
-      st.textContent = 'Error: File must be between 1MB and 5MB';
-      st.className='err'; return;
-    }
-    if (!$('consent').checked){
-      st.textContent = 'Please agree to the consent.'; st.className='err'; return;
-    }
-
-    btn.disabled = true; st.textContent = 'Uploading…'; st.className='muted';
-
-    // 1) try multipart (best for Apps Script)
+    let data;
     try{
-      const fd = new FormData();
-      fd.append('name', $('name').value.trim());
-      fd.append('email', $('email').value.trim());
-      fd.append('title', $('title').value.trim());
-      fd.append('description', $('description').value.trim());
-      fd.append('consent', $('consent').checked ? 'true' : 'false');
-      fd.append('file', f, f.name); // critical: field name must be 'file'
-
-      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
-      const j = await r.json();
-
-      if (j.ok){
-        st.innerHTML = `<span class="ok">Upload successful.</span>`;
-        ev.target.reset();
-        await refreshCount();
-        await refreshList();
-        btn.disabled = false;
+      data = await fetchJSON(`${SCRIPT_URL}?action=list&limit=50&cache=${Date.now()}`);
+      if (!data.ok) throw new Error(data.error || 'list failed');
+    }catch(e){
+      try{
+        data = await fetchJSON(`${SCRIPT_URL}?action=drive_list&limit=50&cache=${Date.now()}`);
+        if (!data.ok) throw new Error(data.error || 'drive_list failed');
+      }catch(e2){
+        box.innerHTML = '';
+        errBox.textContent = 'Failed to fetch';
+        console.error('gallery failed:', e, e2);
         return;
-      } else if (j.error && /no file/i.test(j.error)){
-        // fall through to base64 path
-      } else {
-        throw new Error(j.error || 'Upload failed');
       }
-    }catch(_){ /* fall back */ }
+    }
 
-    // 2) fallback: base64
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (!items.length){
+      box.innerHTML = '<div class="muted" style="padding:8px;">No items yet.</div>';
+      return;
+    }
+
+    box.innerHTML = '';
+    items.forEach(it=>{
+      const title = S(it.title).trim();
+      const name  = S(it.name).trim();
+      const desc  = S(it.description).trim();
+      const src   = S(it.imgUrl) || S(it.directUrl) || S(it.fileUrl);
+
+      const card = document.createElement('figure');
+      card.className='card';
+      card.innerHTML = `
+        <img loading="lazy"
+             src="${src}"
+             alt="${title || 'Artwork'}"
+             referrerpolicy="no-referrer"
+             onerror="this.onerror=null; this.src='${S(it.fileUrl)}'; this.style.objectFit='contain';">
+        <figcaption>
+          <div class="title">${title || 'Untitled'}</div>
+          ${name ? `<div class="by">by ${name}</div>` : ``}
+          ${desc ? `<div class="desc">${desc}</div>` : ``}
+        </figcaption>
+      `;
+      box.appendChild(card);
+    });
+  }
+
+  async function upload(){
+    const status = $('status');
+    status.textContent = '';
+    const name = $('name').value.trim();
+    const email= $('email').value.trim();
+    const title= $('title').value.trim();
+    const desc = $('description').value.trim();
+    const file = $('file').files[0];
+    const consent = $('consent').checked;
+
+    if (!name || !email || !title){ status.innerHTML = '<span class="err">Please fill in required fields.</span>'; return; }
+    if (!file){ status.innerHTML = '<span class="err">Please choose a file.</span>'; return; }
+    if (!consent){ status.innerHTML = '<span class="err">Please agree to the consent.</span>'; return; }
+
+    // size check 1–5 MB
+    const sizeMB = file.size/1024/1024;
+    if (sizeMB < 1 || sizeMB > 5){
+      status.innerHTML = '<span class="err">File size must be between 1 MB and 5 MB.</span>';
+      return;
+    }
+
+    setBusy(true);
     try{
-      const b64 = await toBase64(f);
-      const fd2 = new FormData();
-      fd2.append('name', $('name').value.trim());
-      fd2.append('email', $('email').value.trim());
-      fd2.append('title', $('title').value.trim());
-      fd2.append('description', $('description').value.trim());
-      fd2.append('consent', $('consent').checked ? 'true' : 'false');
-      fd2.append('filebase64', b64);
-      fd2.append('mimetype', f.type || 'application/octet-stream');
-      fd2.append('filename', f.name || 'upload.bin');
+      // 1) Try multipart
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('email', email);
+      fd.append('title', title);
+      fd.append('description', desc);
+      fd.append('consent', consent ? 'true' : 'false');
+      fd.append('file', file, file.name); // critical name
 
-      const r2 = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
-      const j2 = await r2.json();
+      let data;
+      try{
+        data = await fetchJSON(SCRIPT_URL, { method:'POST', body: fd });
+      }catch(e){
+        // network layer failed; try base64 path
+        data = { ok:false, error:String(e) };
+      }
 
-      if (j2.ok){
-        st.innerHTML = `<span class="ok">Upload successful.</span>`;
-        ev.target.reset();
+      // 2) If backend says "No file uploaded", use base64 fallback
+      if (!data.ok && data.error && /No file uploaded/i.test(data.error)){
+        const b64 = await toBase64(file);
+        const fd2 = new FormData();
+        fd2.append('name', name);
+        fd2.append('email', email);
+        fd2.append('title', title);
+        fd2.append('description', desc);
+        fd2.append('consent', consent ? 'true' : 'false');
+        fd2.append('filebase64', b64);
+        fd2.append('mimetype', file.type || 'application/octet-stream');
+        fd2.append('filename', file.name || 'upload.bin');
+        data = await fetchJSON(SCRIPT_URL, { method:'POST', body: fd2 });
+      }
+
+      if (data.ok){
+        status.innerHTML = `<span class="ok">Upload successful.</span>`;
+        // clear form
+        $('description').value = '';
+        $('file').value = '';
+        $('title').focus();
         await refreshCount();
-        await refreshList();
+        await refreshGallery();
       }else{
-        throw new Error(j2.error || 'Upload failed');
+        const diag = data.diag ? `<pre class="muted" style="white-space:pre-wrap;margin-top:6px;">${JSON.stringify(data.diag,null,2)}</pre>` : '';
+        status.innerHTML = `<span class="err">Upload failed: ${S(data.error)||'Unknown error'}</span>${diag}`;
       }
     }catch(err){
-      st.innerHTML = `<span class="err">Error: ${err.message}</span>`;
+      status.innerHTML = `<span class="err">Error: ${err.message}</span>`;
+      console.error(err);
     }finally{
-      btn.disabled = false;
+      setBusy(false);
     }
-  });
+  }
 
+  $('btn').addEventListener('click', upload);
   refreshCount();
-  refreshList();
+  refreshGallery();
 </script>
 </body>
 </html>
