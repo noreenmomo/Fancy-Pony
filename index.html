@@ -15,13 +15,15 @@
   h1{font-size:clamp(26px,3.8vw,36px);margin:0 0 10px}
   .muted{color:#6b7280}
   .wrap{display:grid;gap:18px;max-width:980px;margin:auto;padding:24px}
+  /* 表單卡片縮小為 70% 寬 */
+  .formShell{width:70%; min-width:320px; margin:auto}
   .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
   label{font-weight:600;display:block;margin:.5rem 0 .35rem}
   input[type="text"],input[type="email"],input[type="file"],textarea{
     width:100%;padding:.6rem .7rem;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#fff}
   textarea{resize:vertical}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media (max-width:720px){ .row{ grid-template-columns:1fr } }
+  /* 名稱/Email 改為上下排列 */
+  .row{display:grid;grid-template-columns:1fr;gap:14px}
   .checkbox{display:flex;gap:.55rem;align-items:flex-start;margin-top:.75rem}
   .checkbox input{margin-top:4px}
   .note{font-size:13px;color:#6b7280}
@@ -43,12 +45,12 @@
 <body>
   <div class="wrap">
 
-    <header>
+    <header class="formShell">
       <h1>Fancy Pony — Artwork Submission</h1>
       <div class="muted">Total drawings collected: <span id="total" class="counter">Loading…</span></div>
     </header>
 
-    <section class="card" id="formCard">
+    <section class="card formShell" id="formCard">
       <form id="ponyForm" novalidate>
         <div class="row">
           <div>
@@ -86,7 +88,7 @@
       </form>
     </section>
 
-    <section class="card" id="galleryCard">
+    <section class="card formShell" id="galleryCard">
       <h2 style="margin:0 0 8px">Gallery</h2>
       <div id="gallery" class="gallery" aria-live="polite"></div>
     </section>
@@ -94,7 +96,6 @@
   </div>
 
 <script>
-  // Web App /exec URL
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
   const $ = id => document.getElementById(id);
@@ -124,15 +125,12 @@
     }catch{ totalEl.textContent = 'Error'; }
   }
 
+  // 先取試算表；沒有的話 fallback 取 Drive 資料夾
   async function refreshGallery(scrollInto=false){
-    try{
-      const r = await fetch(SCRIPT_URL + '?action=list&limit=' + GALLERY_LIMIT, {cache:'no-store'});
-      const j = await r.json();
-      const box = $('gallery');
-      if (!j.ok || !Array.isArray(j.items)){ box.innerHTML = '<div class="muted">No items yet.</div>'; return; }
-      const imgs = j.items.filter(it => (it.mimeType||'').startsWith('image/'));
-      if (!imgs.length){ box.innerHTML = '<div class="muted">No images yet.</div>'; return; }
-      box.innerHTML = imgs.map(it => {
+    const box = $('gallery');
+    async function render(items){
+      if (!items || !items.length){ box.innerHTML = '<div class="muted">No items yet.</div>'; return; }
+      box.innerHTML = items.map(it => {
         const cap = `${(it.title||'Untitled')} by ${(it.name||'Anonymous')}`;
         const url = bust(it.fileUrl || '');
         return `
@@ -143,11 +141,22 @@
             <figcaption class="cap" title="${cap}">${cap}</figcaption>
           </figure>`;
       }).join('');
-      if (scrollInto) {
-        document.getElementById('galleryCard').scrollIntoView({behavior:'smooth', block:'start'});
+      if (scrollInto) document.getElementById('galleryCard').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+    try{
+      const r = await fetch(SCRIPT_URL + '?action=list&limit=' + GALLERY_LIMIT, {cache:'no-store'});
+      const j = await r.json();
+      if (j.ok && Array.isArray(j.items) && j.items.length){
+        const imgs = j.items.filter(x => (x.mimeType||'').startsWith('image/'));
+        return render(imgs);
       }
+      // fallback：直接向後端要 drive_list
+      const r2 = await fetch(SCRIPT_URL + '?action=drive_list&limit=' + GALLERY_LIMIT, {cache:'no-store'});
+      const j2 = await r2.json();
+      if (j2.ok && Array.isArray(j2.items)) return render(j2.items);
+      box.innerHTML = '<div class="muted">No items yet.</div>';
     }catch(e){
-      $('gallery').innerHTML = '<div class="muted">Failed to load gallery.</div>';
+      box.innerHTML = '<div class="muted">Failed to load gallery.</div>';
       console.error(e);
     }
   }
@@ -155,10 +164,7 @@
   function toBase64(file){
     return new Promise((resolve,reject)=>{
       const fr = new FileReader();
-      fr.onload = () => {
-        const s = String(fr.result||''), i = s.indexOf('base64,');
-        resolve(i>=0 ? s.slice(i+7) : s);
-      };
+      fr.onload = () => { const s = String(fr.result||''), i = s.indexOf('base64,'); resolve(i>=0 ? s.slice(i+7) : s); };
       fr.onerror = () => reject(fr.error || new Error('File read error'));
       fr.readAsDataURL(file);
     });
@@ -171,7 +177,7 @@
     fd.append('title', data.title);
     fd.append('description', data.desc || '');
     fd.append('consent', data.consent ? 'true' : 'false');
-    fd.append('file', data.file, data.file.name); // 關鍵：name="file"
+    fd.append('file', data.file, data.file.name); // 關鍵
     const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
     return r.json();
   }
@@ -214,7 +220,6 @@
         ok(`Upload successful! ${res.fileUrl ? `<a href="${res.fileUrl}" target="_blank" rel="noopener">Open</a>` : ''}`);
         e.target.reset();
         await refreshTotal();
-        // 立刻刷新圖庫（含新圖）並捲到圖庫
         await refreshGallery(true);
       }else{
         const diag = res.diag ? `<pre class="note" style="white-space:pre-wrap;margin-top:6px">${JSON.stringify(res.diag,null,2)}</pre>` : '';
@@ -225,7 +230,6 @@
     }finally{ setBusy(false); }
   });
 
-  // 初始載入
   refreshTotal();
   refreshGallery();
 </script>
