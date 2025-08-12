@@ -6,26 +6,20 @@
 <title>Fancy Pony — Artwork Submission</title>
 <style>
   :root { color-scheme: light; --brand:#2563eb; --ok:#16a34a; --err:#b91c1c; }
-
-  /* ===== 全頁小 Pony 圖案平鋪背景 ===== */
   html, body { margin:0; padding:0; height:100%; }
   body{
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    background-color:#fafafa;
-    background-image:url('https://i.postimg.cc/jSmGH445/Pony.png');
-    background-repeat:repeat;      /* 水平 + 垂直都重複 */
-    background-size:auto;          /* 使用原圖尺寸，不縮放 */
-    background-position:top left;  /* 從左上開始平鋪 */
+    background:#fafafa url('https://i.postimg.cc/jSmGH445/Pony.png') repeat top left;
     color:#111;
   }
-
   h1{font-size:clamp(26px,3.8vw,36px);margin:0 0 10px}
   .muted{color:#6b7280}
   .wrap{display:grid;gap:18px;max-width:980px;margin:auto;padding:24px}
   .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
   label{font-weight:600;display:block;margin:.5rem 0 .35rem}
-  input[type="text"],input[type="email"],input[type="file"]{width:100%;padding:.6rem .7rem;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#fff}
-  textarea{width:100%;padding:.6rem .7rem;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#fff}
+  input[type="text"],input[type="email"],input[type="file"],textarea{
+    width:100%;padding:.6rem .7rem;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#fff}
+  textarea{resize:vertical}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media (max-width:720px){ .row{ grid-template-columns:1fr } }
   .checkbox{display:flex;gap:.55rem;align-items:flex-start;margin-top:.75rem}
@@ -54,7 +48,7 @@
       <div class="muted">Total drawings collected: <span id="total" class="counter">Loading…</span></div>
     </header>
 
-    <section class="card">
+    <section class="card" id="formCard">
       <form id="ponyForm" novalidate>
         <div class="row">
           <div>
@@ -92,7 +86,7 @@
       </form>
     </section>
 
-    <section class="card">
+    <section class="card" id="galleryCard">
       <h2 style="margin:0 0 8px">Gallery</h2>
       <div id="gallery" class="gallery" aria-live="polite"></div>
     </section>
@@ -100,15 +94,14 @@
   </div>
 
 <script>
-  // 你的 Web App /exec URL
+  // Web App /exec URL
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
   const $ = id => document.getElementById(id);
   const totalEl = $('total'), statusEl = $('status'), btn = $('submitBtn');
+  const MIN = 1 * 1024 * 1024, MAX = 5 * 1024 * 1024, GALLERY_LIMIT = 24;
 
-  const MIN = 1 * 1024 * 1024;   // 1 MB
-  const MAX = 5 * 1024 * 1024;   // 5 MB
-  const GALLERY_LIMIT = 24;
+  const bust = url => url ? url + (url.includes('?') ? '&' : '?') + 't=' + Date.now() : '';
 
   function setBusy(on){
     if (on){
@@ -126,25 +119,22 @@
     try{
       const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
       const j = await r.json();
-      if (j.ok){
-        totalEl.textContent = j.count ?? 0;
-        totalEl.classList.add('hl'); setTimeout(()=>totalEl.classList.remove('hl'), 900);
-      } else totalEl.textContent = 'Error';
+      if (j.ok){ totalEl.textContent = j.count ?? 0; totalEl.classList.add('hl'); setTimeout(()=>totalEl.classList.remove('hl'), 900); }
+      else totalEl.textContent = 'Error';
     }catch{ totalEl.textContent = 'Error'; }
   }
 
-  async function refreshGallery(){
+  async function refreshGallery(scrollInto=false){
     try{
       const r = await fetch(SCRIPT_URL + '?action=list&limit=' + GALLERY_LIMIT, {cache:'no-store'});
       const j = await r.json();
       const box = $('gallery');
       if (!j.ok || !Array.isArray(j.items)){ box.innerHTML = '<div class="muted">No items yet.</div>'; return; }
-      // 只顯示圖片類型
       const imgs = j.items.filter(it => (it.mimeType||'').startsWith('image/'));
       if (!imgs.length){ box.innerHTML = '<div class="muted">No images yet.</div>'; return; }
       box.innerHTML = imgs.map(it => {
         const cap = `${(it.title||'Untitled')} by ${(it.name||'Anonymous')}`;
-        const url = it.fileUrl || '';
+        const url = bust(it.fileUrl || '');
         return `
           <figure class="thumb">
             <a href="${url}" target="_blank" rel="noopener">
@@ -153,6 +143,9 @@
             <figcaption class="cap" title="${cap}">${cap}</figcaption>
           </figure>`;
       }).join('');
+      if (scrollInto) {
+        document.getElementById('galleryCard').scrollIntoView({behavior:'smooth', block:'start'});
+      }
     }catch(e){
       $('gallery').innerHTML = '<div class="muted">Failed to load gallery.</div>';
       console.error(e);
@@ -163,9 +156,8 @@
     return new Promise((resolve,reject)=>{
       const fr = new FileReader();
       fr.onload = () => {
-        const s = String(fr.result||'');
-        const i = s.indexOf('base64,');
-        resolve(i >= 0 ? s.slice(i+7) : s);
+        const s = String(fr.result||''), i = s.indexOf('base64,');
+        resolve(i>=0 ? s.slice(i+7) : s);
       };
       fr.onerror = () => reject(fr.error || new Error('File read error'));
       fr.readAsDataURL(file);
@@ -183,7 +175,6 @@
     const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
     return r.json();
   }
-
   async function uploadBase64(data){
     const b64 = await toBase64(data.file);
     const fd = new FormData();
@@ -210,40 +201,28 @@
     const consent = $('consent').checked;
     const file = $('file').files[0];
 
-    if (!name || !email || !title || !consent || !file){
-      err('Please complete all required fields and consent.');
-      return;
-    }
-    if (file.size < MIN || file.size > MAX){
-      err('File must be between 1 MB and 5 MB.');
-      return;
-    }
+    if (!name || !email || !title || !consent || !file){ err('Please complete all required fields and consent.'); return; }
+    if (file.size < MIN || file.size > MAX){ err('File must be between 1 MB and 5 MB.'); return; }
 
     setBusy(true);
     try{
-      // 先試 multipart
       let res = await uploadMultipart({name,email,title,desc,consent,file});
       if (!res.ok && String(res.error||'').toLowerCase().includes('no file uploaded')){
-        // 再走 base64 備援
         res = await uploadBase64({name,email,title,desc,consent,file});
       }
-
       if (res.ok){
-        const link = res.fileUrl ? ` <a href="${res.fileUrl}" target="_blank" rel="noopener">Open</a>` : '';
-        ok('Upload successful!' + link);
+        ok(`Upload successful! ${res.fileUrl ? `<a href="${res.fileUrl}" target="_blank" rel="noopener">Open</a>` : ''}`);
         e.target.reset();
         await refreshTotal();
-        await refreshGallery();
-      } else {
+        // 立刻刷新圖庫（含新圖）並捲到圖庫
+        await refreshGallery(true);
+      }else{
         const diag = res.diag ? `<pre class="note" style="white-space:pre-wrap;margin-top:6px">${JSON.stringify(res.diag,null,2)}</pre>` : '';
         err('Upload failed: ' + (res.error || 'Unknown error') + diag);
       }
     }catch(ex){
-      err(ex.message || 'Network error');
-      console.error(ex);
-    }finally{
-      setBusy(false);
-    }
+      err(ex.message || 'Network error'); console.error(ex);
+    }finally{ setBusy(false); }
   });
 
   // 初始載入
