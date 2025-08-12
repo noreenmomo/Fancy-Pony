@@ -9,15 +9,18 @@
   h1 { color: #333; }
   form { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
   label { display: block; margin-top: .5rem; }
-  /* Only widen text/email/file/textarea – DO NOT affect checkboxes */
   input[type="text"], input[type="email"], input[type="file"], textarea {
     width: 100%; padding: .5rem; margin-top: .2rem; border: 1px solid #ccc; border-radius: 4px;
   }
   input[type="checkbox"] { width: auto; margin-right: .5rem; vertical-align: middle; }
-  button { margin-top: 1rem; padding: .6rem 1rem; background: #4CAF50; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+  button { margin-top: 1rem; padding: .6rem 1rem; background: #4CAF50; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
   button:hover { background: #45a049; }
   #status { margin-top: 1rem; }
   .success { padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; display:inline-block; margin-bottom:6px; background:#f0fff0; }
+  .highlight {
+    background-color: #ffec99;
+    transition: background-color 1s ease;
+  }
 </style>
 </head>
 <body>
@@ -52,18 +55,14 @@
   </form>
 
   <div id="status"></div>
-  <div style="margin-top: .5rem;">
+  <div style="margin-top:.5rem;">
     <strong>Total submissions:</strong> <span id="count">Loading...</span>
-    <button id="refreshBtn" type="button">Refresh total</button>
   </div>
 
 <script>
-  // -------- SET THIS to your exact Web App /exec URL --------
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsLbUN-3aqmAWSyuxAkmsmUvi77DfE8lQgkIKSJzGEdR4MkSpH3JL1OrAgyZ4aM_M_/exec'.trim();
-
+  const SCRIPT_URL = 'YOUR_EXEC_URL_HERE'.trim();
   const $ = (id) => document.getElementById(id);
 
-  // Convert File → base64 (strip data URL prefix)
   function fileToBase64(file){
     return new Promise((resolve, reject)=>{
       const fr = new FileReader();
@@ -81,12 +80,18 @@
     try{
       const r = await fetch(SCRIPT_URL + '?action=count', { cache: 'no-store' });
       const j = await r.json();
-      $('count').textContent = j.ok ? (j.count ?? 0) : 'Error';
+      if (j.ok) {
+        const countEl = $('count');
+        countEl.textContent = j.count ?? 0;
+        countEl.classList.add('highlight');
+        setTimeout(() => countEl.classList.remove('highlight'), 1000);
+      } else {
+        $('count').textContent = 'Error';
+      }
     }catch{
       $('count').textContent = 'Error';
     }
   }
-  $('refreshBtn').addEventListener('click', refreshCount);
 
   $('uploadForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -97,7 +102,6 @@
     if (!file){ status.textContent = 'Please choose a file.'; return; }
 
     try{
-      // Build FormData with text fields + base64 file fields
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
       fd.append('class', $('class').value.trim());
@@ -112,15 +116,14 @@
       fd.append('filename', file.name || 'upload.bin');
 
       status.textContent = 'Uploading…';
-      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd }); // no custom headers
+      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
       const txt = await r.text();
       const data = JSON.parse(txt);
 
       if (data.ok){
-        const userEmail = $('email').value.trim();
-        const line = userEmail
+        const line = data.emailSent
           ? 'You have successfully uploaded. A confirmation email has been sent.'
-          : 'You have successfully uploaded.';
+          : 'You have successfully uploaded.' + (data.emailError ? ' (Email could not be sent.)' : '');
         status.innerHTML =
           `<div class="success">${line}</div>
            <div>File link: <a target="_blank" rel="noopener" href="${data.fileUrl}">Open</a></div>`;
@@ -135,7 +138,6 @@
     }
   });
 
-  // Initial load
   refreshCount();
 </script>
 </body>
