@@ -57,23 +57,10 @@
   </div>
 
 <script>
-  // ---- 更新成你最新部署的 Web App /exec URL ----
+  // ← 換成你最新部署的 Web App /exec URL
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
   const $ = (id) => document.getElementById(id);
-
-  function fileToBase64(file){
-    return new Promise((resolve, reject)=>{
-      const fr = new FileReader();
-      fr.onload = () => {
-        const s = String(fr.result || '');
-        const i = s.indexOf('base64,');
-        resolve(i >= 0 ? s.slice(i + 7) : s);
-      };
-      fr.onerror = () => reject(fr.error || new Error('File read error'));
-      fr.readAsDataURL(file);
-    });
-  }
 
   async function refreshCount(){
     const el = $('count');
@@ -81,11 +68,11 @@
       const r = await fetch(SCRIPT_URL + '?action=count', { cache: 'no-store' });
       const txt = await r.text();
       const j = JSON.parse(txt);
-      console.log('count check =>', j); // 顯示後端 version/marker
+      console.log('count check =>', j);
       if (j.ok) {
         el.textContent = j.count ?? 0;
         el.classList.add('highlight');
-        setTimeout(()=>el.classList.remove('highlight'), 1000);
+        setTimeout(()=>el.classList.remove('highlight'), 900);
       } else {
         el.textContent = 'Error';
         console.error('count error =>', j.error);
@@ -105,6 +92,7 @@
     if (!file){ status.textContent = 'Please choose a file.'; return; }
 
     try{
+      // ★ 使用 multipart/form-data（最穩）
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
       fd.append('class', $('class').value.trim());
@@ -112,17 +100,14 @@
       fd.append('description', $('description').value.trim());
       fd.append('email', $('email').value.trim());
       fd.append('consent', $('consent').checked ? 'true' : 'false');
-
-      const b64 = await fileToBase64(file);
-      fd.append('filebase64', b64);
-      fd.append('mimetype', file.type || 'application/octet-stream');
-      fd.append('filename', file.name || 'upload.bin');
+      fd.append('file', file, file.name); // ← 這個名稱一定要是 'file'
 
       status.textContent = 'Uploading…';
-      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd }); // 不要自訂 headers
       const txt = await r.text();
+      console.log('raw response:', txt);
       const data = JSON.parse(txt);
-      console.log('server response:', data); // 這裡要看到 emailSent / marker
+      console.log('server response:', data);
 
       if (data.ok){
         const line = data.emailSent
@@ -143,6 +128,7 @@
     }
   });
 
+  // init
   refreshCount();
 </script>
 </body>
