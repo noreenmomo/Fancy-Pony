@@ -1,9 +1,15 @@
 <!doctype html>
-<html lang="en">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Fancy Pony — Minimal Upload</title>
+<title>Fancy Pony — Direct Form Upload</title>
+<form method="post"
+      enctype="multipart/form-data"
+      action="https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec">
+  <label>Your Name <input name="name" required></label><br><br>
+  <label>Choose File (JPG/PNG/PDF)
+    <input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required>
+  </label><br><br>
+  <button type="submit">Submit</button>
+</form>
 <style>
   :root { color-scheme: light; }
   body { font-family: system-ui, Arial, sans-serif; margin: 24px; background:#fafafa; }
