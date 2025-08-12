@@ -194,9 +194,9 @@ async function refreshGallery(){
 
     box.innerHTML = '';
     items.forEach(it => {
-      const src = it.fileId
-        ? `${SCRIPT_URL}?action=img&id=${encodeURIComponent(it.fileId)}`
-        : (it.directUrl || it.fileUrl || '');
+      const src = it.imgUrl || (it.fileId
+  ? `${SCRIPT_URL}?action=img&id=${encodeURIComponent(it.fileId)}`
+  : it.directUrl || it.fileUrl);
 
       const title = (it.title || '').trim();
       const name  = (it.name  || '').trim();
