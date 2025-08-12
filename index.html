@@ -9,6 +9,7 @@
   h1 { color: #333; }
   form { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
   label { display: block; margin-top: .5rem; }
+  /* widen only text/email/file/textarea; don't affect checkboxes */
   input[type="text"], input[type="email"], input[type="file"], textarea {
     width: 100%; padding: .5rem; margin-top: .2rem; border: 1px solid #ccc; border-radius: 4px;
   }
@@ -17,10 +18,7 @@
   button:hover { background: #45a049; }
   #status { margin-top: 1rem; }
   .success { padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; display:inline-block; margin-bottom:6px; background:#f0fff0; }
-  .highlight {
-    background-color: #ffec99;
-    transition: background-color 1s ease;
-  }
+  .highlight { background:#ffec99; transition: background-color 1s ease; }
 </style>
 </head>
 <body>
@@ -60,9 +58,12 @@
   </div>
 
 <script>
+  // ---- SET THIS to your exact Web App /exec URL ----
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsLbUN-3aqmAWSyuxAkmsmUvi77DfE8lQgkIKSJzGEdR4MkSpH3JL1OrAgyZ4aM_M_/exec'.trim();
+
   const $ = (id) => document.getElementById(id);
 
+  // File → base64 (strip "data:*;base64," prefix)
   function fileToBase64(file){
     return new Promise((resolve, reject)=>{
       const fr = new FileReader();
@@ -77,19 +78,23 @@
   }
 
   async function refreshCount(){
+    const el = $('count');
     try{
       const r = await fetch(SCRIPT_URL + '?action=count', { cache: 'no-store' });
-      const j = await r.json();
+      const txt = await r.text();
+      // console.log('count raw =>', txt); // uncomment for debugging
+      const j = JSON.parse(txt);
       if (j.ok) {
-        const countEl = $('count');
-        countEl.textContent = j.count ?? 0;
-        countEl.classList.add('highlight');
-        setTimeout(() => countEl.classList.remove('highlight'), 1000);
+        el.textContent = j.count ?? 0;
+        el.classList.add('highlight');
+        setTimeout(()=>el.classList.remove('highlight'), 1000);
       } else {
-        $('count').textContent = 'Error';
+        el.textContent = 'Error';
+        console.error('count error =>', j.error);
       }
-    }catch{
-      $('count').textContent = 'Error';
+    }catch(e){
+      el.textContent = 'Error';
+      console.error('count fetch failed =>', e);
     }
   }
 
@@ -102,6 +107,7 @@
     if (!file){ status.textContent = 'Please choose a file.'; return; }
 
     try{
+      // Build FormData with text fields + base64 file fields
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
       fd.append('class', $('class').value.trim());
@@ -116,9 +122,10 @@
       fd.append('filename', file.name || 'upload.bin');
 
       status.textContent = 'Uploading…';
-      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd }); // no custom headers
       const txt = await r.text();
       const data = JSON.parse(txt);
+      console.log('server response:', data);
 
       if (data.ok){
         const line = data.emailSent
@@ -138,6 +145,7 @@
     }
   });
 
+  // initial load
   refreshCount();
 </script>
 </body>
