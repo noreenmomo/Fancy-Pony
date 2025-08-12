@@ -1,75 +1,217 @@
 <!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<title>Fancy Pony — Base64 Test</title>
-<h2>Fancy Pony — Base64 Upload Test</h2>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fancy Pony – Artwork Submission</title>
+<style>
+  :root { --bg:#fafafa; --card:#fff; --text:#111; --muted:#6b7280; --ok:#16a34a; --err:#b91c1c; --brand:#2563eb;}
+  body{margin:24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  h1{font-size:clamp(24px,4vw,36px);margin:.25rem 0 1rem}
+  .wrap{max-width:980px;margin-inline:auto}
+  .card{background:var(--card);border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:16px 18px}
+  label{font-weight:600;display:block;margin:.5rem 0 .25rem}
+  input[type="text"],input[type="email"],input[type="file"],textarea{
+    width:100%;padding:.65rem .7rem;border:1px solid #d1d5db;border-radius:8px;font-size:16px;background:#f8fafc}
+  .help{color:var(--muted);font-size:.9rem;margin-top:.25rem}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:720px){.row{grid-template-columns:1fr}}
+  .consent{display:flex;gap:.6rem;align-items:flex-start;margin:.6rem 0}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:10px;padding:.75rem 1.1rem;font-weight:700;cursor:pointer}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+  .status{margin:.75rem 0}
+  .ok{background:#ecfdf5;border:1px solid #86efac;color:#065f46;padding:.6rem .75rem;border-radius:10px;display:inline-block}
+  .err{background:#fef2f2;border:1px solid #fecaca;color:var(--err);padding:.6rem .75rem;border-radius:10px;display:inline-block}
+  .count{font-weight:700}
+  /* spinner in button */
+  .spinner{inline-size:1em;block-size:1em;border:2px solid #fff;border-right-color:transparent;border-radius:50%;
+           display:inline-block;vertical-align:-.2em;animation:spin .8s linear infinite;margin-right:.5rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* Gallery */
+  .gallery{margin-top:18px;display:grid;gap:12px;grid-template-columns:repeat( auto-fill, minmax(180px,1fr) );}
+  figure{margin:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  figure img{aspect-ratio:1/1;width:100%;object-fit:cover;background:#f3f4f6}
+  figcaption{padding:.55rem .7rem;font-size:.85rem;color:#374151;border-top:1px solid #e5e7eb}
+  .muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fancy Pony – Artwork Submission</h1>
 
-<form id="f">
-  <div><label>Name <input name="name" id="name" required></label></div>
-  <div><label>Email <input name="email" id="email" type="email" required></label></div>
-  <div><label>Pony Name <input name="title" id="title" required></label></div>
-  <div><label>Consent <input type="checkbox" id="consent" checked></label></div>
-  <div><label>File <input type="file" id="file" accept=".jpg,.jpeg,.png,.pdf" required></label></div>
-  <button>Upload (base64 only)</button>
-</form>
+  <p class="muted">
+    Total drawings collected: <span id="total" class="count">…</span>
+  </p>
 
-<pre id="out" style="background:#111;color:#0f0;padding:10px;white-space:pre-wrap"></pre>
+  <div class="card" style="margin-bottom:18px">
+    <form id="ponyForm" novalidate>
+      <div class="row">
+        <div>
+          <label for="name">Your Name *</label>
+          <input id="name" type="text" required>
+        </div>
+        <div>
+          <label for="email">Your Email *</label>
+          <input id="email" type="email" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="title">Pony Name *</label>
+          <input id="title" type="text" required>
+        </div>
+        <div>
+          <label for="file">Upload File *</label>
+          <input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+          <div class="help">File size must be between <b>1 MB</b> and <b>3 MB</b>. Recommended: 150–300 ppi, letter size (should be &gt;1 MB).</div>
+        </div>
+      </div>
+
+      <label for="desc">Description (optional)</label>
+      <textarea id="desc" rows="3" placeholder="Tell us about your pony…"></textarea>
+
+      <div class="consent">
+        <input id="consent" type="checkbox" required>
+        <label for="consent" style="font-weight:500">
+          I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.
+        </label>
+      </div>
+
+      <button id="submitBtn" class="btn" type="submit">Upload</button>
+      <div id="status" class="status"></div>
+    </form>
+  </div>
+
+  <h2 style="margin:.5rem 0">Gallery</h2>
+  <div id="gallery" class="gallery"></div>
+</div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec'; // <-- replace with your /exec
+  // UPDATE this if you redeploy:
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
-const out = document.getElementById('out');
-function log(x){ out.textContent += (typeof x==='string'? x : JSON.stringify(x,null,2)) + '\n'; }
+  const $ = id => document.getElementById(id);
+  const btn = $('submitBtn'), statusEl = $('status'), totalEl = $('total'), galleryEl = $('gallery');
 
-document.getElementById('f').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  out.textContent = '';
+  // ---------- helpers ----------
+  function setBusy(isBusy){
+    if(isBusy){
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Uploading…';
+    }else{
+      btn.disabled = false;
+      btn.textContent = 'Upload';
+    }
+  }
 
-  const fileEl = document.getElementById('file');
-  const file = fileEl.files[0];
-  if (!file) return log('Pick a file.');
+  function humanErr(msg){ statusEl.innerHTML = `<span class="err">${msg}</span>`; }
+  function humanOk(msg){ statusEl.innerHTML = `<span class="ok">${msg}</span>`; }
 
-  // Convert to base64 (no multipart at all)
-  const b64 = await new Promise((res, rej)=>{
-    const fr = new FileReader();
-    fr.onload = () => {
-      const s = String(fr.result||'');
-      const i = s.indexOf('base64,');
-      res(i>=0 ? s.slice(i+7) : s);
-    };
-    fr.onerror = () => rej(fr.error || new Error('read error'));
-    fr.readAsDataURL(file);
+  function toBase64(file){
+    return new Promise((resolve,reject)=>{
+      const fr = new FileReader();
+      fr.onload = () => {
+        const s = String(fr.result||''); const i = s.indexOf('base64,');
+        resolve(i>=0 ? s.slice(i+7) : s);
+      };
+      fr.onerror = () => reject(fr.error||new Error('Read error'));
+      fr.readAsDataURL(file);
+    });
+  }
+
+  async function refreshCount(){
+    try{
+      const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
+      const j = await r.json();
+      totalEl.textContent = j && j.ok ? (j.count ?? 0) : '—';
+    }catch{ totalEl.textContent = '—'; }
+  }
+
+  async function refreshGallery(){
+    try{
+      const r = await fetch(SCRIPT_URL + '?action=list', {cache:'no-store'});
+      const j = await r.json();
+      if(!(j && j.ok && Array.isArray(j.items))) return;
+      galleryEl.innerHTML = '';
+      j.items.forEach(it=>{
+        if(!it.fileUrl) return;
+        const name = (it.name || '').trim();
+        const title = (it.title || '').trim();
+        const cap = [title && `<b>${escapeHTML(title)}</b>`, name && `by ${escapeHTML(name)}`].filter(Boolean).join(' ');
+        const fig = document.createElement('figure');
+        fig.innerHTML = `
+          <img loading="lazy" src="${it.fileUrl.replace('view?usp=drivesdk','preview')}" alt="${escapeHTML(cap || 'Pony')}">
+          <figcaption>${cap || '&nbsp;'}</figcaption>`;
+        galleryEl.appendChild(fig);
+      });
+    }catch(e){
+      // silent
+    }
+  }
+
+  function escapeHTML(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  // ---------- submit ----------
+  $('ponyForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    statusEl.textContent = '';
+
+    const name = $('name').value.trim();
+    const email = $('email').value.trim();
+    const title = $('title').value.trim();
+    const desc  = $('desc').value.trim();
+    const consent = $('consent').checked;
+    const file = $('file').files[0];
+
+    if(!name || !email || !title || !file || !consent){
+      return humanErr('Please complete all required fields and check the consent box.');
+    }
+
+    // size check 1–3 MB
+    const min = 1 * 1024 * 1024, max = 3 * 1024 * 1024;
+    if(file.size < min || file.size > max){
+      return humanErr('File size must be between 1MB and 3MB.');
+    }
+
+    try{
+      setBusy(true);
+
+      // Use base64 (most reliable across hosts)
+      const b64 = await toBase64(file);
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('email', email);
+      fd.append('title', title);
+      fd.append('description', desc);
+      fd.append('consent', consent ? 'true' : 'false');
+      fd.append('filebase64', b64);
+      fd.append('mimetype', file.type || 'application/octet-stream');
+      fd.append('filename', file.name || 'upload.bin');
+
+      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+      const txt = await r.text();
+      let data = null; try{ data = JSON.parse(txt); }catch{}
+      if(data && data.ok){
+        humanOk('Upload successful!');
+        e.target.reset();
+        $('name').focus();
+        await refreshCount();
+        await refreshGallery();
+      }else{
+        humanErr('Upload failed. ' + (data?.error || 'Please try again.'));
+        console.error('server:', data || txt);
+      }
+    }catch(err){
+      humanErr('Network error: ' + err.message);
+    }finally{
+      setBusy(false);
+    }
   });
 
-  const fd = new FormData();
-  fd.append('name',   document.getElementById('name').value.trim());
-  fd.append('email',  document.getElementById('email').value.trim());
-  fd.append('title',  document.getElementById('title').value.trim());
-  fd.append('consent', document.getElementById('consent').checked ? 'true' : 'false');
-  // base64 trio (what your backend already supports)
-  fd.append('filebase64', b64);
-  fd.append('mimetype', file.type || 'application/octet-stream');
-  fd.append('filename', file.name || 'upload.bin');
-
-  // Debug: show what keys we’re actually sending
-  const keys = [];
-  for (const [k] of fd.entries()) keys.push(k);
-  log('Sending fields: ' + keys.join(', '));
-
-  try{
-    const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
-    const txt = await r.text();
-    log('Raw response:');
-    log(txt);
-    let data; try { data = JSON.parse(txt); } catch {}
-    if (data && data.ok){
-      log('✅ Upload OK');
-      log(data);
-    } else {
-      log('❌ Upload failed');
-      if (data) log(data);
-    }
-  }catch(err){
-    log('Network error: ' + err.message);
-  }
-});
+  // init
+  refreshCount();
+  refreshGallery();
 </script>
+</body>
+</html>
