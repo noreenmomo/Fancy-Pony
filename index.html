@@ -1,202 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Fancy Pony Drawing Upload</title>
-<style>
-  body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
-  h1 { text-align: center; }
-  .form-group { margin-bottom: 15px; }
-  label { display: block; font-weight: bold; margin-bottom: 5px; }
-  input[type="text"], input[type="email"], input[type="file"] { width: 100%; padding: 8px; }
-  button { padding: 10px 20px; font-size: 16px; }
-  button[disabled] { background: #ccc; cursor: not-allowed; }
-  .loading { display: inline-block; margin-left: 10px; }
-  .loading span { display: inline-block; width: 8px; height: 8px; margin: 0 2px; background: #333; border-radius: 50%; animation: bounce 0.6s infinite alternate; }
-  .loading span:nth-child(2) { animation-delay: 0.2s; }
-  .loading span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { to { transform: translateY(-8px); } }
-  .success { color: green; margin-top: 10px; font-weight: bold; }
-  .error { color: red; margin-top: 10px; font-weight: bold; }
-  .gallery { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; margin-top: 20px; }
-  .gallery img { width: 100%; height: auto; border: 1px solid #ccc; }
-  .count { font-weight: bold; margin-bottom: 20px; }
-</style>
-</head>
-<body>
+<!doctype html>
+<meta charset="utf-8">
+<title>Fancy Pony — Base64 Test</title>
+<h2>Fancy Pony — Base64 Upload Test</h2>
 
-<h1>Fancy Pony Drawing Upload</h1>
-<div class="count">Loading count...</div>
-
-<form id="uploadForm">
-  <div class="form-group">
-    <label for="name">Your Name *</label>
-    <input type="text" id="name" name="name" required>
-  </div>
-
-  <div class="form-group">
-    <label for="email">Your Email *</label>
-    <input type="email" id="email" name="email" required>
-  </div>
-
-  <div class="form-group">
-    <label for="title">Pony Name *</label>
-    <input type="text" id="title" name="title" required>
-  </div>
-
-  <div class="form-group">
-    <label for="file">Upload File *</label>
-    <input type="file" id="file" name="file" accept="image/*" required>
-    <small>File size must be between 1MB and 3MB. Recommended: 150-300 ppi, Letter size scan (should be >1MB)</small>
-  </div>
-
-  <div class="form-group">
-    <label>
-      <input type="checkbox" id="consent" name="consent" value="true" required>
-      I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.
-    </label>
-  </div>
-
-  <button type="submit" id="submitBtn">Upload</button>
-  <div class="loading" id="loading" style="display:none;">
-    <span></span><span></span><span></span>
-  </div>
+<form id="f">
+  <div><label>Name <input name="name" id="name" required></label></div>
+  <div><label>Email <input name="email" id="email" type="email" required></label></div>
+  <div><label>Pony Name <input name="title" id="title" required></label></div>
+  <div><label>Consent <input type="checkbox" id="consent" checked></label></div>
+  <div><label>File <input type="file" id="file" accept=".jpg,.jpeg,.png,.pdf" required></label></div>
+  <button>Upload (base64 only)</button>
 </form>
 
-<div class="success" id="successMsg" style="display:none;">Upload successful!</div>
-<div class="error" id="errorMsg" style="display:none;"></div>
-
-<h2>Gallery</h2>
-<div class="gallery" id="gallery"></div>
+<pre id="out" style="background:#111;color:#0f0;padding:10px;white-space:pre-wrap"></pre>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec"; // 這裡換成 Google Apps Script 部署的 /exec URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec'; // <-- replace with your /exec
 
-// 載入徵件數量
-async function loadCount(){
-  try {
-    const res = await fetch(`${SCRIPT_URL}?action=count`);
-    const data = await res.json();
-    document.querySelector('.count').textContent = `Total drawings collected: ${data.count || 0}`;
-  } catch(e) {
-    document.querySelector('.count').textContent = `Unable to load count`;
-  }
-}
+const out = document.getElementById('out');
+function log(x){ out.textContent += (typeof x==='string'? x : JSON.stringify(x,null,2)) + '\n'; }
 
-// 載入圖庫
-async function loadGallery(){
-  try {
-    const res = await fetch(`${SCRIPT_URL}?action=gallery`);
-    const data = await res.json();
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML = '';
-    if(data.items && data.items.length){
-      data.items.forEach(item => {
-        const img = document.createElement('img');
-        img.src = item.fileUrl;
-        img.alt = `${item.title} by ${item.name}`;
-        gallery.appendChild(img);
-      });
-    }
-  } catch(e) {
-    console.error(e);
-  }
-}
-
-document.getElementById('uploadForm').addEventListener('submit', async function(e){
+document.getElementById('f').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const fileInput = document.getElementById('file');
-  const file = fileInput.files[0];
-  const submitBtn = document.getElementById('submitBtn');
-  const loading = document.getElementById('loading');
-  const successMsg = document.getElementById('successMsg');
-  const errorMsg = document.getElementById('errorMsg');
+  out.textContent = '';
 
-  successMsg.style.display = 'none';
-  errorMsg.style.display = 'none';
+  const fileEl = document.getElementById('file');
+  const file = fileEl.files[0];
+  if (!file) return log('Pick a file.');
 
-  // 檔案大小檢查
-  if(!file){
-    errorMsg.textContent = 'Please select a file.';
-    errorMsg.style.display = 'block';
-    return;
-  }
-  if(file.size < 1*1024*1024 || file.size > 3*1024*1024){
-    errorMsg.textContent = 'File must be between 1MB and 3MB.';
-    errorMsg.style.display = 'block';
-    return;
-  }
-
-  submitBtn.disabled = true;
-  loading.style.display = 'inline-block';
-
-  // 嘗試 multipart/form-data
-  let useBase64 = false;
-  let formData = new FormData();
-  formData.append('name', document.getElementById('name').value);
-  formData.append('email', document.getElementById('email').value);
-  formData.append('title', document.getElementById('title').value);
-  formData.append('consent', document.getElementById('consent').checked ? 'true' : 'false');
-  formData.append('file', file, file.name);
-
-  try {
-    let res = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-    let data = await res.json();
-    if(!data.ok && data.error && data.error.includes('No file uploaded')){
-      useBase64 = true;
-    } else if(data.ok){
-      successMsg.style.display = 'block';
-      await loadCount();
-      await loadGallery();
-    } else {
-      throw new Error(data.error || 'Unknown error');
-    }
-  } catch(e) {
-    useBase64 = true;
-  }
-
-  // Base64 備援
-  if(useBase64){
-    const reader = new FileReader();
-    reader.onload = async function(){
-      const base64Data = reader.result.split(',')[1];
-      let fd = new FormData();
-      fd.append('name', document.getElementById('name').value);
-      fd.append('email', document.getElementById('email').value);
-      fd.append('title', document.getElementById('title').value);
-      fd.append('consent', document.getElementById('consent').checked ? 'true' : 'false');
-      fd.append('filebase64', base64Data);
-      fd.append('mimetype', file.type);
-      fd.append('filename', file.name);
-      try {
-        let res2 = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
-        let data2 = await res2.json();
-        if(data2.ok){
-          successMsg.style.display = 'block';
-          await loadCount();
-          await loadGallery();
-        } else {
-          throw new Error(data2.error || 'Upload failed');
-        }
-      } catch(err2) {
-        errorMsg.textContent = err2.message;
-        errorMsg.style.display = 'block';
-      } finally {
-        submitBtn.disabled = false;
-        loading.style.display = 'none';
-      }
+  // Convert to base64 (no multipart at all)
+  const b64 = await new Promise((res, rej)=>{
+    const fr = new FileReader();
+    fr.onload = () => {
+      const s = String(fr.result||'');
+      const i = s.indexOf('base64,');
+      res(i>=0 ? s.slice(i+7) : s);
     };
-    reader.readAsDataURL(file);
-  } else {
-    submitBtn.disabled = false;
-    loading.style.display = 'none';
+    fr.onerror = () => rej(fr.error || new Error('read error'));
+    fr.readAsDataURL(file);
+  });
+
+  const fd = new FormData();
+  fd.append('name',   document.getElementById('name').value.trim());
+  fd.append('email',  document.getElementById('email').value.trim());
+  fd.append('title',  document.getElementById('title').value.trim());
+  fd.append('consent', document.getElementById('consent').checked ? 'true' : 'false');
+  // base64 trio (what your backend already supports)
+  fd.append('filebase64', b64);
+  fd.append('mimetype', file.type || 'application/octet-stream');
+  fd.append('filename', file.name || 'upload.bin');
+
+  // Debug: show what keys we’re actually sending
+  const keys = [];
+  for (const [k] of fd.entries()) keys.push(k);
+  log('Sending fields: ' + keys.join(', '));
+
+  try{
+    const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+    const txt = await r.text();
+    log('Raw response:');
+    log(txt);
+    let data; try { data = JSON.parse(txt); } catch {}
+    if (data && data.ok){
+      log('✅ Upload OK');
+      log(data);
+    } else {
+      log('❌ Upload failed');
+      if (data) log(data);
+    }
+  }catch(err){
+    log('Network error: ' + err.message);
   }
 });
-
-// 初始化
-loadCount();
-loadGallery();
 </script>
-
-</body>
-</html>
