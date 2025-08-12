@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fancy Pony – Art Submission</title>
+
+<!-- MAINTAIN: Base styles for simple, readable form -->
 <style>
   body { font-family: Arial, sans-serif; margin: 2rem; background: #fafafa; }
   h1 { color: #333; }
@@ -20,10 +22,13 @@
   .highlight { background:#ffec99; transition: background-color 1s ease; }
 </style>
 </head>
+
 <body>
+  <!-- MAINTAIN: Page heading -->
   <h1>Fancy Pony – Art Submission</h1>
   <p>Please fill in the form below to submit your artwork. If you provide your email, we will send a confirmation message.</p>
 
+  <!-- MAINTAIN: Upload form -->
   <form id="uploadForm" novalidate>
     <label for="name">Your Name:</label>
     <input id="name" name="name" type="text" required />
@@ -51,17 +56,21 @@
     <button type="submit">Submit</button>
   </form>
 
-  <div id="status"></div>
+  <!-- MAINTAIN: Status + live count -->
+  <div id="status" aria-live="polite"></div>
   <div style="margin-top:.5rem;">
     <strong>Total submissions:</strong> <span id="count">Loading...</span>
   </div>
 
+<!-- MAINTAIN: Script - uploader with multipart first + base64 fallback -->
 <script>
   // ← 換成你最新部署的 Web App /exec URL
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
+  // MAINTAIN: Shorthand for element lookup
   const $ = (id) => document.getElementById(id);
 
+  // MAINTAIN: Display total count from doGet?action=count
   async function refreshCount(){
     const el = $('count');
     try{
@@ -83,6 +92,73 @@
     }
   }
 
+  // MAINTAIN: Try primary upload via multipart/form-data (Apps Script may parse e.files)
+  async function uploadMultipart(file){
+    const fd = new FormData();
+    fd.append('name', $('name').value.trim());
+    fd.append('class', $('class').value.trim());
+    fd.append('title', $('title').value.trim());
+    fd.append('description', $('description').value.trim());
+    fd.append('email', $('email').value.trim());
+    fd.append('consent', $('consent').checked ? 'true' : 'false');
+    fd.append('file', file, file.name); // 關鍵：欄位名必須為 "file"
+
+    const r = await fetch(SCRIPT_URL, { method:'POST', body: fd }); // 不要自訂 headers
+    const txt = await r.text();
+    console.log('raw response (multipart):', txt);
+    let data;
+    try { data = JSON.parse(txt); } catch { throw new Error('Invalid JSON from server (multipart)'); }
+    return data;
+  }
+
+  // MAINTAIN: Fallback upload via base64 + x-www-form-urlencoded (Apps Script 永遠可解析)
+  async function uploadBase64(file){
+    const fileAsBase64 = await new Promise((resolve, reject)=>{
+      const fr = new FileReader();
+      fr.onerror = () => reject(new Error('FileReader failed'));
+      fr.onload = () => {
+        const s = String(fr.result);
+        const base64 = s.includes('base64,') ? s.split('base64,')[1] : s;
+        resolve(base64);
+      };
+      fr.readAsDataURL(file);
+    });
+
+    const body = new URLSearchParams();
+    body.set('name', $('name').value.trim());
+    body.set('class', $('class').value.trim());
+    body.set('title', $('title').value.trim());
+    body.set('description', $('description').value.trim());
+    body.set('email', $('email').value.trim());
+    body.set('consent', $('consent').checked ? 'true' : 'false');
+    body.set('filebase64', fileAsBase64);
+    body.set('mimetype', file.type || 'application/octet-stream');
+    body.set('filename', file.name || 'upload.bin');
+
+    const r = await fetch(SCRIPT_URL, {
+      method:'POST',
+      headers: { 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: body.toString()
+    });
+    const txt = await r.text();
+    console.log('raw response (base64):', txt);
+    let data;
+    try { data = JSON.parse(txt); } catch { throw new Error('Invalid JSON from server (base64)'); }
+    return data;
+  }
+
+  // MAINTAIN: Render success UI
+  function renderSuccess(statusEl, data){
+    const line = data.emailSent
+      ? 'You have successfully uploaded. A confirmation email has been sent.'
+      : 'You have successfully uploaded.' + (data.emailError ? ' (Email could not be sent.)' : '');
+    statusEl.innerHTML =
+      `<div class="success">${line}</div>
+       <div>File link: <a target="_blank" rel="noopener" href="${data.fileUrl}">Open</a></div>
+       <div><small>Version: ${data.version || 'N/A'}, Marker: ${data.marker || 'N/A'}</small></div>`;
+  }
+
+  // MAINTAIN: Submit handler (multipart first, fallback to base64 if needed)
   $('uploadForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const status = $('status');
@@ -92,34 +168,21 @@
     if (!file){ status.textContent = 'Please choose a file.'; return; }
 
     try{
-      // ★ 使用 multipart/form-data（最穩）
-      const fd = new FormData();
-      fd.append('name', $('name').value.trim());
-      fd.append('class', $('class').value.trim());
-      fd.append('title', $('title').value.trim());
-      fd.append('description', $('description').value.trim());
-      fd.append('email', $('email').value.trim());
-      fd.append('consent', $('consent').checked ? 'true' : 'false');
-      fd.append('file', file, file.name); // ← 這個名稱一定要是 'file'
+      status.textContent = 'Uploading (multipart)…';
+      let data = await uploadMultipart(file);
 
-      status.textContent = 'Uploading…';
-      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd }); // 不要自訂 headers
-      const txt = await r.text();
-      console.log('raw response:', txt);
-      const data = JSON.parse(txt);
-      console.log('server response:', data);
+      // 若 multipart 回傳 ok:false（常見於 Apps Script 無法解析 e.files），則啟用後援
+      if (!data || data.ok === false) {
+        console.warn('Multipart failed or returned ok:false =>', data);
+        status.textContent = 'Retrying with a compatible uploader…';
+        data = await uploadBase64(file);
+      }
 
       if (data.ok){
-        const line = data.emailSent
-          ? 'You have successfully uploaded. A confirmation email has been sent.'
-          : 'You have successfully uploaded.' + (data.emailError ? ' (Email could not be sent.)' : '');
-        status.innerHTML =
-          `<div class="success">${line}</div>
-           <div>File link: <a target="_blank" rel="noopener" href="${data.fileUrl}">Open</a></div>
-           <div><small>Version: ${data.version || 'N/A'}, Marker: ${data.marker || 'N/A'}</small></div>`;
+        renderSuccess(status, data);
         e.target.reset();
         await refreshCount();
-      }else{
+      } else {
         status.textContent = 'Upload failed: ' + (data.error || 'Unknown error');
       }
     }catch(err){
@@ -128,7 +191,7 @@
     }
   });
 
-  // init
+  // MAINTAIN: Initialize live count
   refreshCount();
 </script>
 </body>
