@@ -5,317 +5,184 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fancy Pony — Artwork Submission</title>
 <style>
-  :root { color-scheme: light; }
-  /* repeating pony background */
   body{
     margin:0;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     background: url("https://i.postimg.cc/jSmGH445/Pony.png") repeat;
-    background-size: 220px 220px; /* tile size */
+    background-size: 220px 220px;
   }
-  .wrap{
-    max-width: 800px;   /* ~70% of typical laptop width */
-    margin: 32px auto;
-    padding: 16px;
-  }
-  .card{
-    background:#fff;
-    border-radius:12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.08);
-    padding: 18px;
-    backdrop-filter: blur(2px);
-  }
-  h1{
-    margin: 0 0 8px;
-    font-size: clamp(24px, 3.2vw, 34px);
-  }
+  .wrap{ max-width:800px; margin:32px auto; padding:16px; }
+  .card{ background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.08); padding:18px; }
+  h1{ margin:0 0 8px; font-size:clamp(24px,3.2vw,34px); }
   .muted{ color:#6b7280; font-size:13px; }
   label{ font-weight:600; display:block; margin:.6rem 0 .25rem; }
   input[type="text"], input[type="email"], input[type="file"], textarea{
-    width:100%;
-    box-sizing:border-box;
-    padding:.7rem .75rem;
-    border:1px solid #d1d5db;
-    border-radius:8px;
-    font-size:15px;
-    background:#fff;
+    width:100%; box-sizing:border-box; padding:.7rem .75rem; border:1px solid #d1d5db; border-radius:8px; font-size:15px; background:#fff;
   }
   textarea{ min-height:110px; resize:vertical; }
-  .row { display:block; gap:12px; }
   .consent{ display:flex; align-items:flex-start; gap:.6rem; margin-top:.6rem; }
   .consent input{ margin-top:.2rem; }
-  button{
-    display:inline-flex; align-items:center; gap:.5rem;
-    margin-top:10px;
-    padding:.7rem 1.2rem;
-    border:0; border-radius:10px;
-    background:#2563eb; color:#fff; font-weight:700; cursor:pointer;
-    box-shadow: 0 6px 14px rgba(37,99,235,.25);
-  }
+  button{ display:inline-flex; align-items:center; gap:.5rem; margin-top:10px; padding:.7rem 1.2rem; border:0; border-radius:10px; background:#2563eb; color:#fff; font-weight:700; cursor:pointer; box-shadow:0 6px 14px rgba(37,99,235,.25); }
   button[disabled]{ opacity:.65; cursor:not-allowed; }
   .dots{ display:inline-block; width:1.25em; text-align:left; }
   .dots::after{ content:""; animation:dots 1.2s steps(3,end) infinite; }
-  @keyframes dots { 0%{content:""} 33%{content:"."} 66%{content:".."} 100%{content:"..."} }
-
-  .status { margin-top:10px; min-height:1.25rem; }
+  @keyframes dots{ 0%{content:""} 33%{content:"."} 66%{content:".."} 100%{content:"..."} }
+  .status{ margin-top:10px; min-height:1.25rem; }
   .ok{ color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; padding:8px 10px; border-radius:8px; display:inline-block; }
   .err{ color:#991b1b; background:#fef2f2; border:1px solid #fecaca; padding:8px 10px; border-radius:8px; display:inline-block; }
-
-  .counter { margin: 14px 0 8px; font-weight:600; }
-
-  /* gallery */
+  .counter{ margin:14px 0 8px; font-weight:600; }
   .gwrap{ margin-top:18px; }
   .gtitle{ font-size:22px; font-weight:800; margin:8px 0 10px; text-align:center; }
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap:14px;
-  }
-  .gcard{
-    background:#fff; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden;
-    display:flex; flex-direction:column;
-  }
-  .gcard .ph {
-    aspect-ratio: 1/1; /* square thumb */
-    background:#f3f4f6 center/contain no-repeat;
-  }
-  .gcard img{
-    width:100%; height:100%; object-fit:cover; display:block;
-    background:#f8fafc;
-  }
-  .gcap{
-    padding:8px 10px; font-size:13px; color:#374151;
-  }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:14px; }
+  .gcard{ background:#fff; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+  .ph{ aspect-ratio:1/1; background:#f3f4f6; }
+  .gcard img{ width:100%; height:100%; object-fit:cover; display:block; background:#f8fafc; }
+  .gcap{ padding:8px 10px; font-size:13px; color:#374151; }
   .by{ color:#6b7280; }
-  .empty { color:#6b7280; text-align:center; padding:14px 0; }
-
+  .empty{ color:#6b7280; text-align:center; padding:14px 0; }
   .topline{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topline">
-      <h1>Fancy Pony — Artwork Submission</h1>
-      <div class="counter">Total drawings collected: <span id="count">—</span></div>
-    </div>
-
-    <form id="ponyForm" class="card" novalidate>
-      <div class="row">
-        <div>
-          <label for="name">Your Name *</label>
-          <input id="name" name="name" type="text" required />
-        </div>
-        <div>
-          <label for="email">Your Email *</label>
-          <input id="email" name="email" type="email" required />
-        </div>
-      </div>
-
-      <label for="title">Pony Name *</label>
-      <input id="title" name="title" type="text" required />
-
-      <label for="file">Upload File *</label>
-      <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" required />
-      <div class="muted">File size must be between <b>1&nbsp;MB</b> and <b>5&nbsp;MB</b>. Recommended: <b>150–300&nbsp;ppi</b> (Letter size scans are typically &gt; 1&nbsp;MB).</div>
-
-      <label for="desc">Description (optional)</label>
-      <textarea id="desc" name="description" placeholder="Tell us about your pony…"></textarea>
-
-      <div class="consent">
-        <input id="consent" name="consent" type="checkbox" value="true" required />
-        <label for="consent" style="font-weight:500; margin:0;">
-          I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.
-        </label>
-      </div>
-
-      <button id="submitBtn" type="submit">
-        <span class="btnlabel">Upload</span>
-        <span class="dots" style="display:none"></span>
-      </button>
-
-      <div id="status" class="status"></div>
-    </form>
-
-    <div class="gwrap card">
-      <div class="gtitle">Gallery</div>
-      <div id="gallery" class="grid"></div>
-      <div id="emptyNote" class="empty" style="display:none;">No items yet.</div>
-    </div>
+<div class="wrap">
+  <div class="topline">
+    <h1>Fancy Pony — Artwork Submission</h1>
+    <div class="counter">Total drawings collected: <span id="count">—</span></div>
   </div>
 
+  <form id="ponyForm" class="card" novalidate>
+    <label for="name">Your Name *</label>
+    <input id="name" name="name" type="text" required />
+
+    <label for="email">Your Email *</label>
+    <input id="email" name="email" type="email" required />
+
+    <label for="title">Pony Name *</label>
+    <input id="title" name="title" type="text" required />
+
+    <label for="file">Upload File *</label>
+    <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" required />
+    <div class="muted">File size must be between <b>1&nbsp;MB</b> and <b>5&nbsp;MB</b>. Recommended: <b>150–300&nbsp;ppi</b> (Letter size scans are typically &gt; 1&nbsp;MB).</div>
+
+    <label for="desc">Description (optional)</label>
+    <textarea id="desc" name="description" placeholder="Tell us about your pony…"></textarea>
+
+    <div class="consent">
+      <input id="consent" name="consent" type="checkbox" value="true" required />
+      <label for="consent" style="font-weight:500;margin:0;">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
+    </div>
+
+    <button id="submitBtn" type="submit">
+      <span class="btnlabel">Upload</span><span class="dots" style="display:none"></span>
+    </button>
+    <div id="status" class="status"></div>
+  </form>
+
+  <div class="gwrap card">
+    <div class="gtitle">Gallery</div>
+    <div id="gallery" class="grid"></div>
+    <div id="emptyNote" class="empty" style="display:none;">No items yet.</div>
+  </div>
+</div>
+
 <script>
-  // ---- CONFIG: put your latest Web App /exec URL here ----
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec'; // <- replace with your /exec
 
-  const $ = (id) => document.getElementById(id);
-  const btn = $('submitBtn');
-  const dots = btn.querySelector('.dots');
-  const label = btn.querySelector('.btnlabel');
+const $ = id => document.getElementById(id);
+const btn = $('submitBtn'), dots = btn.querySelector('.dots'), label = btn.querySelector('.btnlabel');
 
-  function setBusy(b){
-    btn.disabled = b;
-    dots.style.display = b ? 'inline-block' : 'none';
-    label.textContent = b ? 'Uploading' : 'Upload';
-  }
+function setBusy(b){ btn.disabled=b; dots.style.display=b?'inline-block':'none'; label.textContent=b?'Uploading':'Upload'; }
+function ok(m){ $('status').innerHTML = `<span class="ok">${m}</span>`; }
+function err(m){ $('status').innerHTML = `<span class="err">${m}</span>`; }
 
-  function showOK(msg){ $('status').innerHTML = `<span class="ok">${msg}</span>`; }
-  function showErr(msg){ $('status').innerHTML = `<span class="err">${msg}</span>`; }
+async function refreshCount(){
+  try{ const r=await fetch(SCRIPT_URL+'?action=count',{cache:'no-store'}); const j=await r.json(); $('count').textContent=j.ok?(j.count??0):'—'; }
+  catch{ $('count').textContent='—'; }
+}
 
-  async function refreshCount(){
-    try{
-      const r = await fetch(SCRIPT_URL + '?action=count', { cache:'no-store' });
-      const j = await r.json();
-      $('count').textContent = j.ok ? (j.count ?? 0) : '—';
-    }catch{
-      $('count').textContent = '—';
-    }
-  }
+function imgProxy(id){ return `${SCRIPT_URL}?action=img&id=${encodeURIComponent(id)}`; }
 
-  async function refreshGallery(){
-    const box = $('gallery');
-    const empty = $('emptyNote');
-    box.innerHTML = '';
-    empty.style.display = 'none';
+async function refreshGallery(){
+  const box=$('gallery'), empty=$('emptyNote'); box.innerHTML=''; empty.style.display='none';
+  try{
+    let r=await fetch(SCRIPT_URL+'?action=list&limit=60',{cache:'no-store'}), j=await r.json();
+    if(!j.ok || !j.items || !j.items.length){ r=await fetch(SCRIPT_URL+'?action=drive_list&limit=60',{cache:'no-store'}); j=await r.json(); }
+    if(!j.ok || !j.items || !j.items.length){ empty.style.display='block'; return; }
 
-    try{
-      // 1) primary: list (reads from sheet, uses directUrl if stored)
-      let r = await fetch(SCRIPT_URL + '?action=list&limit=60', { cache:'no-store' });
-      let j = await r.json();
+    j.items.forEach(it=>{
+      const fileId=(it.fileId||'').toString().trim();
+      const src = fileId ? imgProxy(fileId) : (it.directUrl || it.fileUrl || '');
+      const title=(it.title||'').trim(), name=(it.name||'').trim();
 
-      // 2) fallback: drive_list (direct from folder)
-      if (!j.ok || !j.items || j.items.length === 0) {
-        r = await fetch(SCRIPT_URL + '?action=drive_list&limit=60', { cache:'no-store' });
-        j = await r.json();
-      }
-
-      if (!j.ok || !j.items || j.items.length === 0) {
-        empty.style.display = 'block';
-        return;
-      }
-
-      j.items.forEach(it => {
-        const src = (it.directUrl || it.fileUrl || '').trim();
-        const title = (it.title || '').trim();
-        const name = (it.name || '').trim();
-
-        const card = document.createElement('figure');
-        card.className = 'gcard';
-        const ph = document.createElement('div');
-        ph.className = 'ph';
-        const img = document.createElement('img');
-        img.loading = 'lazy';
-        img.alt = title || 'Artwork';
-        img.referrerPolicy = 'no-referrer';
-
-        // primary src
-        img.src = src;
-        // last-chance fallback: try the canonical fileUrl if directUrl is blocked
-        img.onerror = function(){
-          if (this.__triedFallback) return;
-          this.__triedFallback = true;
-          if (it.fileUrl && it.fileUrl !== src) {
-            this.src = it.fileUrl;
-            this.style.objectFit = 'contain';
-          }
-        };
-
-        ph.appendChild(img);
-        const cap = document.createElement('figcaption');
-        cap.className = 'gcap';
-        cap.innerHTML = `${title || 'Untitled'}${name ? ` <span class="by">by ${name}</span>` : ''}`;
-        card.appendChild(ph);
-        card.appendChild(cap);
-        box.appendChild(card);
-      });
-    }catch(e){
-      empty.style.display = 'block';
-      console.error('gallery load error:', e);
-    }
-  }
-
-  function fileToBase64(file){
-    return new Promise((resolve, reject)=>{
-      const fr = new FileReader();
-      fr.onload = () => {
-        const s = String(fr.result || '');
-        const i = s.indexOf('base64,');
-        resolve(i >= 0 ? s.slice(i + 7) : s);
-      };
-      fr.onerror = () => reject(fr.error || new Error('File read error'));
-      fr.readAsDataURL(file);
+      const fig=document.createElement('figure'); fig.className='gcard';
+      const ph=document.createElement('div'); ph.className='ph';
+      const img=document.createElement('img'); img.loading='lazy'; img.alt=title||'Artwork'; img.src=src;
+      // last-chance fallback
+      img.onerror=function(){ if(this.__f)return; this.__f=true; if(it.fileUrl && it.fileUrl!==src){ this.src=it.fileUrl; this.style.objectFit='contain'; } };
+      ph.appendChild(img);
+      const cap=document.createElement('figcaption'); cap.className='gcap';
+      cap.innerHTML=`${title||'Untitled'}${name?` <span class="by">by ${name}</span>`:''}`;
+      fig.appendChild(ph); fig.appendChild(cap); box.appendChild(fig);
     });
-  }
+  }catch(e){ empty.style.display='block'; console.error('gallery error',e); }
+}
 
-  $('ponyForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const status = $('status');
-    status.textContent = '';
-
-    const file = $('file').files[0];
-    if (!file) { showErr('Please choose a file.'); return; }
-
-    // 1–5 MB check (≈ Apps Script comfortable range)
-    const sizeMB = file.size / (1024*1024);
-    if (sizeMB < 1 || sizeMB > 5) {
-      showErr('File must be between 1 MB and 5 MB.'); return;
-    }
-
-    setBusy(true);
-
-    try{
-      // ---- Attempt 1: multipart/form-data
-      const fd = new FormData();
-      fd.append('name', $('name').value.trim());
-      fd.append('email', $('email').value.trim());
-      fd.append('title', $('title').value.trim());
-      fd.append('description', $('desc').value.trim());
-      fd.append('consent', $('consent').checked ? 'true' : 'false');
-      fd.append('file', file, file.name); // MUST be 'file'
-
-      let r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
-      let txt = await r.text();
-      let data;
-      try { data = JSON.parse(txt); } catch { throw new Error('Server returned non-JSON.'); }
-
-      // If backend says "No file uploaded", fall back to base64 retry
-      if (!data.ok && data.error && /No file uploaded/i.test(data.error)) {
-        const b64 = await fileToBase64(file);
-        const fd2 = new FormData();
-        fd2.append('name', $('name').value.trim());
-        fd2.append('email', $('email').value.trim());
-        fd2.append('title', $('title').value.trim());
-        fd2.append('description', $('desc').value.trim());
-        fd2.append('consent', $('consent').checked ? 'true' : 'false');
-        fd2.append('filebase64', b64);
-        fd2.append('mimetype', file.type || 'application/octet-stream');
-        fd2.append('filename', file.name || 'upload.bin');
-
-        r = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
-        txt = await r.text();
-        try { data = JSON.parse(txt); } catch { throw new Error('Server returned non-JSON (fallback).'); }
-      }
-
-      if (data.ok){
-        showOK('Upload successful!');
-        e.target.reset();
-        $('name').focus();
-        await refreshCount();
-        await refreshGallery();       // auto refresh grid
-      }else{
-        showErr('Upload failed: ' + (data.error || 'Unknown error'));
-        console.warn('server diag:', data.diag || data);
-      }
-    }catch(err){
-      console.error(err);
-      showErr('Error: ' + err.message);
-    }finally{
-      setBusy(false);
-    }
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const s=String(fr.result||''); const i=s.indexOf('base64,'); resolve(i>=0?s.slice(i+7):s);};
+    fr.onerror=()=>reject(fr.error||new Error('File read error'));
+    fr.readAsDataURL(file);
   });
+}
 
-  // initial load
-  refreshCount();
-  refreshGallery();
+$('ponyForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const f=$('file').files[0]; if(!f){ return err('Please choose a file.'); }
+  const mb=f.size/1048576; if(mb<1||mb>5){ return err('File must be between 1 MB and 5 MB.'); }
+  setBusy(true);
+  try{
+    // try multipart first
+    let fd=new FormData();
+    fd.append('name',$('name').value.trim());
+    fd.append('email',$('email').value.trim());
+    fd.append('title',$('title').value.trim());
+    fd.append('description',$('desc').value.trim());
+    fd.append('consent',$('consent').checked?'true':'false');
+    fd.append('file',f,f.name);
+    let r=await fetch(SCRIPT_URL,{method:'POST',body:fd});
+    let txt=await r.text(); let data; try{ data=JSON.parse(txt);}catch{ throw new Error('Server returned non-JSON'); }
+
+    // fallback to base64 if needed
+    if(!data.ok && /No file uploaded/i.test(data.error||'')){
+      const b64=await fileToBase64(f);
+      fd=new FormData();
+      fd.append('name',$('name').value.trim());
+      fd.append('email',$('email').value.trim());
+      fd.append('title',$('title').value.trim());
+      fd.append('description',$('desc').value.trim());
+      fd.append('consent',$('consent').checked?'true':'false');
+      fd.append('filebase64',b64);
+      fd.append('mimetype',f.type||'application/octet-stream');
+      fd.append('filename',f.name||'upload.bin');
+      r=await fetch(SCRIPT_URL,{method:'POST',body:fd});
+      txt=await r.text(); data=JSON.parse(txt);
+    }
+
+    if(data.ok){
+      ok('Upload successful!');
+      e.target.reset(); $('name').focus();
+      await refreshCount(); await refreshGallery();
+    }else{
+      err('Upload failed: '+(data.error||'Unknown error'));
+      console.warn('server diag:',data);
+    }
+  }catch(ex){ console.error(ex); err('Error: '+ex.message); }
+  finally{ setBusy(false); }
+});
+
+refreshCount();
+refreshGallery();
 </script>
 </body>
 </html>
