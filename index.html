@@ -17,70 +17,63 @@
   }
   html,body{height:100%}
   body{
-    margin:0; font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    margin:0; font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
     color:var(--ink);
     background-image:url('https://i.postimg.cc/jSmGH445/Pony.png');
-    background-repeat: repeat;
-    background-size: 220px auto;
-    background-attachment: fixed;
+    background-repeat:repeat;
+    background-size:220px auto;
+    background-attachment:fixed;
   }
   /* 背景版權文字 */
   .bg-credit{
-    position:fixed;
-    bottom:8px;
-    left:50%;
-    transform:translateX(-50%);
-    font-size:12px;
-    color:#444;
-    background:rgba(255,255,255,0.5);
-    padding:3px 8px;
-    border-radius:6px;
-    pointer-events:none;
+    position:fixed; left:50%; bottom:8px; transform:translateX(-50%);
+    font-size:12px; color:#444; background:rgba(255,255,255,.5);
+    padding:3px 8px; border-radius:6px; pointer-events:none;
   }
   .wrap{
-    max-width: 900px;
-    margin: 32px auto;
-    padding: 20px 18px;
-    background: var(--card-bg);
-    border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    max-width:900px; margin:32px auto; padding:20px 18px;
+    background:var(--card-bg); border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08);
   }
-  h1{margin:0 0 4px 0; font-size: clamp(22px,4.5vw,36px); letter-spacing:.3px}
+  h1{margin:0 0 4px 0; font-size:clamp(22px,4.5vw,36px); letter-spacing:.3px}
   .grid{display:block}
   .field{margin:14px 0}
   label{display:block; font-weight:700; margin-bottom:6px}
   input[type="text"], input[type="email"], textarea{
-    width:100%; box-sizing:border-box;
-    padding:10px 14px; margin:8px 0;
+    width:100%; box-sizing:border-box; padding:10px 14px; margin:8px 0;
     border:1px solid #e5e7eb; border-radius:12px; background:#fff; font-size:1rem;
   }
   textarea{min-height:80px; resize:vertical}
   .file-row{display:flex; align-items:center; gap:12px}
   .file-wrap{position:relative; display:inline-block}
-  .file-wrap input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer;}
+  .file-wrap input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer}
   .btn-file{
     display:inline-block; padding:10px 16px; border-radius:12px;
     background:var(--brand); color:#fff; font-weight:800; border:none; cursor:pointer;
+    transition:filter .12s ease, transform .02s ease;
   }
+  .btn-file:hover{filter:brightness(1.05)} .btn-file:active{transform:translateY(1px)}
   .file-name{font-size:14px; color:var(--muted)}
   .agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
   .btn{
     display:inline-block; padding:12px 18px; border-radius:14px; border:none;
     background:var(--brand); color:#fff; font-weight:900; cursor:pointer;
+    transition:filter .12s ease, transform .02s ease;
   }
+  .btn:hover{filter:brightness(1.05)} .btn:active{transform:translateY(1px)}
+  .btn[disabled]{opacity:.6; cursor:not-allowed}
   .bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:12px}
-  .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--brand), var(--ok)); transition:width .2s ease}
+  .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
   .status{margin:12px 0 6px 0; font-weight:700}
   .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
+  /* Recent submissions（純文字清單） */
   .panel{margin-top:26px; padding:18px; background:var(--card-bg); border-radius:16px}
-  .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center;}
+  .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px}
   .panel-header h2{margin:0; font-size:26px}
-  .panel-info{color:var(--muted); font-weight:600; margin-top:4px}
-  .actions{display:flex; gap:12px; align-items:center;}
-  .a{color:var(--brand); text-decoration:none; font-weight:800}
-  .a:hover{text-decoration:underline}
+  .panel-info{color:var(--muted); font-weight:600}
+  .actions{display:flex; align-items:center; gap:12px}
+  .a{color:var(--brand); font-weight:800; text-decoration:none} .a:hover{text-decoration:underline}
   .list{display:flex; flex-direction:column; gap:10px}
-  .item{padding:12px 12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff;}
+  .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
   .ttl{font-weight:800}
   .sub{font-size:13px; color:var(--muted)}
   .desc{margin-top:4px; white-space:pre-wrap}
@@ -88,175 +81,213 @@
 </style>
 </head>
 <body>
-<main class="wrap">
-  <h1>Fancy Pony — Artwork Submission</h1>
+  <main class="wrap">
+    <h1>Fancy Pony — Artwork Submission</h1>
 
-  <form id="form" class="grid" novalidate>
-    <div class="field">
-      <label for="name">Your Name *</label>
-      <input id="name" name="name" type="text" required>
-    </div>
-    <div class="field">
-      <label for="email">Your Email *</label>
-      <input id="email" name="email" type="email" required>
-    </div>
-    <div class="field">
-      <label for="title">Pony Name *</label>
-      <input id="title" name="title" type="text" required>
-    </div>
-    <div class="field">
-      <label>Upload File *</label>
-      <div class="file-row">
-        <span class="file-wrap">
-          <button class="btn-file" type="button">Choose File</button>
-          <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
-        </span>
-        <span id="fname" class="file-name">no file selected</span>
+    <form id="form" class="grid" novalidate>
+      <div class="field">
+        <label for="name">Your Name *</label>
+        <input id="name" name="name" type="text" required>
       </div>
-    </div>
-    <div class="field">
-      <label for="description">Description (optional)</label>
-      <textarea id="description" name="description"></textarea>
-    </div>
-    <div class="agree">
-      <input id="consent" name="consent" type="checkbox" value="true" required>
-      <label for="consent">I agree to grant the school marketing rights to use my artwork.</label>
-    </div>
-    <div class="pair">
-      <button id="submitBtn" class="btn" type="submit">Upload</button>
-      <div id="status" class="status"></div>
-    </div>
-    <div class="bar"><i id="bar"></i></div>
-    <div id="pct" class="sub">0%</div>
-  </form>
-
-  <section class="panel">
-    <div class="panel-header">
-      <h2>Recent submissions</h2>
-      <div class="actions">
-        <span class="panel-info">Total drawings collected: <span id="count">–</span></span>
-        <a class="a" href="#" id="refresh">refresh</a>
+      <div class="field">
+        <label for="email">Your Email *</label>
+        <input id="email" name="email" type="email" required>
       </div>
-    </div>
-    <div id="list" class="list">
-      <div class="item">Loading…</div>
-    </div>
-  </section>
-</main>
+      <div class="field">
+        <label for="title">Pony Name *</label>
+        <input id="title" name="title" type="text" required>
+      </div>
+      <div class="field">
+        <label>Upload File *</label>
+        <div class="file-row">
+          <span class="file-wrap">
+            <button class="btn-file" type="button">Choose File</button>
+            <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+          </span>
+          <span id="fname" class="file-name">no file selected</span>
+        </div>
+        <div class="sub" style="margin-top:6px">
+          File size must be between <strong>1&nbsp;MB</strong> and <strong>5&nbsp;MB</strong>.
+          Recommended: <strong>150–300&nbsp;ppi</strong> (Letter size scan typically &gt; 1&nbsp;MB).
+        </div>
+      </div>
+      <div class="field">
+        <label for="description">Description (optional)</label>
+        <textarea id="description" name="description" placeholder="Tell us about your pony…"></textarea>
+      </div>
+      <div class="agree">
+        <input id="consent" name="consent" type="checkbox" value="true" required>
+        <label for="consent" style="font-weight:600">
+          I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.
+        </label>
+      </div>
+      <div class="pair">
+        <button id="submitBtn" class="btn" type="submit">Upload</button>
+        <div id="status" class="status"></div>
+      </div>
+      <div class="bar"><i id="bar"></i></div>
+      <div id="pct" class="sub">0%</div>
+    </form>
 
-<!-- 背景版權提示 -->
-<div class="bg-credit">Background image designed by Demi Tai</div>
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Recent submissions</h2>
+        <div class="actions">
+          <span class="panel-info">Total drawings collected: <span id="count">–</span></span>
+          <a class="a" href="#" id="refresh">refresh</a>
+        </div>
+      </div>
+      <div id="list" class="list">
+        <div class="item">Loading…</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 背景版權提示 -->
+  <div class="bg-credit">Background image designed by Demi Tai</div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
-const $ = id => document.getElementById(id);
-function setBar(n){ $('bar').style.width = Math.max(0, Math.min(100, n)) + '%'; $('pct').textContent = Math.round(n) + '%'; }
-function say(cls, msg){ const el=$('status'); el.className='status '+(cls||''); el.textContent = msg || ''; }
-function timeStr(v){ try{ const d = new Date(v); return d.toLocaleString(); }catch{ return ''; } }
-$('file').addEventListener('change', e=> $('fname').textContent = e.target.files[0]?.name || 'no file selected');
-async function refreshCount(){ try{ const r = await fetch(SCRIPT_URL + '?action=count'); const j = await r.json(); $('count').textContent = j.ok ? (j.count ?? 0) : '–'; }catch{ $('count').textContent = '–'; } }
-async function loadRecent(){
-  const box = $('list'); box.innerHTML = '<div class="item">Loading…</div>';
-  try{
-    const r = await fetch(SCRIPT_URL + '?action=recent&limit=12'); const j = await r.json();
-    if (!j.ok) throw new Error(j.error);
-    if (!j.items.length){ box.innerHTML = '<div class="item">No items yet.</div>'; return; }
-    box.innerHTML = '';
-    for (const it of j.items){
-      const title = (it.title||'').trim() || 'Untitled';
-      const name  = (it.name||'').trim() || 'Anonymous';
-      const ts    = timeStr(it.timestamp);
-      const desc  = (it.description||'').trim();
-      const url   = (it.fileUrl||'').trim();
-      const row = document.createElement('div'); row.className='item';
-      row.innerHTML = `<div class="ttl">${url?`<a class="a" target="_blank" href="${url}">${title}</a>`:title}</div>
-                       <div class="sub">${ts} • ${name}</div>
-                       ${desc?`<div class="desc">${desc}</div>`:''}`;
-      box.appendChild(row); 
-    }
-  }catch(err){ box.innerHTML = `<div class="item">Failed to load. <span class="sub">${err.message}</span></div>`; };
-  // 小工具：任何值都先安全轉字串
-const S = v => v == null ? '' : String(v);
+  // 換成你的最新版 /exec
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
+  const $ = id => document.getElementById(id);
 
-function timeStr(v){
-  try{
-    // Google Sheets 可能回 Date 物件或字串
-    const d = v instanceof Date ? v : new Date(v);
-    return isNaN(d.getTime()) ? '' : d.toLocaleString();
-  }catch{ return ''; }
-}
-
-async function loadRecent(){
-  const box = document.getElementById('list');
-  box.innerHTML = '<div class="item">Loading…</div>';
-  try{
-    const r = await fetch(SCRIPT_URL + '?action=recent&limit=12', { cache:'no-store' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json();
-    if (!j.ok) throw new Error(j.error || 'API error');
-
-    const items = Array.isArray(j.items) ? j.items : [];
-    if (!items.length){
-      box.innerHTML = '<div class="item">No items yet.</div>';
-      return;
-    }
-
-    box.innerHTML = '';
-    for (const it of items){
-      // 先轉成字串再 .trim()，避免「.trim is not a function」
-      const title = S(it.title).trim() || 'Untitled';
-      const name  = S(it.name).trim()  || 'Anonymous';
-      const desc  = S(it.description).trim();
-      const url   = S(it.fileUrl).trim();
-      const ts    = timeStr(it.timestamp);
-
-      const row = document.createElement('div');
-      row.className = 'item';
-      row.innerHTML = `
-        <div class="ttl">
-          ${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}
-        </div>
-        <div class="sub">${[ts, name].filter(Boolean).join(' • ')}</div>
-        ${desc ? `<div class="desc">${desc}</div>` : ''}
-      `;
-      box.appendChild(row);
-    }
-  }catch(err){
-    box.innerHTML = `<div class="item">Failed to load. <span class="sub">${S(err.message || err)}</span></div>`;
+  /* 小工具 */
+  const S = v => v == null ? '' : String(v);
+  function setBar(n){ $('bar').style.width = Math.max(0,Math.min(100,n))+'%'; $('pct').textContent = Math.round(n)+'%'; }
+  function say(cls,msg){ const el=$('status'); el.className='status '+(cls||''); el.textContent=msg||''; }
+  function timeStr(v){
+    try{ const d = (v instanceof Date) ? v : new Date(v); return isNaN(d) ? '' : d.toLocaleString(); }
+    catch{ return ''; }
   }
-}
-}
-$('refresh').addEventListener('click', e=>{ e.preventDefault(); loadRecent(); });
-async function fileToBase64(file){
-  return new Promise((res,rej)=>{
-    const fr=new FileReader(); fr.onload=()=>{const s=fr.result;res(s.split('base64,')[1]);}; fr.onerror=()=>rej(fr.error); fr.readAsDataURL(file);
-  });
-}
-$('form').addEventListener('submit', async e=>{
-  e.preventDefault(); const btn=$('submitBtn'); const file=$('file').files[0];
-  setBar(0); say('', '');
-  if (!file){ say('err','Please choose a file.'); return; }
-  const sizeMB=file.size/(1024*1024); if (sizeMB<1||sizeMB>5){ say('err','File must be between 1 MB and 5 MB.'); return; }
-  if (!$('consent').checked){ say('err','Please agree to the consent.'); return; }
-  btn.disabled=true; say('warn','Uploading…'); setBar(5);
-  try{
-    const fd=new FormData(); ['name','email','title','description','consent'].forEach(k=>fd.append(k,$(k).type==='checkbox'?($(k).checked?'true':'false'):$(k).value.trim()));
-    fd.append('file',file,file.name);
-    const r=await fetch(SCRIPT_URL,{method:'POST',body:fd}); setBar(70);
-    const j=await r.json(); if(j.ok){ setBar(100); say('ok','Upload successful.'); e.target.reset(); $('fname').textContent='no file selected'; refreshCount(); loadRecent();}
-    else throw new Error(j.error);
-  }catch(err){
+
+  // 檔名顯示
+  $('file').addEventListener('change', e => $('fname').textContent = e.target.files[0]?.name || 'no file selected');
+
+  // 統計
+  async function refreshCount(){
     try{
-      const b64=await fileToBase64(file); const fd2=new FormData();
-      ['name','email','title','description','consent'].forEach(k=>fd2.append(k,$(k).type==='checkbox'?($(k).checked?'true':'false'):$(k).value.trim()));
-      fd2.append('filebase64',b64); fd2.append('mimetype',file.type); fd2.append('filename',file.name);
-      const r2=await fetch(SCRIPT_URL,{method:'POST',body:fd2}); const j2=await r2.json();
-      if(j2.ok){ setBar(100); say('ok','Upload sent.'); e.target.reset(); $('fname').textContent='no file selected'; refreshCount(); loadRecent(); }
-      else throw new Error(j2.error);
-    }catch(err2){ say('err','Upload failed: '+err2.message); }
-  }finally{ btn.disabled=false; }
-});
-refreshCount(); loadRecent();
+      const r = await fetch(SCRIPT_URL+'?action=count',{cache:'no-store'});
+      const j = await r.json();
+      $('count').textContent = j.ok ? (j.count ?? 0) : '–';
+    }catch{ $('count').textContent = '–'; }
+  }
+
+  // 最近清單（純文字）
+  async function loadRecent(){
+    const box = $('list'); box.innerHTML = '<div class="item">Loading…</div>';
+    try{
+      const r = await fetch(SCRIPT_URL+'?action=recent&limit=12',{cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || 'API error');
+
+      const items = Array.isArray(j.items) ? j.items : [];
+      if(!items.length){ box.innerHTML = '<div class="item">No items yet.</div>'; return; }
+
+      box.innerHTML = '';
+      for(const it of items){
+        const title = S(it.title).trim() || 'Untitled';
+        const name  = S(it.name).trim()  || 'Anonymous';
+        const desc  = S(it.description).trim();
+        const url   = S(it.fileUrl).trim();
+        const ts    = timeStr(it.timestamp);
+
+        const row = document.createElement('div');
+        row.className = 'item';
+        row.innerHTML = `
+          <div class="ttl">${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}</div>
+          <div class="sub">${[ts,name].filter(Boolean).join(' • ')}</div>
+          ${desc ? `<div class="desc">${desc}</div>` : ''}
+        `;
+        box.appendChild(row);
+      }
+    }catch(err){
+      box.innerHTML = `<div class="item">Failed to load. <span class="sub">${S(err.message || err)}</span></div>`;
+    }
+  }
+  $('refresh').addEventListener('click', e => { e.preventDefault(); loadRecent(); });
+
+  // 轉 base64（fallback 用）
+  function fileToBase64(file){
+    return new Promise((res,rej)=>{
+      const fr = new FileReader();
+      fr.onload = () => { const s = String(fr.result||''); const i = s.indexOf('base64,'); res(i>=0 ? s.slice(i+7) : s); };
+      fr.onerror = () => rej(fr.error || new Error('File read error'));
+      fr.readAsDataURL(file);
+    });
+  }
+
+  // 上傳：先 multipart，再必要時 fallback base64
+  $('form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const btn = $('submitBtn');
+    const file = $('file').files[0];
+    setBar(0); say('', '');
+
+    if(!file){ say('err','Please choose a file.'); return; }
+    const sizeMB = file.size/(1024*1024);
+    if(sizeMB<1 || sizeMB>5){ say('err','File must be between 1 MB and 5 MB.'); return; }
+    if(!$('consent').checked){ say('err','Please agree to the consent.'); return; }
+
+    btn.disabled = true; say('warn','Uploading…'); setBar(5);
+
+    try{
+      const fd = new FormData();
+      fd.append('name',$('name').value.trim());
+      fd.append('email',$('email').value.trim());
+      fd.append('title',$('title').value.trim());
+      fd.append('description',$('description').value.trim());
+      fd.append('consent',$('consent').checked ? 'true' : 'false');
+      fd.append('file',file,file.name);
+
+      const r = await fetch(SCRIPT_URL,{method:'POST',body:fd});
+      setBar(70);
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j = await r.json();
+      if(j.ok){
+        setBar(100); say('ok','Upload successful.');
+        e.target.reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0),800);
+        refreshCount(); loadRecent();
+        btn.disabled=false; return;
+      }
+      throw new Error(j.error || 'Server refused');
+    }catch(err){
+      // fallback: base64
+      say('warn','Network is blocking cross-origin upload. Using safe fallback…'); setBar(30);
+      try{
+        const b64 = await fileToBase64(file);
+        const fd2 = new FormData();
+        fd2.append('name',$('name').value.trim());
+        fd2.append('email',$('email').value.trim());
+        fd2.append('title',$('title').value.trim());
+        fd2.append('description',$('description').value.trim());
+        fd2.append('consent',$('consent').checked ? 'true' : 'false');
+        fd2.append('filebase64',b64);
+        fd2.append('mimetype', file.type || 'application/octet-stream');
+        fd2.append('filename', file.name || 'upload.bin');
+
+        const r2 = await fetch(SCRIPT_URL,{method:'POST',body:fd2});
+        setBar(85);
+        if(!r2.ok) throw new Error('HTTP '+r2.status);
+        const j2 = await r2.json();
+        if(j2.ok){
+          setBar(100); say('ok','Upload sent. Waiting for confirmation…');
+          e.target.reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0),800);
+          refreshCount(); loadRecent();
+        }else{
+          say('err','Upload failed: '+(j2.error||'Unknown error'));
+        }
+      }catch(err2){
+        say('err','Upload failed: '+(err2.message||err2));
+      }finally{
+        btn.disabled=false;
+      }
+    }
+  });
+
+  // init
+  refreshCount();
+  loadRecent();
 </script>
 </body>
 </html>
