@@ -2,305 +2,291 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fancy Pony — Submit Artwork</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fancy Pony — Text-only Submissions</title>
 <style>
   :root { color-scheme: light; }
   body{
-    margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    background-image:url("https://i.postimg.cc/jSmGH445/Pony.png");
-    background-repeat:repeat; background-size:140px auto;
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:#fff url("https://i.postimg.cc/jSmGH445/Pony.png") repeat center top;
+    background-size: 220px auto;
   }
-  .wrap{ max-width: 820px; margin: 32px auto; padding: 0 16px; }
-  .card{ background:#fff; border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,.08); padding:20px; }
-  h1{ margin:0 0 8px; font-size: clamp(26px, 4vw, 34px); }
-  .muted{ color:#6b7280; }
-  label{ display:block; font-weight:600; margin:14px 0 6px; }
-  input[type="text"], input[type="email"], input[type="file"], textarea{
-    width:100%; padding:.7rem .8rem; border:1px solid #d1d5db; border-radius:10px; font-size:16px; background:#fff;
+  .wrap{
+    width:70%;
+    margin: 24px auto 80px;
   }
-  textarea{ resize:vertical; min-height:110px; }
-  .consent{ display:flex; gap:.6rem; align-items:flex-start; margin-top:6px; }
-  .consent input{ margin-top:.2rem; }
+  .card{
+    background:#ffffffcc;
+    backdrop-filter: blur(2px);
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 10px 20px rgba(0,0,0,.05);
+    padding: 18px;
+  }
+  h1{
+    margin: 0 0 12px;
+    font-size: 28px;
+    letter-spacing:.3px;
+  }
+  label{ display:block; font-weight:600; margin: 10px 0 6px; }
+  input[type="text"],input[type="email"],textarea{
+    width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; font-size:15px;
+    background:#fff;
+  }
+  input[type="file"]{ width:100%; }
+  textarea{ min-height:120px; resize: vertical; }
+  .muted{ color:#6b7280; font-size:12px; }
+  .row{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row > div { min-width:0; }
+  .actions{ display:flex; align-items:center; gap:12px; margin-top:12px; }
   button{
-    display:inline-flex; gap:.5rem; align-items:center;
-    margin-top:14px; padding:.75rem 1.1rem;
-    background:#2563eb; color:#fff; border:0; border-radius:10px; font-weight:700; cursor:pointer;
-    box-shadow:0 6px 18px rgba(37,99,235,.25);
+    appearance:none; border:0; border-radius:10px; padding:10px 16px; font-weight:700;
+    background:#2563eb; color:#fff; cursor:pointer;
   }
   button[disabled]{ opacity:.6; cursor:not-allowed; }
-  .status{ margin-top:10px; min-height:20px; }
-  .ok{ color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; padding:8px 10px; border-radius:8px; display:inline-block; }
-  .err{ color:#991b1b; background:#fef2f2; border:1px solid #fecaca; padding:8px 10px; border-radius:8px; display:inline-block; }
-
-  /* progress */
-  .pwrap{ margin-top:10px; height:10px; background:#e5e7eb; border-radius:999px; overflow:hidden; display:none; }
-  .pbar{ height:100%; width:0%; background:#16a34a; transition:width .15s linear; }
-  .ptext{ font-size:12px; color:#374151; margin-top:4px; }
-
-  .block{ margin-top:18px; }
-  .title2{ font-weight:800; font-size: clamp(20px, 3vw, 24px); margin: 8px 0 12px; }
+  .ok{ color:#065f46; background:#ecfdf5; border:1px solid #d1fae5; padding:8px 10px; border-radius:10px;}
+  .warn{ color:#92400e; background:#fff7ed; border:1px solid #ffedd5; padding:8px 10px; border-radius:10px;}
+  .err{ color:#991b1b; background:#fef2f2; border:1px solid #fee2e2; padding:8px 10px; border-radius:10px;}
+  .progress{
+    height:8px; background:#f3f4f6; border-radius:999px; overflow:hidden; margin-top:6px;
+  }
+  .bar{ height:100%; width:0%; background:#10b981; transition: width .2s ease; }
   .list{ display:flex; flex-direction:column; gap:10px; }
   .item{
-    background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:12px 14px;
-    box-shadow:0 4px 14px rgba(0,0,0,.04);
+    background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px;
   }
-  .item .t{ font-weight:700; }
-  .item .meta{ color:#6b7280; font-size:13px; }
-  .item .desc{ margin-top:4px; font-size:14px; }
-  /* hidden iframe for no-CORS fallback */
-  iframe#upload_iframe{ display:none; width:0; height:0; border:0; }
+  .item h3{ margin:0 0 6px; font-size:16px; }
+  .meta{ font-size:12px; color:#6b7280; display:flex; gap:10px; flex-wrap:wrap; }
+  .desc{ font-size:14px; color:#374151; margin-top:6px; white-space:pre-wrap; }
+  .right { text-align:right; }
+  a:link,a:visited{ color:#2563eb; text-decoration: underline; }
+  @media (max-width: 900px){
+    .wrap{ width:92%; }
+    .row{ grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <h1>Fancy Pony — Artwork Submission</h1>
-      <div class="muted" id="meta"></div>
+      <div class="muted" id="total">Total drawings collected: …</div>
 
-      <label>Your Name *<input id="name" type="text" required></label>
-      <label>Your Email *<input id="email" type="email" required></label>
-      <label>Pony Name *<input id="title" type="text" required></label>
+      <form id="ponyForm" class="mt">
+        <div class="row">
+          <div>
+            <label>Your Name *</label>
+            <input id="name" name="name" type="text" required />
+          </div>
+          <div>
+            <label>Your Email *</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+        </div>
 
-      <label>Upload File *<input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required></label>
-      <div class="muted">File size must be between <b>1 MB</b> and <b>5 MB</b>. Recommended: <b>150–300 ppi</b> (Letter size scans are typically &gt; 1 MB).</div>
+        <label>Pony Name *</label>
+        <input id="title" name="title" type="text" required />
 
-      <label>Description (optional)
-        <textarea id="description" placeholder="Tell us about your pony…"></textarea>
-      </label>
+        <label>Upload File *</label>
+        <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
+        <div class="muted">File size must be between <b>1 MB</b> and <b>5 MB</b>. Recommended: <b>150–300 ppi</b> (Letter size scan typically &gt; 1 MB).</div>
 
-      <div class="consent">
-        <input id="consent" type="checkbox" value="true" />
-        <label for="consent" style="margin:0;font-weight:500;">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
-      </div>
+        <label>Description (optional)</label>
+        <textarea id="description" name="description" placeholder="Tell us about your pony…"></textarea>
 
-      <button id="btn">Upload</button>
-      <div class="pwrap" id="pwrap"><div class="pbar" id="pbar"></div></div>
-      <div class="ptext" id="ptext"></div>
-      <div class="status" id="status"></div>
+        <label class="ck">
+          <input id="consent" name="consent" type="checkbox" value="true" required />
+          I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.
+        </label>
 
-      <div class="block">
-        <div><b>Total drawings collected:</b> <span id="count">—</span></div>
-      </div>
+        <div class="actions">
+          <button id="submitBtn" type="submit">Upload</button>
+          <div id="status" class="muted">Ready.</div>
+        </div>
+        <div class="progress"><div id="bar" class="bar"></div></div>
+      </form>
     </div>
 
-    <div class="block"></div>
-
-    <div class="card">
-      <div class="title2">Recent submissions</div>
-      <div id="recent" class="list"></div>
+    <div class="card" style="margin-top:16px;">
+      <h2 style="margin:0 0 10px;">Recent submissions</h2>
+      <div id="list" class="list">Loading…</div>
+      <div class="right"><a id="viewAll" href="javascript:void(0)">refresh</a></div>
     </div>
   </div>
 
-  <!-- hidden iframe target for CORS-safe form post -->
-  <iframe id="upload_iframe" name="upload_iframe"></iframe>
-
 <script>
-  /* ===== replace with your deployed /exec URL ===== */
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
+/** === YOUR WEB APP URL ( /exec ) === **/
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
-  const $ = id => document.getElementById(id);
-  const S = v => (v===undefined||v===null)?'':String(v);
+/** ========== small helpers ========== */
+const $ = id => document.getElementById(id);
+function setStatus(msg, cls='muted'){ const s=$('status'); s.className=cls; s.textContent=msg; }
+function setBar(p){ $('bar').style.width = Math.max(0,Math.min(100, p)) + '%'; }
+function fmtTime(v){
+  try{ const d = new Date(v); return d.toLocaleString(); }catch{ return String(v||''); }
+}
 
-  function setBusy(b){ $('btn').disabled = b; }
-  function setProgress(p){
-    $('pwrap').style.display = 'block';
-    $('pbar').style.width = Math.max(0, Math.min(100, p)) + '%';
-    $('ptext').textContent = Math.round(Math.max(0, Math.min(100, p))) + '%';
-  }
-  function clearProgress(){ $('pbar').style.width='0%'; $('ptext').textContent=''; $('pwrap').style.display='none'; }
-
-  async function fetchJSON(url, opts){
-    const r = await fetch(url, opts);
-    const t = await r.text();
-    try { return JSON.parse(t); } catch { throw new Error('Bad JSON: ' + t.slice(0,200)); }
-  }
-
-  async function refreshCount(){
-    try{
-      const j = await fetchJSON(SCRIPT_URL + '?action=count&cache=' + Date.now());
-      $('count').textContent = j.ok ? (j.count ?? 0) : '—';
-      $('meta').textContent = j.ok ? `${j.version || ''} ${j.marker || ''}`.trim() : '';
-    }catch{ $('count').textContent = '—'; }
-  }
-
-  function renderRecent(items){
-    const box = $('recent');
+/** === fetch count & list (text only) === */
+async function refreshCount(){
+  try{
+    const r = await fetch(SCRIPT_URL + '?action=count', { cache:'no-store' });
+    const j = await r.json();
+    $('total').textContent = 'Total drawings collected: ' + (j.count ?? 0);
+  }catch{ $('total').textContent = 'Total drawings collected: —'; }
+}
+async function refreshList(){
+  try{
+    const r = await fetch(SCRIPT_URL + '?action=list&limit=20', { cache:'no-store' });
+    const j = await r.json();
+    const box = $('list');
+    if (!j.ok){ box.textContent = 'Failed to load.'; return; }
+    const items = Array.isArray(j.items)? j.items : [];
+    if (!items.length){ box.textContent = 'No items yet.'; return; }
     box.innerHTML = '';
-    if (!Array.isArray(items) || !items.length){
-      box.innerHTML = '<div class="muted">No items yet.</div>';
-      return;
-    }
-    items.forEach(it=>{
-      const d = new Date(it.timestamp);
-      const when = isNaN(d.getTime()) ? '' : d.toLocaleString();
-      const el = document.createElement('div');
-      el.className = 'item';
-      el.innerHTML = `
-        <div class="t">${S(it.title) || 'Untitled'}</div>
+    for (const it of items){
+      const title = (it.title ?? '').toString() || 'Untitled';
+      const name  = (it.name  ?? '').toString() || '—';
+      const desc  = (it.description ?? it.desc ?? '').toString();
+      const when  = fmtTime(it.timestamp);
+      const url   = (it.fileUrl ?? '').toString();
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <h3>${escapeHtml(title)}</h3>
         <div class="meta">
-          ${S(it.name) ? S(it.name) + ' • ' : ''}${when}
-          ${it.fileUrl ? ` • <a target="_blank" rel="noopener" href="${S(it.fileUrl)}">Open file</a>` : ''}
+          <span>by ${escapeHtml(name)}</span>
+          ${when ? `<span>• ${escapeHtml(when)}</span>`:''}
+          ${url ? `<span>• <a href="${url}" target="_blank" rel="noopener">Open file</a></span>`:''}
         </div>
-        ${S(it.description) ? `<div class="desc">${S(it.description)}</div>` : ''}
+        ${desc ? `<div class="desc">${escapeHtml(desc)}</div>`:''}
       `;
-      box.appendChild(el);
-    });
-  }
-
-  async function refreshRecent(){
-    try{
-      const j = await fetchJSON(SCRIPT_URL + '?action=recent&limit=10&cache=' + Date.now());
-      renderRecent(j.ok ? j.items : []);
-    }catch{ renderRecent([]); }
-  }
-
-  // --- XHR with progress (first attempt) ---
-  function postMultipartWithProgress(fd){
-    return new Promise((resolve, reject)=>{
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', SCRIPT_URL, true);          // no custom headers → should avoid preflight
-      xhr.upload.onprogress = (e)=>{
-        if (e.lengthComputable) setProgress((e.loaded / e.total) * 100);
-      };
-      xhr.onerror = () => reject(new Error('Network error'));
-      xhr.onload  = () => {
-        try { resolve(JSON.parse(xhr.responseText || '{}')); }
-        catch(e){ reject(new Error('Bad JSON: ' + (xhr.responseText || ''))); }
-      };
-      xhr.send(fd);
-    });
-  }
-
-  // --- iframe fallback (no CORS) ---
-  async function iframeUploadFallback(oldCount){
-    // Build a temporary form that targets the hidden iframe
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.enctype = 'multipart/form-data';
-    form.action = SCRIPT_URL;
-    form.target = 'upload_iframe';
-    form.style.display = 'none';
-
-    // Move the real file input into this form (required to send the file)
-    const fileInput = $('file');
-    const fileInputParent = fileInput.parentNode;
-    form.appendChild(fileInput);
-
-    // Add mirrored text fields
-    for (const [id,name] of [['name','name'],['email','email'],['title','title'],['description','description']]){
-      const inp = document.createElement('input');
-      inp.type = 'hidden'; inp.name = name; inp.value = $(id).value.trim();
-      form.appendChild(inp);
+      box.appendChild(div);
     }
-    const c = document.createElement('input');
-    c.type='hidden'; c.name='consent'; c.value = $('consent').checked ? 'true':'false';
-    form.appendChild(c);
+  }catch(e){
+    $('list').textContent = 'Failed to fetch';
+  }
+}
+function escapeHtml(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 
+/** === hidden-iframe base64 submit (CORS-safe) === */
+function postViaIframe(fields){
+  return new Promise(resolve=>{
+    const iframe = document.createElement('iframe');
+    iframe.name  = 'pony_iframe_' + Math.random().toString(36).slice(2);
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.action = SCRIPT_URL;
+    form.method = 'POST';
+    form.target = iframe.name;
+    form.enctype = 'application/x-www-form-urlencoded'; // 保險
+    for (const [k,v] of Object.entries(fields)){
+      const input = document.createElement('input');
+      input.type = 'hidden'; input.name = k; input.value = v;
+      form.appendChild(input);
+    }
     document.body.appendChild(form);
 
-    // Submit via iframe (no CORS restrictions)
+    const cleanup = () => { setTimeout(()=>{ form.remove(); iframe.remove(); }, 50); };
+
+    iframe.addEventListener('load', ()=>{ cleanup(); resolve(true); });
     form.submit();
+  });
+}
 
-    // Restore a fresh file input back to the UI
-    const fresh = document.createElement('input');
-    fresh.type = 'file'; fresh.id = 'file'; fresh.required = true;
-    fresh.accept = '.jpg,.jpeg,.png,.pdf';
-    fileInputParent.appendChild(fresh);
-    form.remove(); // the old input is gone with the form
+/** === read file to base64 with progress === */
+function fileToBase64WithProgress(file){
+  return new Promise((resolve,reject)=>{
+    const fr = new FileReader();
+    fr.onprogress = ev=>{
+      if (ev.lengthComputable){
+        const pct = Math.round( (ev.loaded/ev.total)*100 );
+        setBar(pct);
+        setStatus(`Reading file… ${pct}%`);
+      }
+    };
+    fr.onload = ()=>{
+      const s = String(fr.result||''); const i = s.indexOf('base64,');
+      resolve(i>=0 ? s.slice(i+7) : s);
+    };
+    fr.onerror = ()=> reject(fr.error || new Error('read error'));
+    fr.readAsDataURL(file);
+  });
+}
 
-    // Poll count to confirm (up to ~30s)
-    setProgress(80);
-    const maxTries = 20;
-    for (let i=0;i<maxTries;i++){
-      await new Promise(r=>setTimeout(r, 1500));
-      try{
-        const j = await fetchJSON(SCRIPT_URL + '?action=count&cache=' + Date.now());
-        if (j.ok && typeof j.count === 'number' && j.count > oldCount){
-          setProgress(100);
-          return { ok:true };
-        }
-      }catch{}
-      setProgress(80 + Math.round((i+1)/maxTries*20)); // 80→100
-    }
-    return { ok:false, error:'Timed out waiting for confirmation' };
-  }
+/** === main submit === */
+$('ponyForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const btn = $('submitBtn');
+  try{
+    btn.disabled = true; setBar(0); setStatus('Preparing…');
 
-  async function upload(){
-    const status = $('status'); status.textContent = '';
-    const name = $('name').value.trim();
-    const email= $('email').value.trim();
-    const title= $('title').value.trim();
-    const desc = $('description').value.trim();
+    const name  = $('name').value.trim();
+    const email = $('email').value.trim();
+    const title = $('title').value.trim();
+    const desc  = $('description').value.trim();
+    const consent = $('consent').checked ? 'true' : 'false';
     const file = $('file').files[0];
-    const consent = $('consent').checked;
+    if (!file){ setStatus('Please choose a file.', 'err'); btn.disabled=false; return; }
 
-    if (!name || !email || !title){ status.innerHTML = '<span class="err">Please fill in required fields.</span>'; return; }
-    if (!file){ status.innerHTML = '<span class="err">Please choose a file.</span>'; return; }
-    if (!consent){ status.innerHTML = '<span class="err">Please agree to the consent.</span>'; return; }
+    // 讀檔 + 上傳
+    const b64 = await fileToBase64WithProgress(file);
+    setStatus('Uploading (safe fallback)…'); setBar(100);
 
-    const sizeMB = file.size/1024/1024;
-    if (sizeMB < 1 || sizeMB > 5){
-      status.innerHTML = '<span class="err">File size must be between 1 MB and 5 MB.</span>';
-      return;
+    const beforeCount = await getCountSafe();
+    await postViaIframe({
+      name, email, title, description: desc, consent,
+      filebase64: b64, mimetype: file.type || 'application/octet-stream',
+      filename: file.name || 'upload.bin'
+    });
+
+    // 嘗試輪詢確認是否寫入
+    setStatus('Upload sent. Waiting for confirmation…','warn');
+    const ok = await waitForCountIncrease(beforeCount, 6, 2000);
+    if (ok){
+      setStatus('Upload successful!','ok');
+      e.target.reset();
+      await refreshCount();
+      await refreshList();
+    }else{
+      setStatus('Upload sent but not confirmed yet. Please check later.','warn');
+      // 仍刷新一次（有時 count 延遲，但 item 已寫入）
+      await refreshCount(); await refreshList();
     }
-
-    setBusy(true); clearProgress(); setProgress(1);
-
-    // Remember old count to detect success in iframe mode
-    let oldCount = 0;
-    try{
-      const j = await fetchJSON(SCRIPT_URL + '?action=count&cache=' + Date.now());
-      if (j.ok && typeof j.count === 'number') oldCount = j.count;
-    }catch{}
-
-    try{
-      // 1) try XHR with FormData (fast path)
-      const fd = new FormData();
-      fd.append('name', name); fd.append('email', email);
-      fd.append('title', title); fd.append('description', desc);
-      fd.append('consent', consent ? 'true' : 'false');
-      fd.append('file', file, file.name);
-
-      let data;
-      try{ data = await postMultipartWithProgress(fd); }
-      catch(e){ data = { ok:false, error:String(e) }; }
-
-      // 2) if blocked by CORS/network, use iframe fallback
-      if (!data.ok && /Network error|Failed to fetch|TypeError|No file uploaded/i.test(data.error || '')){
-        status.innerHTML = '<span class="muted">Network is blocking cross-origin upload. Using safe fallback…</span>';
-        const r = await iframeUploadFallback(oldCount);
-        if (r.ok){
-          status.innerHTML = '<span class="ok">Upload successful.</span>';
-          $('description').value=''; $('file').value=''; $('title').focus();
-          await refreshCount(); await refreshRecent(); clearProgress(); setBusy(false); return;
-        }else{
-          status.innerHTML = `<span class="err">Upload sent but not confirmed yet. Please check later.</span>`;
-          await refreshCount(); await refreshRecent(); clearProgress(); setBusy(false); return;
-        }
-      }
-
-      // 3) normal XHR path result
-      setProgress(100);
-      if (data.ok){
-        status.innerHTML = '<span class="ok">Upload successful.</span>';
-        $('file').value = ''; $('description').value = ''; $('title').focus();
-        await refreshCount(); await refreshRecent();
-      }else{
-        status.innerHTML = `<span class="err">Upload failed: ${S(data.error)||'Unknown error'}</span>`;
-      }
-    }catch(err){
-      status.innerHTML = `<span class="err">Error: ${err.message}</span>`;
-      console.error(err);
-    }finally{
-      setBusy(false);
-      setTimeout(clearProgress, 900);
-    }
+  }catch(err){
+    console.error(err);
+    setStatus('Upload failed: ' + (err.message||err),'err');
+  }finally{
+    btn.disabled = false; setTimeout(()=>setBar(0), 800);
   }
+});
 
-  $('btn').addEventListener('click', upload);
-  refreshCount();
-  refreshRecent();
+/** === polling helpers === */
+async function getCountSafe(){
+  try{
+    const r = await fetch(SCRIPT_URL + '?action=count', { cache:'no-store' });
+    const j = await r.json(); return j.count ?? 0;
+  }catch{ return 0; }
+}
+async function waitForCountIncrease(oldCount, tries=6, gap=2000){
+  for (let i=0;i<tries;i++){
+    await new Promise(r=>setTimeout(r,gap));
+    const now = await getCountSafe();
+    if (now > oldCount) return true;
+  }
+  return false;
+}
+
+/** === initial === */
+refreshCount();
+refreshList();
+$('viewAll').addEventListener('click', ()=> refreshList());
 </script>
 </body>
 </html>
