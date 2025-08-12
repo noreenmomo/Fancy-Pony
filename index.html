@@ -1,38 +1,51 @@
 <!doctype html>
 <meta charset="utf-8" />
-<title>Fancy Pony — Safe Uploader</title>
+<title>Fancy Pony — Uploader</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
-  body { font-family: Arial, sans-serif; margin: 2rem; }
-  label { display:block; margin:.6rem 0 .25rem; }
-  input, button { font-size: 14px; }
-  #status { margin-top: .75rem; white-space: pre-wrap; }
+  :root { color-scheme: light; }
+  body { font-family: Arial, sans-serif; margin: 2rem; background:#fafafa; }
+  h1 { margin: 0 0 1rem; }
+  .card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 18px rgba(0,0,0,.06); max-width:880px; }
+  label { display:block; margin:.6rem 0 .25rem; font-weight:600; }
+  input[type="text"], input[type="file"] {
+    width:100%; padding:.6rem .7rem; border:1px solid #d1d5db; border-radius:10px; font-size:14px; background:#fff;
+  }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .btn { margin-top:14px; padding:.7rem 1.1rem; background:#2563eb; color:#fff; border:0; border-radius:10px; cursor:pointer; font-weight:700; }
+  .btn:hover { filter:brightness(1.05); }
+  .muted { color:#6b7280; font-size:12px; margin-top:8px; }
+  #status { margin-top:12px; white-space:pre-wrap; }
+  .ok { color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; padding:10px 12px; border-radius:8px; display:inline-block; }
+  .err { color:#991b1b; background:#fff1f2; border:1px solid #fecaca; padding:10px 12px; border-radius:8px; display:inline-block; }
 </style>
 
-<h1>Fancy Pony — Safe Uploader</h1>
+<h1>Fancy Pony — Minimal Upload</h1>
 
-<form id="f" onsubmit="return false;">
-  <label>Your name</label>
-  <input id="name" type="text" required>
+<div class="card">
+  <form id="f" onsubmit="return false;">
+    <label for="name">Your Name</label>
+    <input id="name" type="text" placeholder="e.g. Alex Chen" required>
 
-  <label>Choose file (JPG/PNG/PDF)</label>
-  <input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+    <label for="file">Choose File (JPG / PNG / PDF)</label>
+    <input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
 
-  <div style="margin-top:.8rem">
-    <button id="btn">Upload</button>
-  </div>
-</form>
+    <button id="btn" class="btn">Upload</button>
+    <div class="muted">Tip: scan at 150–300 ppi before uploading.</div>
+  </form>
 
-<div id="status"></div>
+  <div id="status"></div>
+</div>
 
 <script>
-  // 換成你的 Web App /exec
+  // TODO: 換成你的 Web App /exec
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
   const $ = id => document.getElementById(id);
   $('btn').addEventListener('click', upload);
 
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
+  function fileToBase64(file){
+    return new Promise((resolve, reject)=>{
       const fr = new FileReader();
       fr.onload = () => {
         const s = String(fr.result || '');
@@ -44,37 +57,45 @@
     });
   }
 
-  async function upload() {
+  async function upload(){
     const status = $('status');
     const file = $('file').files[0];
-    if (!file) { status.textContent = 'Please choose a file.'; return; }
+    if (!file){ status.innerHTML = '<span class="err">Please choose a file.</span>'; return; }
+
+    // 可選：簡單大小限制（Apps Script 約 50MB）
+    if (file.size > 45 * 1024 * 1024){
+      status.innerHTML = '<span class="err">File is too large. Please keep it under ~45MB.</span>';
+      return;
+    }
 
     status.textContent = 'Uploading…';
 
-    try {
-      // 先走「標準」路徑：multipart/form-data + file 欄位
+    try{
+      // 標準路徑：multipart + file 欄位（名稱必須是 "file"）
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
-      fd.append('file', file, file.name); // 重點：欄位名一定叫「file」
+      fd.append('file', file, file.name);
 
-      // 同時附上 base64 備援（後端也有支援）
+      // 備援：同時送 base64（後端如 e.files 為空，仍可用這組資料寫檔）
       fd.append('filename', file.name);
       fd.append('mimetype', file.type || 'application/octet-stream');
       fd.append('filebase64', await fileToBase64(file));
 
-      const r = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
+      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd }); // 不要自訂 headers
       const txt = await r.text();
-      let data;
-      try { data = JSON.parse(txt); } catch { throw new Error('Server returned non-JSON: ' + txt); }
-
+      let data; try { data = JSON.parse(txt); } catch { throw new Error('Non-JSON: ' + txt); }
       console.log('server response:', data);
-      if (data.ok) {
-        status.textContent = `OK\nfileId: ${data.fileId || '(n/a)'}\nfileUrl: ${data.fileUrl || '(n/a)'}\ncount: ${data.count}`;
+
+      if (data.ok){
+        const link = data.fileUrl ? ` • <a href="${data.fileUrl}" target="_blank" rel="noopener">Open</a>` : '';
+        status.innerHTML = `<span class="ok">Uploaded.${link}</span>`;
+        $('f').reset();
       } else {
-        status.textContent = `Failed: ${data.error}\n` + (data.diag ? JSON.stringify(data.diag, null, 2) : '');
+        status.innerHTML = `<span class="err">Failed: ${data.error || 'Unknown error'}</span>` +
+          (data.diag ? '<pre class="muted">'+JSON.stringify(data.diag,null,2)+'</pre>' : '');
       }
-    } catch (err) {
-      status.textContent = 'Error: ' + err.message;
+    }catch(err){
+      status.innerHTML = `<span class="err">Error: ${err.message}</span>`;
       console.error(err);
     }
   }
