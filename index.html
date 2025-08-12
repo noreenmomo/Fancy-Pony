@@ -34,8 +34,8 @@
   .ok{ color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; padding:8px 10px; border-radius:8px; display:inline-block; }
   .err{ color:#991b1b; background:#fef2f2; border:1px solid #fecaca; padding:8px 10px; border-radius:8px; display:inline-block; }
 
-  /* progress bar */
-  .pwrap{ margin-top:10px; height:10px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+  /* progress */
+  .pwrap{ margin-top:10px; height:10px; background:#e5e7eb; border-radius:999px; overflow:hidden; display:none; }
   .pbar{ height:100%; width:0%; background:#16a34a; transition:width .15s linear; }
   .ptext{ font-size:12px; color:#374151; margin-top:4px; }
 
@@ -74,7 +74,7 @@
       </div>
 
       <button id="btn">Upload</button>
-      <div class="pwrap" id="pwrap" style="display:none;"><div class="pbar" id="pbar"></div></div>
+      <div class="pwrap" id="pwrap"><div class="pbar" id="pbar"></div></div>
       <div class="ptext" id="ptext"></div>
       <div class="status" id="status"></div>
 
@@ -92,31 +92,24 @@
   </div>
 
 <script>
-  // ======= replace with your deployed /exec URL =======
+  // ===== replace with your deployed /exec URL =====
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
   const $ = id => document.getElementById(id);
   const S = v => (v===undefined||v===null)?'':String(v);
 
-  function setProgress(p){ // p: 0..100
+  function setBusy(b){ $('btn').disabled = b; }
+  function setProgress(p){
     $('pwrap').style.display = 'block';
     $('pbar').style.width = Math.max(0, Math.min(100, p)) + '%';
     $('ptext').textContent = Math.round(Math.max(0, Math.min(100, p))) + '%';
   }
-  function clearProgress(){
-    $('pbar').style.width = '0%';
-    $('ptext').textContent = '';
-    $('pwrap').style.display = 'none';
-  }
-
-  function setBusy(b){
-    $('btn').disabled = b;
-  }
+  function clearProgress(){ $('pbar').style.width='0%'; $('ptext').textContent=''; $('pwrap').style.display='none'; }
 
   async function fetchJSON(url, opts){
     const r = await fetch(url, opts);
     const t = await r.text();
-    try { return JSON.parse(t); } catch { throw new Error('Bad JSON: '+t.slice(0,200)); }
+    try { return JSON.parse(t); } catch { throw new Error('Bad JSON: ' + t.slice(0,200)); }
   }
 
   async function refreshCount(){
@@ -124,9 +117,7 @@
       const j = await fetchJSON(SCRIPT_URL + '?action=count&cache=' + Date.now());
       $('count').textContent = j.ok ? (j.count ?? 0) : '—';
       $('meta').textContent = j.ok ? `${j.version || ''} ${j.marker || ''}`.trim() : '';
-    }catch(e){
-      $('count').textContent = '—';
-    }
+    }catch{ $('count').textContent = '—'; }
   }
 
   function renderRecent(items){
@@ -156,33 +147,22 @@
   async function refreshRecent(){
     try{
       const j = await fetchJSON(SCRIPT_URL + '?action=recent&limit=10&cache=' + Date.now());
-      if (j.ok) renderRecent(j.items);
-      else renderRecent([]);
-    }catch{
-      renderRecent([]);
-    }
+      renderRecent(j.ok ? j.items : []);
+    }catch{ renderRecent([]); }
   }
 
-  // multipart with real progress
+  // multipart with progress
   function postMultipartWithProgress(fd){
     return new Promise((resolve, reject)=>{
       const xhr = new XMLHttpRequest();
       xhr.open('POST', SCRIPT_URL, true);
-
       xhr.upload.onprogress = (e)=>{
-        if (e.lengthComputable){
-          const p = (e.loaded / e.total) * 100;
-          setProgress(p);
-        }
+        if (e.lengthComputable) setProgress((e.loaded / e.total) * 100);
       };
       xhr.onerror = () => reject(new Error('Network error'));
-      xhr.onload = () => {
-        try {
-          const data = JSON.parse(xhr.responseText || '{}');
-          resolve(data);
-        } catch (e) {
-          reject(new Error('Bad JSON: ' + (xhr.responseText || '')));
-        }
+      xhr.onload  = () => {
+        try { resolve(JSON.parse(xhr.responseText || '{}')); }
+        catch(e){ reject(new Error('Bad JSON: ' + (xhr.responseText || ''))); }
       };
       xhr.send(fd);
     });
@@ -191,9 +171,8 @@
   function toBase64(file){
     return new Promise((res,rej)=>{
       const fr = new FileReader();
-      fr.onload = () => {
-        const s = String(fr.result||'');
-        const i = s.indexOf('base64,');
+      fr.onload = ()=>{
+        const s = String(fr.result||''); const i = s.indexOf('base64,');
         res(i>=0 ? s.slice(i+7) : s);
       };
       fr.onerror = ()=>rej(fr.error || new Error('read error'));
@@ -202,9 +181,7 @@
   }
 
   async function upload(){
-    const status = $('status');
-    status.textContent = '';
-
+    const status = $('status'); status.textContent = '';
     const name = $('name').value.trim();
     const email= $('email').value.trim();
     const title= $('title').value.trim();
@@ -222,61 +199,40 @@
       return;
     }
 
-    setBusy(true);
-    clearProgress();
-    setProgress(1);
+    setBusy(true); clearProgress(); setProgress(1);
 
     try{
-      // 1) try multipart with real progress
+      // 1) try multipart
       const fd = new FormData();
-      fd.append('name', name);
-      fd.append('email', email);
-      fd.append('title', title);
-      fd.append('description', desc);
+      fd.append('name', name); fd.append('email', email);
+      fd.append('title', title); fd.append('description', desc);
       fd.append('consent', consent ? 'true' : 'false');
       fd.append('file', file, file.name);
 
       let data;
-      try{
-        data = await postMultipartWithProgress(fd);
-      }catch(e){
-        data = { ok:false, error:String(e) };
-      }
+      try{ data = await postMultipartWithProgress(fd); }
+      catch(e){ data = { ok:false, error:String(e) }; }
 
-      // 2) fallback: base64 (simulate progress to 100%)
-      if (!data.ok && data.error && /No file uploaded/i.test(data.error)) {
-        // 30% → encoding
+      // 2) fallback: base64 with simulated progress
+      if (!data.ok && /No file uploaded/i.test(data.error || '')){
         setProgress(30);
-        const b64 = await toBase64(file);
-        setProgress(60);
-
+        const b64 = await toBase64(file); setProgress(60);
         const fd2 = new FormData();
-        fd2.append('name', name);
-        fd2.append('email', email);
-        fd2.append('title', title);
-        fd2.append('description', desc);
+        fd2.append('name', name); fd2.append('email', email);
+        fd2.append('title', title); fd2.append('description', desc);
         fd2.append('consent', consent ? 'true':'false');
         fd2.append('filebase64', b64);
         fd2.append('mimetype', file.type || 'application/octet-stream');
         fd2.append('filename', file.name || 'upload.bin');
-
         const r2 = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
-        const txt2 = await r2.text();
-        try { data = JSON.parse(txt2); } catch { throw new Error('Bad JSON: '+txt2); }
+        const txt2 = await r2.text(); data = JSON.parse(txt2);
         setProgress(100);
-      } else {
-        setProgress(100);
-      }
+      } else { setProgress(100); }
 
       if (data.ok){
-        status.innerHTML = `<span class="ok">Upload successful.</span>`;
-        // reset file + description
-        $('file').value = '';
-        $('description').value = '';
-        $('title').focus();
-
-        await refreshCount();
-        await refreshRecent();
+        status.innerHTML = '<span class="ok">Upload successful.</span>';
+        $('file').value = ''; $('description').value = ''; $('title').focus();
+        await refreshCount(); await refreshRecent();
       }else{
         const diag = data.diag ? `<pre class="muted" style="white-space:pre-wrap;margin-top:6px;">${JSON.stringify(data.diag,null,2)}</pre>` : '';
         status.innerHTML = `<span class="err">Upload failed: ${S(data.error)||'Unknown error'}</span>${diag}`;
@@ -286,7 +242,7 @@
       console.error(err);
     }finally{
       setBusy(false);
-      setTimeout(clearProgress, 800); // give user a moment to see 100%
+      setTimeout(clearProgress, 800);
     }
   }
 
