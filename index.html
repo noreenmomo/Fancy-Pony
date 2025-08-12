@@ -1,233 +1,202 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Fancy Pony — Art Submission</title>
+<meta charset="UTF-8">
+<title>Fancy Pony Drawing Upload</title>
 <style>
-  :root { color-scheme: light; --accent:#2563eb; --accent-d:#1e40af; }
-  *{box-sizing:border-box}
-  body{margin:0; font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Noto Sans, "Apple Color Emoji","Segoe UI Emoji";}
-  .wrap{max-width:880px; margin:40px auto; padding:0 18px;}
-  h1{font-size:clamp(28px,4vw,42px); margin:0 0 8px;}
-  .muted{color:#6b7280}
-  .card{background:#fff; border-radius:14px; padding:18px; box-shadow:0 6px 24px rgba(0,0,0,.06)}
-  label{display:block; font-weight:600; margin:.35rem 0 .25rem}
-  input[type="text"], input[type="email"], input[type="file"], textarea{
-    width:100%; padding:.7rem .8rem; border:1px solid #d1d5db; border-radius:10px; font-size:16px; background:#fff;
-  }
-  textarea{resize:vertical}
-  .grid{display:grid; gap:12px}
-  @media(min-width:640px){ .grid-2{grid-template-columns:1fr 1fr} }
-  .row{margin:.4rem 0}
-  .checkline{display:flex; gap:.6rem; align-items:flex-start; margin-top:.6rem}
-  .checkline input{margin-top:.2rem}
-  .help{font-size:13px; color:#6b7280; margin-top:.4rem}
-  .note{font-size:13px; color:#111827; margin-top:.35rem}
-  .error{background:#fff1f2; color:#991b1b; border:1px solid #fecaca; padding:10px 12px; border-radius:10px; margin-top:12px}
-  .ok{background:#f0fff4; color:#065f46; border:1px solid #bbf7d0; padding:10px 12px; border-radius:10px; margin-top:12px}
-
-  .btn{display:inline-flex; align-items:center; gap:.5rem; border:0; color:#fff; background:var(--accent);
-       padding:.75rem 1.15rem; border-radius:12px; font-weight:700; cursor:pointer; transition:transform .02s, filter .15s}
-  .btn:hover{filter:brightness(1.05)}
-  .btn:disabled{opacity:.6; cursor:not-allowed}
-  .dots{display:inline-flex; gap:6px}
-  .dots i{width:6px; height:6px; border-radius:50%; background:#fff; display:inline-block; animation:bounce 1s infinite}
-  .dots i:nth-child(2){animation-delay:.12s}
-  .dots i:nth-child(3){animation-delay:.24s}
-  @keyframes bounce{0%,80%,100%{opacity:.2; transform:translateY(0)}40%{opacity:1; transform:translateY(-6px)}}
-
-  .meta{margin-top:14px; color:#6b7280; font-size:14px}
-  .count-badge{display:inline-block; background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; border-radius:999px; padding:.2rem .6rem; font-weight:700}
-
-  /* Gallery */
-  h2{margin:30px 0 12px}
-  .gallery{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px}
-  .item{background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.04)}
-  .item a{display:block}
-  .thumb{width:100%; height:140px; object-fit:cover; display:block; background:#f3f4f6}
-  .cap{padding:8px 10px; font-size:13px; color:#374151}
-  .cap b{display:block; color:#111827}
-  .empty{color:#6b7280; font-size:14px; padding:14px 10px}
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+  h1 { text-align: center; }
+  .form-group { margin-bottom: 15px; }
+  label { display: block; font-weight: bold; margin-bottom: 5px; }
+  input[type="text"], input[type="email"], input[type="file"] { width: 100%; padding: 8px; }
+  button { padding: 10px 20px; font-size: 16px; }
+  button[disabled] { background: #ccc; cursor: not-allowed; }
+  .loading { display: inline-block; margin-left: 10px; }
+  .loading span { display: inline-block; width: 8px; height: 8px; margin: 0 2px; background: #333; border-radius: 50%; animation: bounce 0.6s infinite alternate; }
+  .loading span:nth-child(2) { animation-delay: 0.2s; }
+  .loading span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { to { transform: translateY(-8px); } }
+  .success { color: green; margin-top: 10px; font-weight: bold; }
+  .error { color: red; margin-top: 10px; font-weight: bold; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; margin-top: 20px; }
+  .gallery img { width: 100%; height: auto; border: 1px solid #ccc; }
+  .count { font-weight: bold; margin-bottom: 20px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Fancy Pony — Art Submission</h1>
-  <p class="muted">Upload your drawing and help grow our gallery. Files should be <b>JPG/PNG/PDF</b>, scanned at <b>150–300&nbsp;ppi</b>, and between <b>1–3&nbsp;MB</b>.</p>
 
-  <div class="card">
-    <form id="uploadForm" novalidate>
-      <div class="grid grid-2">
-        <div class="row">
-          <label for="name">Your Name</label>
-          <input id="name" name="name" type="text" placeholder="e.g. Alex Chen" required>
-        </div>
-        <div class="row">
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" placeholder="you@example.com" required>
-        </div>
-      </div>
+<h1>Fancy Pony Drawing Upload</h1>
+<div class="count">Loading count...</div>
 
-      <div class="row">
-        <label for="title">Pony Name</label>
-        <input id="title" name="title" type="text" placeholder="e.g. Starlight Runner" required>
-      </div>
-
-      <div class="row">
-        <label for="file">Choose File (JPG / PNG / PDF)</label>
-        <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
-        <div id="fileNote" class="help">Tip: aim for 150–300 ppi. We’ll check your file is between 1–3&nbsp;MB.</div>
-      </div>
-
-      <div class="checkline">
-        <input id="consent" name="consent" type="checkbox" required>
-        <label for="consent" class="muted" style="margin:0;">
-          I grant the school Marketing the right to print, publicly display, and use my artwork for promotional purposes.
-        </label>
-      </div>
-
-      <div class="row">
-        <button id="submitBtn" class="btn" type="submit">
-          <span class="btn-text">Submit</span>
-          <span class="btn-spin" style="display:none"><span class="dots"><i></i><i></i><i></i></span></span>
-        </button>
-      </div>
-
-      <div id="status"></div>
-      <div class="meta">
-        Total submissions: <span id="count" class="count-badge">—</span>
-      </div>
-    </form>
+<form id="uploadForm">
+  <div class="form-group">
+    <label for="name">Your Name *</label>
+    <input type="text" id="name" name="name" required>
   </div>
 
-  <h2>Submitted Fancy Ponies</h2>
-  <div id="gallery" class="gallery">
-    <div class="empty">Loading…</div>
+  <div class="form-group">
+    <label for="email">Your Email *</label>
+    <input type="email" id="email" name="email" required>
   </div>
-</div>
+
+  <div class="form-group">
+    <label for="title">Pony Name *</label>
+    <input type="text" id="title" name="title" required>
+  </div>
+
+  <div class="form-group">
+    <label for="file">Upload File *</label>
+    <input type="file" id="file" name="file" accept="image/*" required>
+    <small>File size must be between 1MB and 3MB. Recommended: 150-300 ppi, Letter size scan (should be >1MB)</small>
+  </div>
+
+  <div class="form-group">
+    <label>
+      <input type="checkbox" id="consent" name="consent" value="true" required>
+      I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.
+    </label>
+  </div>
+
+  <button type="submit" id="submitBtn">Upload</button>
+  <div class="loading" id="loading" style="display:none;">
+    <span></span><span></span><span></span>
+  </div>
+</form>
+
+<div class="success" id="successMsg" style="display:none;">Upload successful!</div>
+<div class="error" id="errorMsg" style="display:none;"></div>
+
+<h2>Gallery</h2>
+<div class="gallery" id="gallery"></div>
 
 <script>
-  // Replace with your latest Web App URL if needed:
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec"; // 這裡換成 Google Apps Script 部署的 /exec URL
 
-  const $ = id => document.getElementById(id);
-  const MIN = 1 * 1024 * 1024;   // 1 MB
-  const MAX = 3 * 1024 * 1024;   // 3 MB
-
-  const btn = $('submitBtn');
-  const btnText = btn.querySelector('.btn-text');
-  const btnSpin = btn.querySelector('.btn-spin');
-
-  function setBusy(v){
-    btn.disabled = v;
-    btnText.style.display = v ? 'none' : '';
-    btnSpin.style.display = v ? '' : 'none';
+// 載入徵件數量
+async function loadCount(){
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=count`);
+    const data = await res.json();
+    document.querySelector('.count').textContent = `Total drawings collected: ${data.count || 0}`;
+  } catch(e) {
+    document.querySelector('.count').textContent = `Unable to load count`;
   }
+}
 
-  function updateFileNote(){
-    const f = $('file').files[0];
-    const n = $('fileNote');
-    if (!f){ n.textContent = 'Tip: aim for 150–300 ppi. We’ll check your file is between 1–3 MB.'; return; }
-    const sz = (f.size/1024/1024).toFixed(2);
-    n.textContent = `Selected: ${sz} MB (required 1–3 MB)`;
-  }
-
-  $('file').addEventListener('change', updateFileNote);
-
-  async function refreshCount(){
-    try{
-      const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
-      const j = await r.json();
-      $('count').textContent = j.ok ? (j.count ?? 0) : '—';
-    }catch{ $('count').textContent = '—'; }
-  }
-
-  async function refreshGallery(){
-    try{
-      const r = await fetch(SCRIPT_URL + '?action=gallery', {cache:'no-store'});
-      const j = await r.json();
-      const root = $('gallery');
-      root.innerHTML = '';
-      if (!j.ok || !Array.isArray(j.items) || j.items.length===0){
-        root.innerHTML = '<div class="empty">No submissions yet. Be the first!</div>';
-        return;
-      }
-      j.items.forEach(x=>{
-        const name = x.name || '';
-        const title = x.title || 'Untitled';
-        const url = x.fileUrl || '#';
-        const card = document.createElement('div');
-        card.className = 'item';
-        card.innerHTML = `
-          <a href="${url}" target="_blank" rel="noopener">
-            <img class="thumb" src="${url}" alt="${title}">
-          </a>
-          <div class="cap"><b>${title}</b>${name}</div>`;
-        root.appendChild(card);
+// 載入圖庫
+async function loadGallery(){
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=gallery`);
+    const data = await res.json();
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+    if(data.items && data.items.length){
+      data.items.forEach(item => {
+        const img = document.createElement('img');
+        img.src = item.fileUrl;
+        img.alt = `${item.title} by ${item.name}`;
+        gallery.appendChild(img);
       });
-    }catch{
-      $('gallery').innerHTML = '<div class="empty">Could not load gallery.</div>';
     }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+document.getElementById('uploadForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const fileInput = document.getElementById('file');
+  const file = fileInput.files[0];
+  const submitBtn = document.getElementById('submitBtn');
+  const loading = document.getElementById('loading');
+  const successMsg = document.getElementById('successMsg');
+  const errorMsg = document.getElementById('errorMsg');
+
+  successMsg.style.display = 'none';
+  errorMsg.style.display = 'none';
+
+  // 檔案大小檢查
+  if(!file){
+    errorMsg.textContent = 'Please select a file.';
+    errorMsg.style.display = 'block';
+    return;
+  }
+  if(file.size < 1*1024*1024 || file.size > 3*1024*1024){
+    errorMsg.textContent = 'File must be between 1MB and 3MB.';
+    errorMsg.style.display = 'block';
+    return;
   }
 
-  $('uploadForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const status = $('status'); status.textContent = '';
+  submitBtn.disabled = true;
+  loading.style.display = 'inline-block';
 
-    // Basic validations
-    const name = $('name').value.trim();
-    const email = $('email').value.trim();
-    const title = $('title').value.trim();
-    const file = $('file').files[0];
-    const consent = $('consent').checked;
+  // 嘗試 multipart/form-data
+  let useBase64 = false;
+  let formData = new FormData();
+  formData.append('name', document.getElementById('name').value);
+  formData.append('email', document.getElementById('email').value);
+  formData.append('title', document.getElementById('title').value);
+  formData.append('consent', document.getElementById('consent').checked ? 'true' : 'false');
+  formData.append('file', file, file.name);
 
-    if (!name || !email || !title || !file || !consent){
-      status.innerHTML = '<div class="error">Please complete all fields and check the consent box.</div>';
-      return;
+  try {
+    let res = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+    let data = await res.json();
+    if(!data.ok && data.error && data.error.includes('No file uploaded')){
+      useBase64 = true;
+    } else if(data.ok){
+      successMsg.style.display = 'block';
+      await loadCount();
+      await loadGallery();
+    } else {
+      throw new Error(data.error || 'Unknown error');
     }
-    if (file.size < MIN || file.size > MAX){
-      status.innerHTML = '<div class="error">File must be between 1–3 MB.</div>';
-      return;
-    }
+  } catch(e) {
+    useBase64 = true;
+  }
 
-    // Build FormData (must keep field name 'file')
-    const fd = new FormData();
-    fd.append('name', name);
-    fd.append('email', email);
-    fd.append('title', title);
-    fd.append('consent', consent ? 'true' : 'false');
-    fd.append('file', file, file.name);
-
-    try{
-      setBusy(true);
-      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
-      const txt = await r.text();
-      let data;
-      try { data = JSON.parse(txt); } catch(e){ throw new Error('Server returned non‑JSON response'); }
-
-      if (data.ok){
-        status.innerHTML = `<div class="ok">You have successfully uploaded. <a href="${data.fileUrl}" target="_blank" rel="noopener">Open</a></div>`;
-        e.target.reset();
-        updateFileNote();
-        await refreshCount();
-        await refreshGallery();
-      } else {
-        const diag = data.diag ? `<pre class="muted" style="white-space:pre-wrap;margin-top:.35rem;">${JSON.stringify(data.diag,null,2)}</pre>` : '';
-        status.innerHTML = `<div class="error">Upload failed: ${data.error || 'Unknown error'}</div>${diag}`;
+  // Base64 備援
+  if(useBase64){
+    const reader = new FileReader();
+    reader.onload = async function(){
+      const base64Data = reader.result.split(',')[1];
+      let fd = new FormData();
+      fd.append('name', document.getElementById('name').value);
+      fd.append('email', document.getElementById('email').value);
+      fd.append('title', document.getElementById('title').value);
+      fd.append('consent', document.getElementById('consent').checked ? 'true' : 'false');
+      fd.append('filebase64', base64Data);
+      fd.append('mimetype', file.type);
+      fd.append('filename', file.name);
+      try {
+        let res2 = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
+        let data2 = await res2.json();
+        if(data2.ok){
+          successMsg.style.display = 'block';
+          await loadCount();
+          await loadGallery();
+        } else {
+          throw new Error(data2.error || 'Upload failed');
+        }
+      } catch(err2) {
+        errorMsg.textContent = err2.message;
+        errorMsg.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        loading.style.display = 'none';
       }
-    }catch(err){
-      status.innerHTML = `<div class="error">Error: ${err.message}</div>`;
-      console.error(err);
-    }finally{
-      setBusy(false);
-    }
-  });
+    };
+    reader.readAsDataURL(file);
+  } else {
+    submitBtn.disabled = false;
+    loading.style.display = 'none';
+  }
+});
 
-  // Initial load
-  updateFileNote();
-  refreshCount();
-  refreshGallery();
+// 初始化
+loadCount();
+loadGallery();
 </script>
+
 </body>
 </html>
