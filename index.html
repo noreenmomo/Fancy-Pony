@@ -3,30 +3,25 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fancy Pony — Artwork Submission</title>
+<title>Fancy Pony — Submit Artwork</title>
 <style>
   :root { color-scheme: light; }
   body{
     margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     background-image:url("https://i.postimg.cc/jSmGH445/Pony.png");
     background-repeat:repeat;
-    background-size:140px auto; /* small repeating ponies */
+    background-size:140px auto;
   }
-  .wrap{ max-width: 920px; margin: 32px auto; padding: 24px; }
-  .cardish{
-    background:#fff; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.08);
-    padding:20px;
-  }
-  h1{ margin:0 0 8px; font-size: clamp(28px, 4vw, 36px); }
+  .wrap{ max-width: 820px; margin: 32px auto; padding: 0 16px; }
+  .card{ background:#fff; border-radius:14px; box-shadow:0 10px 28px rgba(0,0,0,.08); padding:20px; }
+  h1{ margin:0 0 8px; font-size: clamp(26px, 4vw, 34px); }
   .muted{ color:#6b7280; }
   label{ display:block; font-weight:600; margin:14px 0 6px; }
-  input[type="text"], input[type="email"], textarea, input[type="file"]{
-    width:100%; padding:.7rem .75rem; border:1px solid #d1d5db; border-radius:10px; font-size:16px;
-    background:#fff;
+  input[type="text"], input[type="email"], input[type="file"], textarea{
+    width:100%; padding:.7rem .8rem; border:1px solid #d1d5db; border-radius:10px; font-size:16px; background:#fff;
   }
   textarea{ resize:vertical; min-height:110px; }
-  .row{ display:grid; grid-template-columns: 1fr; gap:14px; }
-  .consent{ display:flex; gap:.6rem; align-items:flex-start; margin-top:10px; }
+  .consent{ display:flex; gap:.6rem; align-items:flex-start; margin-top:6px; }
   .consent input{ margin-top:.2rem; }
   button{
     display:inline-flex; gap:.5rem; align-items:center;
@@ -35,49 +30,36 @@
     box-shadow:0 6px 18px rgba(37,99,235,.25);
   }
   button[disabled]{ opacity:.6; cursor:not-allowed; }
-  .spinner{ width:16px; height:16px; border:2px solid #fff; border-right-color:transparent; border-radius:50%; animation:spin .8s linear infinite; }
-  @keyframes spin{ to { transform:rotate(360deg); } }
-
   .status{ margin-top:10px; min-height:20px; }
   .ok{ color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; padding:8px 10px; border-radius:8px; display:inline-block; }
   .err{ color:#991b1b; background:#fef2f2; border:1px solid #fecaca; padding:8px 10px; border-radius:8px; display:inline-block; }
 
-  .bar{ margin:18px 0 10px; display:flex; justify-content:space-between; align-items:center; }
-  .count{ font-weight:600; }
+  /* progress bar */
+  .pwrap{ margin-top:10px; height:10px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+  .pbar{ height:100%; width:0%; background:#16a34a; transition:width .15s linear; }
+  .ptext{ font-size:12px; color:#374151; margin-top:4px; }
 
-  /* gallery */
-  .galleryWrap{ margin-top:18px; }
-  .gTitle{ text-align:center; font-weight:800; font-size: clamp(22px, 3vw, 28px); margin: 8px 0 14px; }
-  #galleryError{ color:#b91c1c; margin-bottom:8px; }
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
-    gap:16px;
+  .block{ margin-top:18px; }
+  .title2{ font-weight:800; font-size: clamp(20px, 3vw, 24px); margin: 8px 0 12px; }
+  .list{ display:flex; flex-direction:column; gap:10px; }
+  .item{
+    background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:12px 14px;
+    box-shadow:0 4px 14px rgba(0,0,0,.04);
   }
-  figure.card{
-    background:#fff; border-radius:14px; box-shadow:0 8px 22px rgba(0,0,0,.06); margin:0; overflow:hidden;
-    display:flex; flex-direction:column; min-height:280px;
-  }
-  figure.card img{
-    width:100%; height:200px; object-fit:cover; background:#f3f4f6; display:block;
-  }
-  figure.card figcaption{ padding:10px 12px; }
-  .title{ font-weight:700; }
-  .by{ color:#6b7280; }
-  .desc{ margin-top:4px; color:#374151; font-size:14px; line-height:1.25; }
+  .item .t{ font-weight:700; }
+  .item .meta{ color:#6b7280; font-size:13px; }
+  .item .desc{ margin-top:4px; font-size:14px; }
 </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="cardish">
+    <div class="card">
       <h1>Fancy Pony — Artwork Submission</h1>
       <div class="muted" id="meta"></div>
 
-      <div class="row" style="margin-top:8px;">
-        <label>Your Name *<input id="name" type="text" required></label>
-        <label>Your Email *<input id="email" type="email" required></label>
-        <label>Pony Name *<input id="title" type="text" required></label>
-      </div>
+      <label>Your Name *<input id="name" type="text" required></label>
+      <label>Your Email *<input id="email" type="email" required></label>
+      <label>Pony Name *<input id="title" type="text" required></label>
 
       <label>Upload File *<input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required></label>
       <div class="muted">File size must be between <b>1 MB</b> and <b>5 MB</b>. Recommended: <b>150–300 ppi</b> (Letter size scans are typically &gt; 1 MB).</div>
@@ -91,58 +73,50 @@
         <label for="consent" style="margin:0;font-weight:500;">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
       </div>
 
-      <button id="btn"><span class="btnText">Upload</span></button>
+      <button id="btn">Upload</button>
+      <div class="pwrap" id="pwrap" style="display:none;"><div class="pbar" id="pbar"></div></div>
+      <div class="ptext" id="ptext"></div>
       <div class="status" id="status"></div>
 
-      <div class="bar">
-        <div class="count">Total drawings collected: <span id="count">—</span></div>
+      <div class="block">
+        <div><b>Total drawings collected:</b> <span id="count">—</span></div>
       </div>
     </div>
 
-    <div class="cardish galleryWrap">
-      <div class="gTitle">Gallery</div>
-      <div id="galleryError"></div>
-      <div id="gallery" class="grid"></div>
+    <div class="block"></div>
+
+    <div class="card">
+      <div class="title2">Recent submissions</div>
+      <div id="recent" class="list"></div>
     </div>
   </div>
 
 <script>
-  // ==== CONFIG: replace with your latest /exec URL ====
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
+  // ======= replace with your deployed /exec URL =======
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
-  // small helpers
   const $ = id => document.getElementById(id);
-  const S = v => (v === null || v === undefined) ? '' : String(v);
+  const S = v => (v===undefined||v===null)?'':String(v);
 
-  function setBusy(busy){
-    const btn = $('btn');
-    const t = btn.querySelector('.btnText');
-    if (busy){
-      btn.setAttribute('disabled','disabled');
-      t.innerHTML = '<span class="spinner"></span> Uploading…';
-    } else{
-      btn.removeAttribute('disabled');
-      t.textContent = 'Upload';
-    }
+  function setProgress(p){ // p: 0..100
+    $('pwrap').style.display = 'block';
+    $('pbar').style.width = Math.max(0, Math.min(100, p)) + '%';
+    $('ptext').textContent = Math.round(Math.max(0, Math.min(100, p))) + '%';
+  }
+  function clearProgress(){
+    $('pbar').style.width = '0%';
+    $('ptext').textContent = '';
+    $('pwrap').style.display = 'none';
   }
 
-  function toBase64(file){
-    return new Promise((res,rej)=>{
-      const fr = new FileReader();
-      fr.onload = () => {
-        const s = String(fr.result||'');
-        const i = s.indexOf('base64,');
-        res(i>=0 ? s.slice(i+7) : s);
-      };
-      fr.onerror = () => rej(fr.error || new Error('read error'));
-      fr.readAsDataURL(file);
-    });
+  function setBusy(b){
+    $('btn').disabled = b;
   }
 
   async function fetchJSON(url, opts){
     const r = await fetch(url, opts);
-    const text = await r.text();
-    try { return JSON.parse(text); } catch { throw new Error('Bad JSON: '+text.slice(0,200)); }
+    const t = await r.text();
+    try { return JSON.parse(t); } catch { throw new Error('Bad JSON: '+t.slice(0,200)); }
   }
 
   async function refreshCount(){
@@ -155,61 +129,82 @@
     }
   }
 
-  async function refreshGallery(){
-    const box = $('gallery'), errBox = $('galleryError');
-    errBox.textContent = '';
-    box.innerHTML = '<div class="muted" style="padding:8px;">Loading…</div>';
-
-    let data;
-    try{
-      data = await fetchJSON(`${SCRIPT_URL}?action=list&limit=50&cache=${Date.now()}`);
-      if (!data.ok) throw new Error(data.error || 'list failed');
-    }catch(e){
-      try{
-        data = await fetchJSON(`${SCRIPT_URL}?action=drive_list&limit=50&cache=${Date.now()}`);
-        if (!data.ok) throw new Error(data.error || 'drive_list failed');
-      }catch(e2){
-        box.innerHTML = '';
-        errBox.textContent = 'Failed to fetch';
-        console.error('gallery failed:', e, e2);
-        return;
-      }
-    }
-
-    const items = Array.isArray(data.items) ? data.items : [];
-    if (!items.length){
-      box.innerHTML = '<div class="muted" style="padding:8px;">No items yet.</div>';
+  function renderRecent(items){
+    const box = $('recent');
+    box.innerHTML = '';
+    if (!Array.isArray(items) || !items.length){
+      box.innerHTML = '<div class="muted">No items yet.</div>';
       return;
     }
-
-    box.innerHTML = '';
     items.forEach(it=>{
-      const title = S(it.title).trim();
-      const name  = S(it.name).trim();
-      const desc  = S(it.description).trim();
-      const src   = S(it.imgUrl) || S(it.directUrl) || S(it.fileUrl);
-
-      const card = document.createElement('figure');
-      card.className='card';
-      card.innerHTML = `
-        <img loading="lazy"
-             src="${src}"
-             alt="${title || 'Artwork'}"
-             referrerpolicy="no-referrer"
-             onerror="this.onerror=null; this.src='${S(it.fileUrl)}'; this.style.objectFit='contain';">
-        <figcaption>
-          <div class="title">${title || 'Untitled'}</div>
-          ${name ? `<div class="by">by ${name}</div>` : ``}
-          ${desc ? `<div class="desc">${desc}</div>` : ``}
-        </figcaption>
+      const d = new Date(it.timestamp);
+      const when = isNaN(d.getTime()) ? '' : d.toLocaleString();
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `
+        <div class="t">${S(it.title) || 'Untitled'}</div>
+        <div class="meta">
+          ${S(it.name) ? S(it.name) + ' • ' : ''}${when}
+          ${it.fileUrl ? ` • <a target="_blank" rel="noopener" href="${S(it.fileUrl)}">Open file</a>` : ''}
+        </div>
+        ${S(it.description) ? `<div class="desc">${S(it.description)}</div>` : ''}
       `;
-      box.appendChild(card);
+      box.appendChild(el);
+    });
+  }
+
+  async function refreshRecent(){
+    try{
+      const j = await fetchJSON(SCRIPT_URL + '?action=recent&limit=10&cache=' + Date.now());
+      if (j.ok) renderRecent(j.items);
+      else renderRecent([]);
+    }catch{
+      renderRecent([]);
+    }
+  }
+
+  // multipart with real progress
+  function postMultipartWithProgress(fd){
+    return new Promise((resolve, reject)=>{
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', SCRIPT_URL, true);
+
+      xhr.upload.onprogress = (e)=>{
+        if (e.lengthComputable){
+          const p = (e.loaded / e.total) * 100;
+          setProgress(p);
+        }
+      };
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.onload = () => {
+        try {
+          const data = JSON.parse(xhr.responseText || '{}');
+          resolve(data);
+        } catch (e) {
+          reject(new Error('Bad JSON: ' + (xhr.responseText || '')));
+        }
+      };
+      xhr.send(fd);
+    });
+  }
+
+  function toBase64(file){
+    return new Promise((res,rej)=>{
+      const fr = new FileReader();
+      fr.onload = () => {
+        const s = String(fr.result||'');
+        const i = s.indexOf('base64,');
+        res(i>=0 ? s.slice(i+7) : s);
+      };
+      fr.onerror = ()=>rej(fr.error || new Error('read error'));
+      fr.readAsDataURL(file);
     });
   }
 
   async function upload(){
     const status = $('status');
     status.textContent = '';
+
     const name = $('name').value.trim();
     const email= $('email').value.trim();
     const title= $('title').value.trim();
@@ -221,7 +216,6 @@
     if (!file){ status.innerHTML = '<span class="err">Please choose a file.</span>'; return; }
     if (!consent){ status.innerHTML = '<span class="err">Please agree to the consent.</span>'; return; }
 
-    // size check 1–5 MB
     const sizeMB = file.size/1024/1024;
     if (sizeMB < 1 || sizeMB > 5){
       status.innerHTML = '<span class="err">File size must be between 1 MB and 5 MB.</span>';
@@ -229,47 +223,60 @@
     }
 
     setBusy(true);
+    clearProgress();
+    setProgress(1);
+
     try{
-      // 1) Try multipart
+      // 1) try multipart with real progress
       const fd = new FormData();
       fd.append('name', name);
       fd.append('email', email);
       fd.append('title', title);
       fd.append('description', desc);
       fd.append('consent', consent ? 'true' : 'false');
-      fd.append('file', file, file.name); // critical name
+      fd.append('file', file, file.name);
 
       let data;
       try{
-        data = await fetchJSON(SCRIPT_URL, { method:'POST', body: fd });
+        data = await postMultipartWithProgress(fd);
       }catch(e){
-        // network layer failed; try base64 path
         data = { ok:false, error:String(e) };
       }
 
-      // 2) If backend says "No file uploaded", use base64 fallback
-      if (!data.ok && data.error && /No file uploaded/i.test(data.error)){
+      // 2) fallback: base64 (simulate progress to 100%)
+      if (!data.ok && data.error && /No file uploaded/i.test(data.error)) {
+        // 30% → encoding
+        setProgress(30);
         const b64 = await toBase64(file);
+        setProgress(60);
+
         const fd2 = new FormData();
         fd2.append('name', name);
         fd2.append('email', email);
         fd2.append('title', title);
         fd2.append('description', desc);
-        fd2.append('consent', consent ? 'true' : 'false');
+        fd2.append('consent', consent ? 'true':'false');
         fd2.append('filebase64', b64);
         fd2.append('mimetype', file.type || 'application/octet-stream');
         fd2.append('filename', file.name || 'upload.bin');
-        data = await fetchJSON(SCRIPT_URL, { method:'POST', body: fd2 });
+
+        const r2 = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
+        const txt2 = await r2.text();
+        try { data = JSON.parse(txt2); } catch { throw new Error('Bad JSON: '+txt2); }
+        setProgress(100);
+      } else {
+        setProgress(100);
       }
 
       if (data.ok){
         status.innerHTML = `<span class="ok">Upload successful.</span>`;
-        // clear form
-        $('description').value = '';
+        // reset file + description
         $('file').value = '';
+        $('description').value = '';
         $('title').focus();
+
         await refreshCount();
-        await refreshGallery();
+        await refreshRecent();
       }else{
         const diag = data.diag ? `<pre class="muted" style="white-space:pre-wrap;margin-top:6px;">${JSON.stringify(data.diag,null,2)}</pre>` : '';
         status.innerHTML = `<span class="err">Upload failed: ${S(data.error)||'Unknown error'}</span>${diag}`;
@@ -279,12 +286,13 @@
       console.error(err);
     }finally{
       setBusy(false);
+      setTimeout(clearProgress, 800); // give user a moment to see 100%
     }
   }
 
   $('btn').addEventListener('click', upload);
   refreshCount();
-  refreshGallery();
+  refreshRecent();
 </script>
 </body>
 </html>
