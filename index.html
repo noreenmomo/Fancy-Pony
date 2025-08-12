@@ -2,315 +2,236 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Fancy Pony — Artwork Submission</title>
 <style>
-  :root {
-    --brand:#111827;          /* text */
-    --accent:#2563eb;         /* buttons */
-    --surface:#ffffff;        /* cards/forms */
-    --muted:#6b7280;
-    --ok:#046c4e;
-    --err:#b91c1c;
+  :root{color-scheme:light;}
+  body{
+    margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:#fff url("https://i.postimg.cc/jSmGH445/Pony.png") repeat;
+    background-size:120px 120px;
   }
-
-  /* Repeat tiny pony background */
-  body {
-    margin: 0;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    color: var(--brand);
-    background: url("https://i.postimg.cc/jSmGH445/Pony.png") repeat;
-    background-size: 160px 160px; /* tile size */
+  .wrap{max-width:760px; margin:36px auto; padding:16px;}
+  .card{
+    background:#fff; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.08);
+    padding:18px; margin-bottom:16px;
   }
-
-  .wrap {
-    max-width: 760px;          /* ~70% of big screens */
-    width: 92%;
-    margin: 24px auto 56px;
+  h1{margin:0 0 12px; font-size:28px}
+  label{font-weight:600; display:block; margin:.6rem 0 .25rem}
+  input[type=text],input[type=email],textarea{
+    width:100%; padding:.65rem .75rem; border:1px solid #d1d5db; border-radius:10px; font:inherit;
+    background:#f8fafc;
   }
-
-  h1 {
-    margin: 0 0 10px;
-    font-size: clamp(26px, 3.2vw, 36px);
+  textarea{min-height:110px; resize:vertical}
+  input[type=file]{width:100%}
+  .row{display:grid; grid-template-columns:1fr; gap:12px}
+  .muted{color:#6b7280; font-size:12px}
+  .checkbox{display:flex; align-items:flex-start; gap:.6rem; margin-top:.5rem}
+  .btn{
+    display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.1rem; border:0; border-radius:10px;
+    background:#2563eb; color:#fff; font-weight:700; cursor:pointer;
   }
-
-  .counter {
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-
-  .card {
-    background: var(--surface);
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,.08);
-    padding: 14px;
-  }
-
-  label { font-weight: 600; display:block; margin: 12px 0 6px; }
-  input[type="text"], input[type="email"], input[type="file"], textarea {
-    width: 100%; box-sizing: border-box;
-    border: 1px solid #d1d5db; border-radius: 10px;
-    padding: 10px 12px; font-size: 15px;
-    background: #fff;
-  }
-  textarea { min-height: 110px; resize: vertical; }
-
-  .consent { display:flex; gap:10px; align-items:flex-start; margin-top: 10px; }
-  .consent input { transform: translateY(2px); }
-
-  .row { display:block; } /* stacked fields */
-
-  .help { color:var(--muted); font-size: 13px; margin-top: 6px; }
-
-  .btn {
-    display:inline-flex; align-items:center; gap:.5rem;
-    background: var(--accent); color:#fff; border:0; border-radius: 10px;
-    padding: 10px 16px; font-weight:700; cursor: pointer;
-    margin-top: 12px;
-  }
-  .btn[disabled] { opacity:.6; cursor:not-allowed; }
-  .spinner::after { content: '…'; animation: dots 1.1s steps(3,end) infinite; }
-  @keyframes dots { 0%{content:''} 33%{content:'.'} 66%{content:'..'} 100%{content:'...'} }
-
-  .note-ok { color:var(--ok); margin-top: 10px; }
-  .note-err{ color:var(--err); margin-top: 10px; }
-
-  /* Gallery */
-  .gallery {
-    background: var(--surface);
-    border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,.07);
-    margin-top: 26px; padding: 18px;
-  }
-  .gallery h2 { text-align:center; margin: 8px 0 16px; }
-  .grid {
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
-  }
-  figure.card {
-    margin:0; padding:10px; border-radius:12px; box-shadow: 0 2px 10px rgba(0,0,0,.05);
-    display:flex; flex-direction:column;
-  }
-  figure.card img {
-    width:100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 8px; background:#f3f4f6;
-  }
-  figure.card figcaption {
-    font-size: 14px; margin-top: 8px;
-  }
-  .by { color: var(--muted); }
-
-  .sr { position:absolute; left:-9999px; }
+  .btn[disabled]{opacity:.5; cursor:not-allowed}
+  .ok{background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:.6rem .8rem; border-radius:10px}
+  .err{background:#fef2f2; color:#991b1b; border:1px solid #fecaca; padding:.6rem .8rem; border-radius:10px}
+  .list{list-style:none; padding:0; margin:0}
+  .item{padding:12px 0; border-top:1px solid #e5e7eb}
+  .item:first-child{border-top:0}
+  .item h3{margin:0 0 4px; font-size:16px}
+  .meta{color:#6b7280; font-size:12px}
+  .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
 </style>
 </head>
 <body>
-  <main class="wrap">
-    <h1>Fancy Pony — Artwork Submission</h1>
-    <div class="counter">Total drawings collected: <span id="count">…</span></div>
-
-    <form id="ponyForm" class="card" novalidate>
-      <div class="row">
-        <label for="name">Your Name *</label>
-        <input id="name" name="name" type="text" required placeholder="e.g. Alex Chen" />
+  <div class="wrap">
+    <div class="card">
+      <h1>Fancy Pony — Artwork Submission</h1>
+      <div class="flex">
+        <div class="muted">Total drawings collected: <span id="count">—</span></div>
+        <div class="muted" id="backendMeta"></div>
       </div>
+    </div>
 
-      <div class="row">
-        <label for="email">Your Email *</label>
-        <input id="email" name="email" type="email" required placeholder="alex@example.com" />
-      </div>
+    <div class="card">
+      <form id="uploadForm" novalidate>
+        <label>Your Name *</label>
+        <input id="name" name="name" type="text" required />
 
-      <div class="row">
-        <label for="title">Pony Name *</label>
-        <input id="title" name="title" type="text" required placeholder="e.g. Stardust" />
-      </div>
+        <label>Your Email *</label>
+        <input id="email" name="email" type="email" required />
 
-      <div class="row">
-        <label for="file">Upload File *</label>
+        <label>Pony Name *</label>
+        <input id="title" name="title" type="text" required />
+
+        <label>Upload File *</label>
         <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
-        <div class="help">File size must be between <strong>1 MB</strong> and <strong>5 MB</strong>.
-          Recommended: <strong>150–300 ppi</strong> (Letter size scans are typically &gt; 1 MB).</div>
-      </div>
+        <div class="muted">File size must be between <b>1 MB</b> and <b>5 MB</b>. Recommended: <b>150–300 ppi</b> (Letter size scans are typically &gt; 1 MB).</div>
 
-      <div class="row">
-        <label for="desc">Description (optional)</label>
-        <textarea id="desc" name="description" placeholder="Tell us about your pony…"></textarea>
-      </div>
+        <label>Description (optional)</label>
+        <textarea id="description" name="description" placeholder="Tell us about your pony…"></textarea>
 
-      <div class="consent">
-        <input id="consent" name="consent" type="checkbox" value="true" required />
-        <label for="consent">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
-      </div>
+        <div class="checkbox">
+          <input id="consent" name="consent" type="checkbox" value="true" required />
+          <label for="consent" style="margin:0;font-weight:400;">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
+        </div>
 
-      <button id="submitBtn" class="btn" type="submit">
-        <span>Upload</span><span id="spinner" class=""></span>
-      </button>
+        <div class="flex" style="margin-top:12px">
+          <button id="btn" class="btn" type="submit">Upload</button>
+          <span id="status" class="muted"></span>
+        </div>
+      </form>
+    </div>
 
-      <div id="status" class="help" aria-live="polite"></div>
-    </form>
-
-    <section class="gallery">
-      <h2>Gallery</h2>
-      <div id="grid" class="grid" aria-live="polite">Loading…</div>
-    </section>
-  </main>
+    <div class="card">
+      <h2 style="margin:0 0 8px">Latest submissions</h2>
+      <ul id="list" class="list"><li class="muted">Loading…</li></ul>
+    </div>
+  </div>
 
 <script>
-/* ====== SET YOUR WEB APP URL ====== */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
+  // CHANGE THIS to your current /exec URL
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
-const $ = id => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
-/* ---- size helpers ---- */
-const MIN_BYTES = 1 * 1024 * 1024;  // 1 MB
-const MAX_BYTES = 5 * 1024 * 1024;  // 5 MB
-
-/* ---- count ---- */
-async function refreshCount(){
-  try {
-    const r = await fetch(`${SCRIPT_URL}?action=count`, {cache:'no-store'});
-    const j = await r.json();
-    $('count').textContent = j.ok ? (j.count ?? 0) : '—';
-  } catch {
-    $('count').textContent = '—';
+  /* ---------- helpers ---------- */
+  function toBase64(file){
+    return new Promise((res, rej)=>{
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split('base64,').pop());
+      r.onerror = () => rej(r.error || new Error('read error'));
+      r.readAsDataURL(file);
+    });
   }
-}
+  function fmtTime(ts){
+    try{
+      const d = new Date(ts);
+      return d.toLocaleString();
+    }catch{ return String(ts||''); }
+  }
 
-/* ---- gallery (list -> img proxy) ---- */
-async function refreshGallery(){
-  const box = $('grid');
-  box.textContent = 'Loading…';
-  try {
-    // Try worksheet list first (keeps names/titles). If empty, fall back to drive_list.
-    let r = await fetch(`${SCRIPT_URL}?action=list&limit=60`, {cache:'no-store'});
-    let j = await r.json();
-    if (!j.ok || !Array.isArray(j.items) || j.items.length===0) {
-      const r2 = await fetch(`${SCRIPT_URL}?action=drive_list&limit=60`, {cache:'no-store'});
-      j = await r2.json();
+  async function refreshCount(){
+    try{
+      const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
+      const j = await r.json();
+      if (j.ok){
+        $('count').textContent = j.count ?? 0;
+        $('backendMeta').textContent = j.version ? `backend: ${j.version}` : '';
+      }
+    }catch{}
+  }
+
+  async function refreshList(){
+    const box = $('list');
+    box.innerHTML = '<li class="muted">Loading…</li>';
+    try{
+      const r = await fetch(SCRIPT_URL + '?action=list', {cache:'no-store'});
+      const j = await r.json();
+      if (!j.ok){ box.innerHTML = `<li class="err">Failed: ${j.error||'Unknown error'}</li>`; return; }
+      const items = Array.isArray(j.items) ? j.items : [];
+      if (items.length === 0){ box.innerHTML = '<li class="muted">No items yet.</li>'; return; }
+      box.innerHTML = '';
+      items.forEach(it=>{
+        const li = document.createElement('li');
+        li.className = 'item';
+        const title = (it.title || 'Untitled').toString();
+        const name  = (it.name  || '').toString();
+        const desc  = (it.description || '').toString(); // may be empty in old rows
+        const when  = fmtTime(it.timestamp);
+        const link  = it.fileId ? `${SCRIPT_URL}?action=img&id=${encodeURIComponent(it.fileId)}`
+                                : (it.directUrl || it.fileUrl || '#');
+        li.innerHTML = `
+          <h3>${title}</h3>
+          <div class="meta">${name ? `by <b>${name}</b> • ` : ''}${when}</div>
+          ${desc ? `<div style="margin:.4rem 0">${desc.replace(/</g,'&lt;')}</div>` : ''}
+          <div><a href="${link}" target="_blank" rel="noopener">Open file</a></div>
+        `;
+        box.appendChild(li);
+      });
+    }catch(e){
+      box.innerHTML = `<li class="err">Error: ${e.message}</li>`;
+    }
+  }
+
+  /* ---------- upload flow (multipart first, base64 fallback) ---------- */
+  $('uploadForm').addEventListener('submit', async (ev)=>{
+    ev.preventDefault();
+    const btn = $('btn');
+    const st  = $('status');
+    const f   = $('file').files[0];
+
+    // basic validation
+    if (!f){ st.textContent = 'Error: No file selected'; st.className='err'; return; }
+    if (f.size < 1*1024*1024 || f.size > 5*1024*1024){
+      st.textContent = 'Error: File must be between 1MB and 5MB';
+      st.className='err'; return;
+    }
+    if (!$('consent').checked){
+      st.textContent = 'Please agree to the consent.'; st.className='err'; return;
     }
 
-    if (!j.ok) throw new Error(j.error || 'Failed to load');
+    btn.disabled = true; st.textContent = 'Uploading…'; st.className='muted';
 
-    const items = j.items;
-    if (items.length === 0) { box.textContent = 'No items yet.'; return; }
+    // 1) try multipart (best for Apps Script)
+    try{
+      const fd = new FormData();
+      fd.append('name', $('name').value.trim());
+      fd.append('email', $('email').value.trim());
+      fd.append('title', $('title').value.trim());
+      fd.append('description', $('description').value.trim());
+      fd.append('consent', $('consent').checked ? 'true' : 'false');
+      fd.append('file', f, f.name); // critical: field name must be 'file'
 
-    box.innerHTML = '';
-    items.forEach(it => {
-      const src = it.imgUrl || (it.fileId
-  ? `${SCRIPT_URL}?action=img&id=${encodeURIComponent(it.fileId)}`
-  : it.directUrl || it.fileUrl);
+      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+      const j = await r.json();
 
-      const title = (it.title || '').trim();
-      const name  = (it.name  || '').trim();
+      if (j.ok){
+        st.innerHTML = `<span class="ok">Upload successful.</span>`;
+        ev.target.reset();
+        await refreshCount();
+        await refreshList();
+        btn.disabled = false;
+        return;
+      } else if (j.error && /no file/i.test(j.error)){
+        // fall through to base64 path
+      } else {
+        throw new Error(j.error || 'Upload failed');
+      }
+    }catch(_){ /* fall back */ }
 
-      const card = document.createElement('figure');
-      card.className = 'card';
-      card.innerHTML = `
-        <img loading="lazy"
-             src="${src}"
-             alt="${title || 'Artwork'}"
-             referrerpolicy="no-referrer"
-             onerror="this.onerror=null; this.src='${it.fileUrl || ''}'; this.style.objectFit='contain';" />
-        <figcaption>${title || 'Untitled'}${name ? ` <span class="by">by ${name}</span>` : ''}</figcaption>
-      `;
-      box.appendChild(card);
-    });
-  } catch (err) {
-    box.textContent = 'Failed to fetch';
-    console.error(err);
-  }
-}
-
-/* ---- base64 helper (fallback) ---- */
-function fileToBase64(file){
-  return new Promise((resolve, reject)=>{
-    const fr = new FileReader();
-    fr.onload = () => {
-      const s = String(fr.result || '');
-      const i = s.indexOf('base64,');
-      resolve(i >= 0 ? s.slice(i + 7) : s);
-    };
-    fr.onerror = () => reject(fr.error || new Error('File read error'));
-    fr.readAsDataURL(file);
-  });
-}
-
-/* ---- uploader ---- */
-$('ponyForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const status = $('status');
-  const btn = $('submitBtn');
-  const spin = $('spinner');
-
-  status.textContent = '';
-  const file = $('file').files[0];
-  if (!file) { status.className='note-err'; status.textContent = 'Error: No file uploaded'; return; }
-  if (file.size < MIN_BYTES || file.size > MAX_BYTES) {
-    status.className = 'note-err';
-    status.textContent = 'Error: File must be between 1 MB and 5 MB.';
-    return;
-  }
-  if (!$('consent').checked) {
-    status.className='note-err'; status.textContent = 'Please check the consent box.'; return;
-  }
-
-  btn.disabled = true; spin.className = 'spinner';
-
-  try {
-    // (A) multipart first
-    const fd = new FormData();
-    fd.append('name', $('name').value.trim());
-    fd.append('email', $('email').value.trim());
-    fd.append('title', $('title').value.trim());
-    fd.append('description', $('desc').value.trim());
-    fd.append('consent', $('consent').checked ? 'true' : 'false');
-    fd.append('file', file, file.name); // IMPORTANT: 'file'
-
-    let r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
-    let txt = await r.text();
-
-    // If Apps Script stripped files (rare CORS/host cases), fallback to base64
-    let data;
-    try { data = JSON.parse(txt); } catch { data = { ok:false, error:'Non-JSON response' }; }
-    if (!data.ok && data.diag && !data.diag.hasFilesObj) {
-      const b64 = await fileToBase64(file);
+    // 2) fallback: base64
+    try{
+      const b64 = await toBase64(f);
       const fd2 = new FormData();
       fd2.append('name', $('name').value.trim());
       fd2.append('email', $('email').value.trim());
       fd2.append('title', $('title').value.trim());
-      fd2.append('description', $('desc').value.trim());
+      fd2.append('description', $('description').value.trim());
       fd2.append('consent', $('consent').checked ? 'true' : 'false');
       fd2.append('filebase64', b64);
-      fd2.append('mimetype', file.type || 'application/octet-stream');
-      fd2.append('filename', file.name || 'upload.bin');
+      fd2.append('mimetype', f.type || 'application/octet-stream');
+      fd2.append('filename', f.name || 'upload.bin');
 
-      r = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
-      data = await r.json();
+      const r2 = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
+      const j2 = await r2.json();
+
+      if (j2.ok){
+        st.innerHTML = `<span class="ok">Upload successful.</span>`;
+        ev.target.reset();
+        await refreshCount();
+        await refreshList();
+      }else{
+        throw new Error(j2.error || 'Upload failed');
+      }
+    }catch(err){
+      st.innerHTML = `<span class="err">Error: ${err.message}</span>`;
+    }finally{
+      btn.disabled = false;
     }
+  });
 
-    if (data.ok) {
-      status.className = 'note-ok';
-      const link = data.directUrl || data.fileUrl;
-      status.innerHTML = link
-        ? `Upload successful! <a href="${link}" target="_blank" rel="noopener">Open</a>`
-        : 'Upload successful!';
-      e.target.reset();
-      $('name').focus();
-      await refreshCount();
-      await refreshGallery();     // show the new one
-    } else {
-      throw new Error(data.error || 'Upload failed');
-    }
-  } catch (err) {
-    console.error(err);
-    status.className = 'note-err';
-    status.textContent = `Error: ${err.message}`;
-  } finally {
-    btn.disabled = false; spin.className = '';
-  }
-});
-
-/* init */
-refreshCount();
-refreshGallery();
+  refreshCount();
+  refreshList();
 </script>
 </body>
 </html>
