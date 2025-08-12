@@ -1,10 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- MAINTAIN: Fancy Pony – single-file upload wired to Apps Script -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Fancy Pony</title>
   <style>
+    /* MAINTAIN: minimal, accessible styles */
     :root { --w: 720px; --bd:#e5e7eb; --fg:#111827; --muted:#6b7280; --accent:#111827; }
     * { box-sizing: border-box; }
     body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--fg); margin:0; }
@@ -34,6 +36,7 @@
       <p class="sub">Artwork Submission</p>
       <p><span id="count" class="badge">Loading total…</span></p>
 
+      <!-- MAINTAIN: upload form -->
       <form id="form" novalidate>
         <div class="row">
           <div>
@@ -74,42 +77,42 @@
   </div>
 
   <script>
-    // ---- SET THIS to your exact Web App /exec URL ----
-    const API = 'https://script.google.com/macros/s/AKfycbxsLbUN-3aqmAWSyuxAkmsmUvi77DfE8lQgkIKSJzGEdR4MkSpH3JL1OrAgyZ4aM_M_/exec'.trim();
+    /* ===== MAINTAIN: SET YOUR /exec URL ===== */
+    const API = 'https://script.google.com/macros/s/AKfycb.../exec'.trim(); // <— replace
     document.getElementById('apiEcho').textContent = API;
 
+    /* ===== MAINTAIN: HELPERS ===== */
     const $ = id => document.getElementById(id);
-
-    // Convert a File to base64 (without the "data:*;base64," prefix)
     function fileToBase64(file){
       return new Promise((resolve, reject)=>{
         const fr = new FileReader();
         fr.onload = () => {
           const s = String(fr.result || '');
-          const idx = s.indexOf('base64,');
-          resolve(idx >= 0 ? s.slice(idx + 7) : s);
+          const i = s.indexOf('base64,');
+          resolve(i >= 0 ? s.slice(i + 7) : s);
         };
         fr.onerror = () => reject(fr.error || new Error('File read error'));
         fr.readAsDataURL(file);
       });
     }
 
+    /* ===== MAINTAIN: COUNTER ===== */
     async function refreshCount(){
       const badge = $('count');
       try{
         const r = await fetch(API + '?action=count', { cache: 'no-store' });
-        const text = await r.text();
-        const j = JSON.parse(text);
+        const txt = await r.text();
+        const j = JSON.parse(txt);
         badge.textContent = `Total submissions: ${j.count ?? 0}`;
       }catch(e){
         badge.textContent = 'Total submissions: (failed to load)';
         console.error('Count error:', e);
       }
     }
-
     $('btnRefresh').addEventListener('click', refreshCount);
     $('btnCsv').addEventListener('click', (e)=>{ e.preventDefault(); window.open(API + '?action=csv', '_blank'); });
 
+    /* ===== MAINTAIN: SUBMIT ===== */
     $('form').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const status = $('status');
@@ -118,7 +121,6 @@
 
       status.textContent = 'Preparing upload…';
       try{
-        // Build multipart with text fields + base64 file fields
         const fd = new FormData();
         fd.append('name', $('name').value.trim());
         fd.append('class', $('class').value.trim());
@@ -127,6 +129,7 @@
         fd.append('email', $('email').value.trim());
         fd.append('consent', $('consent').checked ? 'true' : 'false');
 
+        // Send file via base64 fields (stable with Apps Script)
         const b64 = await fileToBase64(file);
         fd.append('filebase64', b64);
         fd.append('mimetype', file.type || 'application/octet-stream');
@@ -134,12 +137,11 @@
 
         status.textContent = 'Uploading…';
         const r = await fetch(API, { method:'POST', body: fd }); // no custom headers
-        const text = await r.text();
-        let data;
-        try { data = JSON.parse(text); } catch { throw new Error('Non-JSON response:\n' + text.slice(0,200)); }
+        const txt = await r.text();
+        const data = JSON.parse(txt);
 
         if (data.ok){
-          status.innerHTML = 'Uploaded. File link: <a target="_blank" rel="noopener" href="' + data.fileUrl + '">Open</a>';
+          status.innerHTML = 'Uploaded. File link: <a target="_blank" rel="noopener" href="' + data.fileUrl + '">Open</a><br><span class="muted">A confirmation email was sent if an email address was provided.</span>';
           e.target.reset();
           await refreshCount();
         } else {
@@ -151,6 +153,7 @@
       }
     });
 
+    // Initial load
     refreshCount();
   </script>
 </body>
