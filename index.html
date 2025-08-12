@@ -1,64 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fancy Pony – Minimal Upload</title>
+<meta charset="utf-8">
+<title>Fancy Pony — Minimal Upload</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 2rem; background: #fafafa; }
-  form { background:#fff; padding:1rem; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.1); max-width:520px; }
-  label { display:block; margin-top:.5rem; }
-  input[type="text"], input[type="file"] { width:100%; padding:.55rem; margin-top:.25rem; border:1px solid #ccc; border-radius:6px; }
-  button { margin-top:1rem; padding:.7rem 1.1rem; background:#2563eb; color:#fff; border:0; border-radius:6px; cursor:pointer; }
-  .msg { margin-top:1rem; }
+  body { font-family: system-ui, Arial; margin: 24px;}
+  .ok { color:#0a7; } .err { color:#c00; white-space:pre-wrap;}
 </style>
-</head>
-<body>
-  <h1>Fancy Pony – Minimal Upload</h1>
-  <form id="f" novalidate>
-    <label for="name">Your Name</label>
-    <input id="name" name="name" type="text" required />
 
-    <label for="file">Choose File (JPG/PNG/PDF)</label>
-    <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
+<h1>Fancy Pony – Minimal Upload</h1>
 
-    <button type="submit">Upload</button>
-  </form>
-  <div class="msg" id="msg"></div>
+<form id="f" novalidate>
+  <label>Your Name<br>
+    <input id="name" name="name" required>
+  </label><br><br>
+
+  <label>Choose File (JPG/PNG/PDF)<br>
+    <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+  </label><br><br>
+
+  <button>Upload</button>
+</form>
+
+<div id="out"></div>
 
 <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec'; // ← paste your latest /exec here
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
+const $ = (s)=>document.querySelector(s);
+$('#f').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const out = $('#out');
+  out.textContent = 'Uploading…';
 
-  const $ = id => document.getElementById(id);
-  $('f').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const msg = $('msg');
-    msg.textContent = 'Uploading…';
+  const file = $('#file').files[0];
+  if (!file) { out.textContent = 'Please choose a file.'; return; }
 
-    const file = $('file').files[0];
-    if (!file) { msg.textContent = 'Please choose a file.'; return; }
+  const fd = new FormData();
+  fd.append('name', $('#name').value.trim());
+  // 關鍵：名稱必須是 "file"，而且真的把檔案放進去
+  fd.append('file', file, file.name);
 
-    try {
-      const fd = new FormData();
-      fd.append('name', $('name').value.trim());
-      fd.append('file', file, file.name); // IMPORTANT: field name must be 'file'
+  try {
+    // 不要手動設定任何 headers！
+    const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+    const txt = await r.text();
+    console.log('raw:', txt);
+    const j = JSON.parse(txt);
+    console.log('server response:', j);
 
-      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd }); // no custom headers
-      const txt = await r.text();
-      let data; try { data = JSON.parse(txt); } catch { throw new Error('Server returned non-JSON'); }
-      console.log('server response:', data);
-
-      if (data.ok) {
-        msg.innerHTML = `✅ Uploaded. ${data.fileUrl ? `<a href="${data.fileUrl}" target="_blank" rel="noopener">Open file</a>` : ''}`;
-        e.target.reset();
-      } else {
-        msg.textContent = '❌ ' + (data.error || 'Upload failed');
-      }
-    } catch (err) {
-      msg.textContent = '❌ ' + err.message;
-      console.error(err);
+    if (j.ok) {
+      out.innerHTML = `<div class="ok">OK. fileId=${j.fileId || '(?)'}<br>
+        <a target="_blank" href="${j.fileUrl}">Open file</a></div>`;
+    } else {
+      out.innerHTML = `<div class="err">Failed: ${j.error || 'unknown'}\n${j.diag ? JSON.stringify(j.diag,null,2):''}</div>`;
     }
-  });
+  } catch (err) {
+    out.innerHTML = `<div class="err">Fetch error: ${err.message}</div>`;
+  }
+});
 </script>
-</body>
 </html>
