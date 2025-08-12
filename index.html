@@ -5,24 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fancy Pony – Art Submission</title>
 <style>
-  :root { --green:#22c55e; --green-h:#16a34a; }
-  body { font-family: Arial, sans-serif; margin: 2rem; background:#fafafa; color:#111; }
-  h1 { color:#333; margin-top:0; }
-  form { background:#fff; padding:1rem; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); }
-  label { display:block; margin-top:.6rem; font-weight:600; }
+  body { font-family: Arial, sans-serif; margin: 2rem; background: #fafafa; }
+  h1 { color: #333; }
+  form { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  label { display: block; margin-top: .5rem; }
   input[type="text"], input[type="email"], input[type="file"], textarea {
-    width:100%; padding:.6rem .7rem; margin-top:.35rem; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box;
+    width: 100%; padding: .5rem; margin-top: .2rem; border: 1px solid #ccc; border-radius: 4px;
   }
-  textarea { resize:vertical; min-height:110px; }
-  input[type="checkbox"] { width:auto; margin-right:.5rem; vertical-align:middle; }
-  button { margin-top:1rem; padding:.65rem 1.1rem; background:var(--green); color:#fff; border:0; border-radius:10px; cursor:pointer; font-weight:700; }
-  button:hover { background:var(--green-h); }
-  #status { margin-top:1rem; }
-  .card { padding:.8rem 1rem; border:1px solid #e5e7eb; border-radius:10px; background:#f8fff4; display:inline-block; }
-  .error { background:#fff1f2; border-color:#fecdd3; }
-  .highlight { background:#ffec99; transition:background-color 1s ease; }
-  .muted { color:#6b7280; font-size:.9rem; }
-  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  input[type="checkbox"] { width: auto; margin-right: .5rem; vertical-align: middle; }
+  button { margin-top: 1rem; padding: .6rem 1rem; background: #4CAF50; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+  button:hover { background: #45a049; }
+  #status { margin-top: 1rem; }
+  .success { padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; display:inline-block; margin-bottom:6px; background:#f0fff0; }
+  .highlight { background:#ffec99; transition: background-color 1s ease; }
 </style>
 </head>
 <body>
@@ -30,22 +25,22 @@
   <p>Please fill in the form below to submit your artwork. If you provide your email, we will send a confirmation message.</p>
 
   <form id="uploadForm" novalidate>
-    <label for="name">Your Name</label>
+    <label for="name">Your Name:</label>
     <input id="name" name="name" type="text" required />
 
-    <label for="class">Class</label>
+    <label for="class">Class:</label>
     <input id="class" name="class" type="text" required />
 
-    <label for="title">Artwork Title</label>
+    <label for="title">Artwork Title:</label>
     <input id="title" name="title" type="text" />
 
-    <label for="description">Description</label>
-    <textarea id="description" name="description"></textarea>
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" rows="4"></textarea>
 
-    <label for="email">Email (for confirmation)</label>
+    <label for="email">Email (for confirmation):</label>
     <input id="email" name="email" type="email" />
 
-    <label for="file">Choose File (JPG / PNG / PDF) – Please scan at 150–300 ppi</label>
+    <label for="file">Choose File (JPG / PNG / PDF) – Please scan at 150–300 ppi:</label>
     <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
 
     <label>
@@ -56,20 +51,17 @@
     <button type="submit">Submit</button>
   </form>
 
-  <div id="status" class="muted"></div>
-
-  <div style="margin-top:1rem;">
+  <div id="status"></div>
+  <div style="margin-top:.5rem;">
     <strong>Total submissions:</strong> <span id="count">Loading...</span>
-    <span id="ver" class="muted mono" style="margin-left:.5rem;"></span>
   </div>
 
 <script>
-  // ===== SET THIS to your exact Web App /exec URL =====
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsLbUN-3aqmAWSyuxAkmsmUvi77DfE8lQgkIKSJzGEdR4MkSpH3JL1OrAgyZ4aM_M_/exec'.trim();
+  // ---- 更新成你最新部署的 Web App /exec URL ----
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsLbUN-3aqmAWSyuxAkmsmUvi77DfE8lQgkIKSJzGEdR4MkSpH3JL1OrAgyZ4aM_M_/exec';
 
-  const $ = id => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
-  // File → base64 (strip "data:*;base64," prefix)
   function fileToBase64(file){
     return new Promise((resolve, reject)=>{
       const fr = new FileReader();
@@ -84,24 +76,22 @@
   }
 
   async function refreshCount(){
-    const el = $('count'), v = $('ver');
+    const el = $('count');
     try{
       const r = await fetch(SCRIPT_URL + '?action=count', { cache: 'no-store' });
       const txt = await r.text();
-      // console.log('count raw =>', txt);
       const j = JSON.parse(txt);
+      console.log('count check =>', j); // 顯示後端 version/marker
       if (j.ok) {
         el.textContent = j.count ?? 0;
-        v.textContent = j.version ? `(${j.version}${j.marker ? ' ' + j.marker : ''})` : '';
         el.classList.add('highlight');
-        setTimeout(()=>el.classList.remove('highlight'), 900);
+        setTimeout(()=>el.classList.remove('highlight'), 1000);
       } else {
         el.textContent = 'Error';
-        v.textContent = j.error ? `(err: ${j.error})` : '';
+        console.error('count error =>', j.error);
       }
     }catch(e){
       el.textContent = 'Error';
-      v.textContent = `(fetch failed)`;
       console.error('count fetch failed =>', e);
     }
   }
@@ -112,10 +102,9 @@
     status.textContent = 'Preparing upload…';
 
     const file = $('file').files[0];
-    if (!file){ status.innerHTML = '<span class="card error">Please choose a file.</span>'; return; }
+    if (!file){ status.textContent = 'Please choose a file.'; return; }
 
     try{
-      // Build payload
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
       fd.append('class', $('class').value.trim());
@@ -133,28 +122,27 @@
       const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
       const txt = await r.text();
       const data = JSON.parse(txt);
-      console.log('server response:', data);
+      console.log('server response:', data); // 這裡要看到 emailSent / marker
 
       if (data.ok){
         const line = data.emailSent
           ? 'You have successfully uploaded. A confirmation email has been sent.'
-          : 'You have successfully uploaded.' + (data.emailError ? ` (Email could not be sent: ${data.emailError})` : '');
+          : 'You have successfully uploaded.' + (data.emailError ? ' (Email could not be sent.)' : '');
         status.innerHTML =
-          `<div class="card">${line}</div>
-           <div style="margin-top:.4rem;">File link:
-             <a target="_blank" rel="noopener" href="${data.fileUrl}">Open</a></div>`;
+          `<div class="success">${line}</div>
+           <div>File link: <a target="_blank" rel="noopener" href="${data.fileUrl}">Open</a></div>
+           <div><small>Version: ${data.version || 'N/A'}, Marker: ${data.marker || 'N/A'}</small></div>`;
         e.target.reset();
         await refreshCount();
-      } else {
-        status.innerHTML = `<div class="card error">Upload failed: ${data.error || 'Unknown error'}</div>`;
+      }else{
+        status.textContent = 'Upload failed: ' + (data.error || 'Unknown error');
       }
     }catch(err){
-      status.innerHTML = `<div class="card error">Error: ${err.message}</div>`;
+      status.textContent = 'Error: ' + err.message;
       console.error(err);
     }
   });
 
-  // initial
   refreshCount();
 </script>
 </body>
