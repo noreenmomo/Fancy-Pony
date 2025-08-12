@@ -1,269 +1,171 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fancy Pony — Artwork Submission</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fancy Pony – Art Submission</title>
 <style>
-  :root { color-scheme: light; }
-  body{
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    margin:0; padding:0;
-    background-image:url('https://i.postimg.cc/jSmGH445/Pony.png');
-    background-repeat: repeat;
-    background-size: 260px auto; /* 小圖反覆鋪滿 */
+  body {
+    font-family: Arial, sans-serif;
+    background: url('https://i.postimg.cc/jSmGH445/Pony.png') repeat;
+    margin: 0;
+    padding: 0;
   }
-  .wrap{ max-width: 860px; margin: 28px auto; padding: 0 16px; }
-  h1{ margin:0 0 8px; }
-  .count{ color:#374151; margin:0 0 16px; }
-
-  .card{
-    background:#fff; border-radius:12px;
-    box-shadow:0 6px 24px rgba(0,0,0,.08);
-    border:1px solid rgba(0,0,0,.06);
-    padding:16px;
+  h1, h2 { text-align: center; color: #333; }
+  form {
+    background: #fff;
+    max-width: 70%;
+    margin: 20px auto;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   }
-
-  .field{ margin:12px 0; }
-  label{ display:block; font-weight:600; margin-bottom:6px; }
-  input[type="text"],input[type="email"],input[type="file"],textarea{
-    width:100%; box-sizing:border-box;
-    border:1px solid #d1d5db; border-radius:8px;
-    padding:10px 12px; font-size:15px; background:#fff;
+  label { display: block; margin-top: .5rem; }
+  input[type="text"], input[type="email"], input[type="file"], textarea {
+    width: 100%; padding: .5rem; margin-top: .3rem;
+    border: 1px solid #ccc; border-radius: 4px;
   }
-  textarea{ resize:vertical; min-height:90px; }
-
-  .hint{ font-size:13px; color:#6b7280; margin-top:6px; }
-
-  .consent{ display:flex; gap:10px; align-items:flex-start; margin:12px 0; }
-  .consent input{ margin-top:3px; }
-
-  .actions{ margin-top:12px; display:flex; gap:10px; align-items:center; }
-  button{
-    background:#2563eb; color:#fff; border:0; border-radius:10px;
-    padding:10px 18px; font-weight:700; cursor:pointer;
-    box-shadow:0 8px 22px rgba(37,99,235,.25);
-    transition:transform .05s ease, box-shadow .2s ease, opacity .2s ease;
+  textarea { resize: vertical; }
+  button {
+    margin-top: 1rem; padding: 0.6rem 1.2rem;
+    background: #2563eb; color: white; border: none; border-radius: 4px;
+    cursor: pointer;
   }
-  button:hover{ transform:translateY(-1px) scale(1.01); box-shadow:0 12px 30px rgba(37,99,235,.28); }
-  button:active{ transform:translateY(0) scale(.99); }
-  button[disabled]{ opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
-
-  .msg{ margin-top:10px; }
-  .ok{ color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:8px 10px; display:inline-block; }
-  .err{ color:#991b1b; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:8px 10px; display:inline-block; }
-
-  /* Gallery */
-  .gallery{ margin:24px 0; display:grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap:14px; }
-  .tile{
-    background:#fff; border-radius:12px; overflow:hidden;
-    border:1px solid rgba(0,0,0,.06); box-shadow:0 6px 20px rgba(0,0,0,.07);
+  button:hover { background: #1e40af; }
+  .consent { display: flex; align-items: flex-start; gap: .5rem; margin-top: 1rem; }
+  #status { text-align: center; margin-top: 1rem; font-weight: bold; }
+  #gallery.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:12px;
+    max-width: 90%;
+    margin: 20px auto;
   }
-  .tile img{ width:100%; height:180px; object-fit:cover; display:block; background:#f3f4f6; }
-  .tile .meta{ padding:8px 10px; font-size:13px; color:#374151; }
-  .tile .meta b{ display:block; }
-
-  .sr{ position:absolute; left:-9999px; }
+  .card {
+    background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.08); overflow:hidden
+  }
+  .card img {
+    width:100%; height:180px; object-fit:cover; display:block
+  }
+  .card figcaption { padding:8px 10px; font-size:14px }
+  .card .by { color:#6b7280; font-size:12px }
+  .muted { color:#6b7280; text-align:center; }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Fancy Pony — Artwork Submission</h1>
-    <p class="count">Total drawings collected: <span id="count">–</span></p>
 
-    <div class="card" id="formCard">
-      <div class="field">
-        <label for="name">Your Name *</label>
-        <input id="name" type="text" autocomplete="name" required>
-      </div>
+<h1>Fancy Pony Art Submission</h1>
 
-      <div class="field">
-        <label for="email">Your Email *</label>
-        <input id="email" type="email" autocomplete="email" required>
-      </div>
+<form id="uploadForm">
+  <label for="name">Your Name *</label>
+  <input type="text" id="name" name="name" required>
 
-      <div class="field">
-        <label for="title">Pony Name *</label>
-        <input id="title" type="text" required>
-      </div>
+  <label for="email">Your Email *</label>
+  <input type="email" id="email" name="email" required>
 
-      <div class="field">
-        <label for="file">Upload File *</label>
-        <input id="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
-        <div class="hint">File size must be between <b>1 MB</b> and <b>5 MB</b>. Recommended: <b>150–300 ppi</b> (Letter size scan typically &gt; 1 MB).</div>
-      </div>
+  <label for="title">Pony Name *</label>
+  <input type="text" id="title" name="title" required>
 
-      <div class="field">
-        <label for="desc">Description (optional)</label>
-        <textarea id="desc" placeholder="Tell us about your pony…"></textarea>
-      </div>
+  <label for="file">Upload File *</label>
+  <input type="file" id="file" name="file" accept="image/*" required>
+  <small>File size must be between 1 MB and 5 MB.</small>
 
-      <div class="consent">
-        <input id="consent" type="checkbox" required>
-        <label for="consent">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
-      </div>
+  <label for="description">Description (optional)</label>
+  <textarea id="description" name="description"></textarea>
 
-      <div class="actions">
-        <button id="submitBtn">Upload</button>
-        <span id="spinner" class="hint" aria-live="polite"></span>
-      </div>
-      <div id="status" class="msg" aria-live="polite"></div>
-    </div>
-
-    <h2 style="margin:22px 0 8px;">Gallery</h2>
-    <div id="gallery" class="gallery" aria-live="polite"></div>
+  <div class="consent">
+    <input type="checkbox" id="consent" name="consent" value="true" required>
+    <label for="consent">I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.</label>
   </div>
 
+  <button type="submit">Upload</button>
+</form>
+
+<div id="status"></div>
+
+<h2>Gallery</h2>
+<div id="gallery" class="grid"></div>
+
 <script>
-  // 你的最新 Web App /exec
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec'; // Replace with your deployed Apps Script URL
 
-  const $ = id => document.getElementById(id);
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const status = document.getElementById('status');
+  status.textContent = 'Uploading...';
 
-  function toDirect(urlOrId){
-    // 已經是 uc 直接連結
-    if (typeof urlOrId === 'string' && urlOrId.startsWith('https://drive.google.com/uc')) return urlOrId;
-    // fileId → 直接連結
-    if (urlOrId && !String(urlOrId).includes('http')) {
-      return 'https://drive.google.com/uc?export=view&id=' + urlOrId;
-    }
-    // …/file/d/xxx/view -> uc?export=view&id=xxx
-    if (typeof urlOrId === 'string') {
-      const m = urlOrId.match(/\/d\/([^/]+)/);
-      if (m) return 'https://drive.google.com/uc?export=view&id=' + m[1];
-    }
-    return '';
+  const fileInput = document.getElementById('file');
+  const file = fileInput.files[0];
+  if (!file) {
+    status.textContent = 'Please select a file.';
+    return;
+  }
+  if (file.size < 1*1024*1024 || file.size > 5*1024*1024) {
+    status.textContent = 'File size must be between 1 MB and 5 MB.';
+    return;
   }
 
-  async function refreshCount(){
-    try{
-      const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
-      const j = await r.json();
-      $('count').textContent = j.ok ? (j.count ?? 0) : '–';
-    }catch{ $('count').textContent = '–'; }
+  const formData = new FormData(this);
+  try {
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+    const json = await res.json();
+    if (json.ok) {
+      status.textContent = 'Upload successful!';
+      this.reset();
+      await loadGallery(true);
+    } else {
+      status.textContent = 'Error: ' + (json.error || 'Unknown error');
+    }
+  } catch (err) {
+    console.error(err);
+    status.textContent = 'Upload failed.';
+  }
+});
+
+async function loadGallery(force = false) {
+  const box = document.getElementById('gallery');
+  box.innerHTML = 'Loading…';
+
+  const fetchJSON = async (action) => {
+    const url = `${SCRIPT_URL}?action=${action}&limit=48&t=${Date.now()}`;
+    const r = await fetch(url, { cache: 'no-store' });
+    return r.ok ? r.json() : { ok:false, error:`HTTP ${r.status}` };
+  };
+
+  let res = await fetchJSON('list');
+  if (!res.ok || !res.items || res.items.length === 0) {
+    res = await fetchJSON('drive_list');
   }
 
-  async function loadGallery(){
-    const box = $('gallery');
-    box.innerHTML = '';
-    try{
-      const r = await fetch(SCRIPT_URL + '?action=gallery', {cache:'no-store'});
-      const j = await r.json();
-      if (!j.ok || !j.items || j.items.length === 0){
-        box.innerHTML = '<div class="hint">No items yet.</div>';
-        return;
-      }
-      for (const it of j.items){
-        const src = it.directUrl || toDirect(it.fileUrl) || toDirect(it.fileId);
-        const title = (it.title || '').toString().trim();
-        const name  = (it.name  || '').toString().trim();
-        const tile  = document.createElement('div');
-        tile.className = 'tile';
-        tile.innerHTML = `
-          <img src="${src}" alt="${title ? title : 'Pony'} by ${name ? name : 'unknown'}" loading="lazy">
-          <div class="meta">
-            <b>${title || 'Untitled'}</b>
-            <div>${name || ''}</div>
-          </div>`;
-        box.appendChild(tile);
-      }
-    }catch(err){
-      box.innerHTML = '<div class="hint">Unable to load gallery.</div>';
-      console.error(err);
-    }
+  if (!res.ok) {
+    box.innerHTML = `<div style="color:#b91c1c">Failed to load gallery: ${res.error || 'Unknown error'}</div>`;
+    console.error('gallery error', res);
+    return;
   }
 
-  function fileToBase64(file){
-    return new Promise((resolve,reject)=>{
-      const fr=new FileReader();
-      fr.onload=()=> {
-        const s=String(fr.result||'');
-        const i=s.indexOf('base64,');
-        resolve(i>=0 ? s.slice(i+7) : s);
-      };
-      fr.onerror=()=>reject(fr.error||new Error('read error'));
-      fr.readAsDataURL(file);
-    });
+  const items = res.items || [];
+  if (items.length === 0) {
+    box.innerHTML = '<div class="muted">No items yet.</div>';
+    return;
   }
 
-  $('submitBtn').addEventListener('click', async () =>{
-    const status  = $('status');
-    const spinner = $('spinner');
-    const btn     = $('submitBtn');
-
-    status.textContent = '';
-    const name  = $('name').value.trim();
-    const email = $('email').value.trim();
-    const title = $('title').value.trim();
-    const file  = $('file').files[0];
-    const consent = $('consent').checked;
-
-    if (!name || !email || !title || !file || !consent){
-      status.innerHTML = '<span class="err">Please complete all required fields.</span>';
-      return;
-    }
-    if (file.size < 1*1024*1024 || file.size > 5*1024*1024){
-      status.innerHTML = '<span class="err">File must be between 1 MB and 5 MB.</span>';
-      return;
-    }
-
-    try{
-      btn.disabled = true;
-      spinner.textContent = 'Uploading…';
-      // 先試 multipart（最佳）
-      const fd = new FormData();
-      fd.append('name', name);
-      fd.append('email', email);
-      fd.append('title', title);
-      fd.append('consent', 'true');
-      fd.append('file', file, file.name);
-
-      let res = await fetch(SCRIPT_URL, { method:'POST', body: fd });
-      let txt = await res.text();
-
-      // 如果託管環境剝掉檔案，fallback base64
-      let data;
-      try { data = JSON.parse(txt); } catch { data = {ok:false}; }
-      if (!data.ok && /No file uploaded/i.test(data.error||'')){
-        const b64 = await fileToBase64(file);
-        const fd2 = new FormData();
-        fd2.append('name', name);
-        fd2.append('email', email);
-        fd2.append('title', title);
-        fd2.append('consent', 'true');
-        fd2.append('filebase64', b64);
-        fd2.append('mimetype', file.type || 'application/octet-stream');
-        fd2.append('filename', file.name || 'upload.bin');
-        res = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
-        txt = await res.text();
-        data = JSON.parse(txt);
-      }
-
-      if (data.ok){
-        status.innerHTML = '<span class="ok">Upload successful!</span>';
-        // 立刻刷新數量 & 圖庫
-        await refreshCount();
-        await loadGallery();
-        // 清表單
-        $('file').value = '';
-        // 滾到 Gallery 讓他看到
-        document.getElementById('gallery').scrollIntoView({behavior:'smooth', block:'start'});
-      }else{
-        status.innerHTML = '<span class="err">Upload failed: ' + (data.error || 'Unknown error') + '</span>';
-        console.warn('server diag:', data.diag);
-      }
-    }catch(err){
-      console.error(err);
-      status.innerHTML = '<span class="err">Error: ' + err.message + '</span>';
-    }finally{
-      btn.disabled = false;
-      spinner.textContent = '';
-    }
+  box.innerHTML = '';
+  items.forEach(it => {
+    const src = it.directUrl || it.fileUrl;
+    const title = (it.title || '').trim();
+    const name = (it.name || '').trim();
+    const card = document.createElement('figure');
+    card.className = 'card';
+    card.innerHTML = `
+      <img loading="lazy" src="${src}" alt="${title || 'Artwork'}">
+      <figcaption>${title || 'Untitled'}${name ? ` <span class="by">by ${name}</span>` : ''}</figcaption>
+    `;
+    box.appendChild(card);
   });
+}
 
-  // init
-  refreshCount();
-  loadGallery();
+loadGallery();
 </script>
+
 </body>
 </html>
