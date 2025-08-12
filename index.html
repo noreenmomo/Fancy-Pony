@@ -1,61 +1,94 @@
 <!doctype html>
 <html lang="en">
+<head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Fancy Pony — Minimal Upload</title>
 <style>
-  body { font-family: system-ui, Arial; margin: 24px;}
-  .ok { color:#0a7; } .err { color:#c00; white-space:pre-wrap;}
+  :root { color-scheme: light; }
+  body { font-family: system-ui, Arial, sans-serif; margin: 24px; background:#fafafa; }
+  h1 { margin: 0 0 16px; }
+  .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06); max-width:720px; }
+  label { font-weight:600; display:block; margin:.75rem 0 .25rem; }
+  input[type="text"], input[type="file"] {
+    width:100%; padding:.6rem .7rem; border:1px solid #d1d5db; border-radius:8px; font-size:15px; background:#fff;
+  }
+  button { margin-top:14px; padding:.7rem 1.1rem; border:0; border-radius:8px; cursor:pointer; color:#fff;
+           background:#2563eb; font-weight:600; }
+  button:disabled { opacity:.6; cursor:not-allowed; }
+  .ok    { margin-top:12px; padding:10px 12px; border-radius:8px; background:#ecfdf5; color:#065f46; }
+  .err   { margin-top:12px; padding:10px 12px; border-radius:8px; background:#fef2f2; color:#991b1b; white-space:pre-wrap;}
+  .muted { color:#6b7280; font-size:12px; }
 </style>
+</head>
+<body>
+  <h1>Fancy Pony — Minimal Upload</h1>
 
-<h1>Fancy Pony – Minimal Upload</h1>
+  <div class="card">
+    <form id="u" novalidate>
+      <label for="name">Your Name</label>
+      <input id="name" name="name" type="text" required placeholder="e.g. Alex Chen">
 
-<form id="f" novalidate>
-  <label>Your Name<br>
-    <input id="name" name="name" required>
-  </label><br><br>
+      <label for="file">Choose File (JPG / PNG / PDF)</label>
+      <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
 
-  <label>Choose File (JPG/PNG/PDF)<br>
-    <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
-  </label><br><br>
+      <button id="btn" type="submit">Upload</button>
+      <div class="muted" style="margin-top:8px;">Tip: scan at 150–300 ppi before uploading.</div>
+    </form>
 
-  <button>Upload</button>
-</form>
-
-<div id="out"></div>
+    <div id="out"></div>
+  </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
-const $ = (s)=>document.querySelector(s);
-$('#f').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const out = $('#out');
-  out.textContent = 'Uploading…';
+  // Your Apps Script Web App (EXEC) URL:
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyS8EeAEoACk6HqauFS1y44kI7j20xmuTmIJPucYmtnCBBBSiQu_uSZ8vJGftIaHueFvA/exec';
 
-  const file = $('#file').files[0];
-  if (!file) { out.textContent = 'Please choose a file.'; return; }
+  const $ = s => document.querySelector(s);
+  const form = $('#u');
+  const out  = $('#out');
+  const btn  = $('#btn');
 
-  const fd = new FormData();
-  fd.append('name', $('#name').value.trim());
-  // 關鍵：名稱必須是 "file"，而且真的把檔案放進去
-  fd.append('file', file, file.name);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    out.textContent = '';
+    const name = $('#name').value.trim();
+    const file = $('#file').files[0];
 
-  try {
-    // 不要手動設定任何 headers！
-    const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
-    const txt = await r.text();
-    console.log('raw:', txt);
-    const j = JSON.parse(txt);
-    console.log('server response:', j);
+    if (!name) { out.innerHTML = '<div class="err">Please enter your name.</div>'; return; }
+    if (!file) { out.innerHTML = '<div class="err">Please choose a file.</div>'; return; }
 
-    if (j.ok) {
-      out.innerHTML = `<div class="ok">OK. fileId=${j.fileId || '(?)'}<br>
-        <a target="_blank" href="${j.fileUrl}">Open file</a></div>`;
-    } else {
-      out.innerHTML = `<div class="err">Failed: ${j.error || 'unknown'}\n${j.diag ? JSON.stringify(j.diag,null,2):''}</div>`;
+    // Build multipart/form-data. Do NOT set headers manually.
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('file', file, file.name); // the field name MUST be "file"
+
+    btn.disabled = true;
+    btn.textContent = 'Uploading…';
+
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error('Server returned non‑JSON:\n' + text); }
+      console.log('server response:', data);
+
+      if (data.ok) {
+        const link = data.fileUrl ? `<br><a target="_blank" rel="noopener" href="${data.fileUrl}">Open file</a>` : '';
+        out.innerHTML = `<div class="ok">Upload successful.${link}</div>`;
+        form.reset();
+        $('#name').focus();
+      } else {
+        const diag = data.diag ? '\n' + JSON.stringify(data.diag, null, 2) : '';
+        out.innerHTML = `<div class="err">Upload failed: ${data.error || 'Unknown error'}${diag}</div>`;
+      }
+    } catch (err) {
+      out.innerHTML = `<div class="err">${err.message}</div>`;
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Upload';
     }
-  } catch (err) {
-    out.innerHTML = `<div class="err">Fetch error: ${err.message}</div>`;
-  }
-});
+  });
 </script>
+</body>
 </html>
