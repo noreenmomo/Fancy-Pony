@@ -1,23 +1,19 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Fancy Pony — Artwork Submission</title>
 <style>
   :root{
-    /* Tweak these two to change button/link colors */
-    --brand:#2563eb;          /* buttons + links */
-    --brand-600:#1d4ed8;
-
+    --brand:#43C7C7;
     --ok:#16a34a;
     --warn:#b45309;
     --err:#b91c1c;
     --ink:#0f172a;
-    --muted:#6b7280;
+    --muted:#3A3A3A;
     --card-bg: rgba(255,255,255,0.92);
   }
-
   html,body{height:100%}
   body{
     margin:0; font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
@@ -27,19 +23,16 @@
     background-size:220px auto;
     background-attachment:fixed;
   }
-
-  /* background credit — one line, centered bottom */
+  /* 背景版權文字（單行置底置中） */
   .bg-credit{
     position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
     font-size:12px; color:#444; background:rgba(255,255,255,0.55);
     padding:3px 8px; border-radius:6px; pointer-events:none; white-space:nowrap;
   }
-
   .wrap{
     max-width:900px; margin:32px auto; padding:20px 18px;
     background:var(--card-bg); border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08);
   }
-
   /* header */
   .logo{display:block; margin:0 auto 10px auto; width:128px; max-width:34vw; height:auto}
   h1{margin:0 0 8px 0; font-size:clamp(22px,4.5vw,36px); letter-spacing:.3px; text-align:center}
@@ -47,8 +40,11 @@
     text-align:center; max-width:800px; margin:0 auto 20px auto;
     font-size:1.05em; line-height:1.55;
   }
+  h1 { margin: 0 0 8px 0; text-align: center; letter-spacing: .3px; }
+  h1 .title-main { display:block; font-size:clamp(34px, 5vw, 44px); font-weight:900; }
+  h1 .title-sub  { display:block; font-size:clamp(22px, 3vw, 26px); font-weight:600; color:var(--muted); }
 
-  /* form */
+  /* 表單 */
   .grid{display:block}
   .field{margin:14px 0}
   label{display:block; font-weight:700; margin-bottom:6px}
@@ -58,7 +54,7 @@
   }
   textarea{min-height:80px; resize:vertical}
 
-  /* prettier choose-file */
+  /* 更好看的檔案選擇 */
   .file-row{display:flex; align-items:center; gap:12px}
   .file-wrap{position:relative; display:inline-block}
   .file-wrap input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer}
@@ -73,7 +69,7 @@
 
   .agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
   .agree input{margin-top:3px}
-  /* bigger checkbox */
+  /* 放大核取方塊 */
   input[type="checkbox"]{ transform:scale(1.35); margin-right:6px }
 
   .btn{
@@ -92,7 +88,7 @@
   .bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:10px}
   .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
 
-  /* Recent submissions (now with outside nav buttons) */
+  /* Recent submissions（左右切頁版本） */
   .panel{margin-top:26px; padding:18px; background:var(--card-bg); border-radius:16px}
   .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px}
   .panel-header h2{margin:0; font-size:26px}
@@ -101,43 +97,66 @@
   .a{color:var(--brand); text-decoration:none; font-weight:800}
   .a:hover{text-decoration:underline}
 
-  .recent-submissions-container{
-    display:flex; align-items:stretch; gap:12px; margin-top:10px;
-  }
-  .recent-submissions{ flex:1; }
-  .list{display:flex; flex-direction:column; gap:10px; min-height: 170px}
-  .item{
-    padding:12px;
-    border:1px solid #e5e7eb; border-radius:12px; background:#fff;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-  }
+  .list-wrap{ position:relative; }
+  .list{display:flex; flex-direction:column; gap:10px; min-height:170px}
+  .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
   .ttl{font-weight:800}
   .desc{margin-top:4px; white-space:pre-wrap}
   .subline{font-size:13px; color:var(--muted)}
 
-  .nav-button{
-    width:42px; height:42px; border-radius:12px; border:none; cursor:pointer;
-    background:#ffffff; box-shadow:0 6px 18px rgba(0,0,0,.08);
-    font-size:20px; font-weight:900; color:var(--ink);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .nav-button:disabled{opacity:.45; cursor:not-allowed}
-  .page-indicator{margin-top:10px; text-align:center; color:var(--muted); font-weight:700}
+ /* 左右圓形切換鍵 */
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px; /* 原本38px → 放大按鈕 */
+  height: 48px; /* 原本38px → 放大按鈕 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--brand);
+  font-weight: 900;
+  font-size: 36px; /* 新增：加大箭頭大小 */
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  cursor: pointer;
+}
+.nav-arrow:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.nav-arrow.left { left: -12px; }
+.nav-arrow.right { right: -12px; }
 
-  /* Poster below list */
-  .poster{ text-align:center; margin-top:28px; }
-  .poster-title{ margin:0 0 10px 0; line-height:1.1; }
-  .poster-title .title-main{ display:block; font-size:clamp(20px,4.2vw,28px); font-weight:900; }
-  .poster-title .title-sub{ display:block; font-size:clamp(16px,3.5vw,22px); color:var(--muted); font-weight:800; }
+@media (max-width: 640px) {
+  .nav-arrow {
+    width: 40px;  /* 原本34px → 放大手機版按鈕 */
+    height: 40px; /* 原本34px → 放大手機版按鈕 */
+    font-size: 30px; /* 手機版箭頭大小 */
+  }
+  .nav-arrow.left { left: -8px; }
+  .nav-arrow.right { right: -8px; }
+}
+
+  /* 舊的頁碼條隱藏（若頁面仍保留結構） */
+  .pager{ display:none !important; }
+
+  /* Pony Station 圖 */
+  .poster{ text-align:center; margin-top:20px; }
   .poster img{ max-width:100%; height:auto; border-radius:8px; }
 </style>
 </head>
 <body>
 
   <main class="wrap">
-    <!-- centered logo + title -->
-    <img class="logo" src="https://i.postimg.cc/bwYsTGKt/The-unicorn-in-the-sky.png" alt="Fancy Pony logo" />
-    <h1>Fancy Pony — Artwork Submission</h1>
+    <!-- Logo + Title -->
+    <img class="logo" src="https://i.postimg.cc/xdB0mqvM/The-unicorn-in-the-sky.png" alt="Fancy Pony logo" />
+    <h1>
+      <span class="title-main">Fancy Pony</span>
+      <span class="title-sub">Artwork Submission</span>
+    </h1>
     <p class="intro">
       Unleash your creativity this Lunar New Year by designing your family’s very own Fancy Pony!
       Kiddos and families are invited to submit colorful letter-sized pony drawings full of imagination and festive spirit.
@@ -150,7 +169,7 @@
     <form id="form" class="grid" novalidate>
       <div class="field">
         <label for="name">Your Name *</label>
-        <input id="name" name="name" type="text" placeholder="e.g., Alex Chen" required>
+        <input id="name" name="name" type="text" placeholder="e.g., Demi Tai" required>
       </div>
 
       <div class="field">
@@ -170,7 +189,7 @@
             <button class="btn-file" type="button">Choose File</button>
             <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
           </span>
-          <span id="fname" class="file-name">no file selected</span>
+          <span id="fname" class="file-name">No file selected</span>
         </div>
         <div class="sub" style="margin-top:8px">
           File size must be between <strong>1&nbsp;MB</strong> and <strong>5&nbsp;MB</strong>.
@@ -190,7 +209,7 @@
         </label>
       </div>
 
-      <div style="display:flex; align-items:baseline; gap:8px">
+      <div style="display:flex; align-items:baseline; gap:10px">
         <button id="submitBtn" class="btn" type="submit">Upload</button>
         <div id="status" class="status"></div>
       </div>
@@ -198,87 +217,99 @@
       <div id="pct" class="sub" style="margin-top:4px">0%</div>
     </form>
 
-    <!-- Recent submissions -->
+    <!-- Recent submissions with left/right arrows only -->
     <section class="panel">
       <div class="panel-header">
         <h2>Recent submissions</h2>
         <div class="actions">
           <span class="panel-info">Total drawings collected: <span id="count">–</span></span>
-          <a class="a" href="#" id="refresh">refresh</a>
+          <!-- 引入 Font Awesome（refresh icon） -->
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+          <a class="a" href="#" id="Refresh" title="Refresh"><i class="fas fa-rotate-right"></i></a>
         </div>
       </div>
 
-      <div class="recent-submissions-container">
-        <button class="nav-button" id="prevBtn" aria-label="Previous">‹</button>
-
-        <div class="recent-submissions">
-          <div id="list" class="list">
-            <div class="item">Loading…</div>
-          </div>
+      <div class="list-wrap">
+        <button class="nav-arrow left"  id="prevBtn" aria-label="Previous page">&lsaquo;</button>
+        <div class="list" id="list">
+          <div class="item">Loading…</div>
         </div>
-
-        <button class="nav-button" id="nextBtn" aria-label="Next">›</button>
+        <button class="nav-arrow right" id="nextBtn" aria-label="Next page">&rsaquo;</button>
       </div>
-
-      <div class="page-indicator" id="pageInd">1 / 1</div>
     </section>
 
-    <!-- Poster below list -->
+    <!-- Pony Station Image -->
     <div class="poster">
-      <h2 class="poster-title">
-        <span class="title-main">CNY Fancy Pony Station</span>
+      <h2>
+        <span class="title-main">CNY Fancy Pony Station</span><br>
         <span class="title-sub">Step-by-Step Guide</span>
       </h2>
-      <img src="https://i.postimg.cc/pXMp7cnz/Summon-Your-Fancy-Pony.png" alt="Pony Station">
+      <img src="https://i.postimg.cc/V6fKhGRR/CNY-Fancy-Pony-Station-Step-by-Step-Guide.png" alt="CNY Fancy Pony Station – Step-by-Step Guide">
     </div>
   </main>
 
-  <!-- background credit -->
+  <!-- 背景版權提示 -->
   <div class="bg-credit">Illustration design by Demi Tai</div>
 
 <script>
-  /* ==== Your Apps Script Web App URL (/exec) ==== */
+  // === Replace with your Web App /exec URL ===
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
   const $ = id => document.getElementById(id);
   const S = v => v == null ? '' : String(v);
 
-  function setBar(n){ $('bar').style.width = Math.max(0, Math.min(100, n)) + '%'; $('pct').textContent = Math.round(n) + '%'; }
-  function say(cls, msg){ const el=$('status'); el.className='status '+(cls||''); el.textContent = msg || ''; }
+  // progress/status helpers
+  function setBar(n){
+    $('bar').style.width = Math.max(0, Math.min(100, n)) + '%';
+    $('pct').textContent = Math.round(n) + '%';
+  }
+  function say(cls, msg){
+    const el = $('status');
+    el.className = 'status ' + (cls||'');
+    el.textContent = msg || '';
+  }
   function timeStr(v){
-    try{ const d = v instanceof Date ? v : new Date(v); return isNaN(d) ? '' : d.toLocaleString(); }
-    catch { return ''; }
+    try{
+      const d = v instanceof Date ? v : new Date(v);
+      return isNaN(d.getTime()) ? '' : d.toLocaleString();
+    }catch{ return ''; }
   }
 
-  $('file').addEventListener('change', e => $('fname').textContent = e.target.files[0]?.name || 'no file selected');
+  // show chosen file name
+  $('file').addEventListener('change', e => { $('fname').textContent = e.target.files[0]?.name || 'no file selected'; });
 
+  // count
   async function refreshCount(){
     try{
       const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
-      const j = await r.json(); $('count').textContent = j.ok ? (j.count ?? 0) : '–';
+      const j = await r.json();
+      $('count').textContent = j.ok ? (j.count ?? 0) : '–';
     }catch{ $('count').textContent = '–'; }
   }
+  $('Refresh').addEventListener('click', (e)=>{ e.preventDefault(); refreshCount(); loadRecent(); });
 
-  /* ========= Recent list with paging ========= */
-  let allItems = [];        // full dataset from server
-  const pageSize = 5;       // items per page
-  let page = 1;
+  // pagination state
+  const pageSize = 3;
+  let itemsAll = [];      // 全部最近資料
+  let pageIndex = 0;      // 目前頁次（0-based）
 
   function renderPage(){
     const list = $('list');
-    if (!allItems.length){
+    if (!itemsAll.length){
       list.innerHTML = '<div class="item">No items yet.</div>';
-      $('pageInd').textContent = '1 / 1';
-      $('prevBtn').disabled = $('nextBtn').disabled = true;
+      $('prevBtn').disabled = true;
+      $('nextBtn').disabled = true;
       return;
     }
-    const totalPages = Math.max(1, Math.ceil(allItems.length / pageSize));
-    page = Math.max(1, Math.min(page, totalPages));
-    const start = (page - 1) * pageSize;
-    const slice = allItems.slice(start, start + pageSize);
+    const totalPages = Math.max(1, Math.ceil(itemsAll.length / pageSize));
+    pageIndex = Math.max(0, Math.min(pageIndex, totalPages-1));
+
+    const start = pageIndex * pageSize;
+    const end = start + pageSize;
+    const pageItems = itemsAll.slice(start, end);
 
     list.innerHTML = '';
-    slice.forEach(it => {
+    for (const it of pageItems){
       const title = S(it.title).trim() || 'Untitled';
       const name  = S(it.name).trim()  || 'Anonymous';
       const desc  = S(it.description).trim();
@@ -288,52 +319,72 @@
       const row = document.createElement('div');
       row.className = 'item';
       row.innerHTML = `
-        <div class="ttl">${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}</div>
+        <div class="ttl">
+          ${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}
+        </div>
         <div class="subline">${[ts, name].filter(Boolean).join(' • ')}</div>
         ${desc ? `<div class="desc">${desc}</div>` : ''}
       `;
       list.appendChild(row);
-    });
+    }
 
-    $('pageInd').textContent = `${page} / ${totalPages}`;
-    $('prevBtn').disabled = (page <= 1);
-    $('nextBtn').disabled = (page >= totalPages);
+    // 僅控制左右鍵可用狀態
+    $('prevBtn').disabled = (pageIndex === 0);
+    $('nextBtn').disabled = (pageIndex >= totalPages-1);
   }
 
+  // load recent items (fetch > store > renderPage)
   async function loadRecent(){
-    const box = $('list');
-    box.innerHTML = '<div class="item">Loading…</div>';
+    const list = $('list');
+    list.innerHTML = '<div class="item">Loading…</div>';
     try{
-      // get many, we’ll paginate on the client
-      const r = await fetch(SCRIPT_URL + '?action=recent&limit=100', { cache:'no-store' });
+      const r = await fetch(SCRIPT_URL + '?action=recent&limit=50', { cache:'no-store' });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || 'API error');
 
-      allItems = Array.isArray(j.items) ? j.items : [];
-      page = 1;
+      itemsAll = Array.isArray(j.items) ? j.items : [];
+      pageIndex = 0;   // 顯示最新頁
       renderPage();
     }catch(err){
-      box.innerHTML = `<div class="item">Failed to load. <span class="subline">${S(err.message || err)}</span></div>`;
-      $('pageInd').textContent = '—';
-      $('prevBtn').disabled = $('nextBtn').disabled = true;
+      list.innerHTML = `<div class="item">Failed to load. <span class="subline">${S(err.message || err)}</span></div>`;
+      $('prevBtn').disabled = true;
+      $('nextBtn').disabled = true;
     }
   }
 
-  $('prevBtn').addEventListener('click', () => { page--; renderPage(); });
-  $('nextBtn').addEventListener('click', () => { page++; renderPage(); });
-  $('refresh').addEventListener('click', (e) => { e.preventDefault(); loadRecent(); });
+  // pager buttons
+  $('prevBtn').addEventListener('click', ()=>{ pageIndex = Math.max(0, pageIndex-1); renderPage(); });
+  $('nextBtn').addEventListener('click', ()=>{ pageIndex = pageIndex+1; renderPage(); });
 
-  /* ========= Upload ========= */
+  // touch swipe（簡易左右滑動切頁）
+  (() => {
+    let startX = 0, dx = 0;
+    const area = $('list');
+    area.addEventListener('touchstart', e => { startX = e.touches[0].clientX; dx = 0; }, {passive:true});
+    area.addEventListener('touchmove',  e => { dx = e.touches[0].clientX - startX; }, {passive:true});
+    area.addEventListener('touchend',   () => {
+      const threshold = 40; // 滑超過 40px 就換頁
+      if (dx > threshold){ $('prevBtn').click(); }
+      else if (dx < -threshold){ $('nextBtn').click(); }
+    }, {passive:true});
+  })();
+
+  // base64 helper
   function fileToBase64(file){
     return new Promise((res, rej)=>{
       const fr = new FileReader();
-      fr.onload  = () => { const s = String(fr.result||''); const i = s.indexOf('base64,'); res(i>=0?s.slice(i+7):s); };
+      fr.onload = () => {
+        const s = String(fr.result || '');
+        const i = s.indexOf('base64,');
+        res(i>=0 ? s.slice(i+7) : s);
+      };
       fr.onerror = () => rej(fr.error || new Error('File read error'));
       fr.readAsDataURL(file);
     });
   }
 
+  // submit upload (multipart first, then base64 fallback)
   $('form').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const btn = $('submitBtn');
@@ -341,13 +392,14 @@
     setBar(0); say('', '');
 
     if (!file){ say('err','Please choose a file.'); return; }
-    const sizeMB = file.size/(1024*1024);
+    const sizeMB = file.size / (1024*1024);
     if (sizeMB < 1 || sizeMB > 5){ say('err','File must be between 1 MB and 5 MB.'); return; }
     if (!$('consent').checked){ say('err','Please agree to the consent.'); return; }
 
-    btn.disabled = true; say('warn','Uploading…'); setBar(5);
+    btn.disabled = true;
+    say('warn','Uploading…'); setBar(5);
 
-    // 1) try multipart (simple request, no preflight)
+    // (1) multipart
     try{
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
@@ -355,22 +407,22 @@
       fd.append('title', $('title').value.trim());
       fd.append('description', $('description').value.trim());
       fd.append('consent', $('consent').checked ? 'true' : 'false');
-      fd.append('file', file, file.name);
+      fd.append('file', file, file.name); // 必須叫 file
 
       const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
       setBar(70);
-      if (!r.ok) throw new Error('HTTP '+r.status);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
 
       if (j.ok){
         setBar(100); say('ok','Upload successful.');
-        e.target.reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0), 900);
+        $('form').reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0), 900);
         refreshCount(); loadRecent();
         btn.disabled = false; return;
       }
       throw new Error(j.error || 'Server refused');
     }catch(err){
-      // 2) fallback: base64 (for strict networks)
+      // (2) fallback: base64
       say('warn','Network is blocking cross-origin upload. Using safe fallback…'); setBar(30);
       try{
         const b64 = await fileToBase64(file);
@@ -386,12 +438,12 @@
 
         const r2 = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
         setBar(85);
-        if (!r2.ok) throw new Error('HTTP '+r2.status);
+        if (!r2.ok) throw new Error('HTTP ' + r2.status);
         const j2 = await r2.json();
 
         if (j2.ok){
           setBar(100); say('ok','Upload sent. Waiting for confirmation…');
-          e.target.reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0), 900);
+          $('form').reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0), 900);
           refreshCount(); loadRecent();
         }else{
           say('err','Upload failed: ' + (j2.error || 'Unknown error'));
@@ -407,6 +459,9 @@
   // init
   refreshCount();
   loadRecent();
+
+  // 點「Choose File」時觸發實際 input
+  document.querySelector('.btn-file').addEventListener('click', ()=> $('file').click());
 </script>
 </body>
 </html>
