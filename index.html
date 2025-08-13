@@ -39,25 +39,10 @@
   .intro{
     text-align:center; max-width:800px; margin:0 auto 20px auto;
     font-size:1.05em; line-height:1.55;
-  };
-  h1 {
-  margin: 0 0 8px 0;
-  text-align: center;
-  letter-spacing: .3px;
-}
-
-h1 .title-main {
-  display: block;
-  font-size: clamp(34px, 5vw, 44px); /* 主標字體大 */
-  font-weight: 900;
-}
-
-h1 .title-sub {
-  display: block;
-  font-size: clamp(22px, 3vw, 26px); /* 副標字體較小 */
-  font-weight: 600;
-  color: var(--muted); /* 副標可用次要顏色 */
-}
+  }
+  h1 { margin: 0 0 8px 0; text-align: center; letter-spacing: .3px; }
+  h1 .title-main { display:block; font-size:clamp(34px, 5vw, 44px); font-weight:900; }
+  h1 .title-sub  { display:block; font-size:clamp(22px, 3vw, 26px); font-weight:600; color:var(--muted); }
 
   /* 表單 */
   .grid{display:block}
@@ -103,7 +88,7 @@ h1 .title-sub {
   .bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:10px}
   .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
 
-  /* Recent submissions（改為左右切頁） */
+  /* Recent submissions（左右切頁版本） */
   .panel{margin-top:26px; padding:18px; background:var(--card-bg); border-radius:16px}
   .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px}
   .panel-header h2{margin:0; font-size:26px}
@@ -112,20 +97,31 @@ h1 .title-sub {
   .a{color:var(--brand); text-decoration:none; font-weight:800}
   .a:hover{text-decoration:underline}
 
-  .pager{
-    display:flex; align-items:center; gap:10px; margin-top:10px;
-  }
-  .pager .btn-mini{
-    padding:8px 12px; border-radius:10px; background:#fff; border:none; cursor:pointer; font-weight:800;
-  }
-  .pager .btn-mini:disabled{opacity:.5; cursor:not-allowed}
-  .page-indicator{color:var(--muted); font-weight:700}
-
-  .list{display:flex; flex-direction:column; gap:10px; min-height: 170px}
+  .list-wrap{ position:relative; }
+  .list{display:flex; flex-direction:column; gap:10px; min-height:170px}
   .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
   .ttl{font-weight:800}
   .desc{margin-top:4px; white-space:pre-wrap}
   .subline{font-size:13px; color:var(--muted)}
+
+  /* 左右圓形切換鍵 */
+  .nav-arrow{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    border:none; border-radius:999px; background:#fff; color:var(--brand);
+    font-weight:900; box-shadow:0 4px 12px rgba(0,0,0,.12); cursor:pointer;
+  }
+  .nav-arrow:disabled{opacity:.45; cursor:not-allowed}
+  .nav-arrow.left{ left:-8px; }
+  .nav-arrow.right{ right:-8px; }
+  @media (max-width:640px){
+    .nav-arrow{ width:34px; height:34px; }
+    .nav-arrow.left{  left:-4px; }
+    .nav-arrow.right{ right:-4px; }
+  }
+
+  /* 舊的頁碼條隱藏（若頁面仍保留結構） */
+  .pager{ display:none !important; }
 
   /* Pony Station 圖 */
   .poster{ text-align:center; margin-top:20px; }
@@ -137,8 +133,10 @@ h1 .title-sub {
   <main class="wrap">
     <!-- Logo + Title -->
     <img class="logo" src="https://i.postimg.cc/xdB0mqvM/The-unicorn-in-the-sky.png" alt="Fancy Pony logo" />
-    <h1><span class="title-main">Fancy Pony</span>
-  <span class="title-sub">Artwork Submission</span></h1>
+    <h1>
+      <span class="title-main">Fancy Pony</span>
+      <span class="title-sub">Artwork Submission</span>
+    </h1>
     <p class="intro">
       Unleash your creativity this Lunar New Year by designing your family’s very own Fancy Pony!
       Kiddos and families are invited to submit colorful letter-sized pony drawings full of imagination and festive spirit.
@@ -199,40 +197,34 @@ h1 .title-sub {
       <div id="pct" class="sub" style="margin-top:4px">0%</div>
     </form>
 
-    <!-- Recent submissions with left/right pagination -->
+    <!-- Recent submissions with left/right arrows only -->
     <section class="panel">
       <div class="panel-header">
         <h2>Recent submissions</h2>
         <div class="actions">
           <span class="panel-info">Total drawings collected: <span id="count">–</span></span>
-          <!-- 引入 Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<!-- Refresh icon link -->
-<a class="a" href="#" id="Refresh">
-  <i class="fas fa-rotate-right"></i>
-</a>
+          <!-- 引入 Font Awesome（refresh icon） -->
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+          <a class="a" href="#" id="Refresh" title="Refresh"><i class="fas fa-rotate-right"></i></a>
         </div>
       </div>
 
-      <div class="list" id="list">
-        <div class="item">Loading…</div>
-      </div>
-
-      <div class="pager">
-        <button class="btn-mini" id="prevBtn" aria-label="Previous page">&lt;</button>
-        <span class="page-indicator" id="pageInfo">1 / 1</span>
-        <button class="btn-mini" id="nextBtn" aria-label="Next page">&gt;</button>
+      <div class="list-wrap">
+        <button class="nav-arrow left"  id="prevBtn" aria-label="Previous page">&lsaquo;</button>
+        <div class="list" id="list">
+          <div class="item">Loading…</div>
+        </div>
+        <button class="nav-arrow right" id="nextBtn" aria-label="Next page">&rsaquo;</button>
       </div>
     </section>
 
     <!-- Pony Station Image -->
     <div class="poster">
       <h2>
-  <span class="title-main">CNY Fancy Pony Station</span><br>
-  <span class="title-sub">Step-by-Step Guide</span>
-</h2>
-      <img src="https://i.postimg.cc/V6fKhGRR/CNY-Fancy-Pony-Station-Step-by-Step-Guide.png">
+        <span class="title-main">CNY Fancy Pony Station</span><br>
+        <span class="title-sub">Step-by-Step Guide</span>
+      </h2>
+      <img src="https://i.postimg.cc/V6fKhGRR/CNY-Fancy-Pony-Station-Step-by-Step-Guide.png" alt="CNY Fancy Pony Station – Step-by-Step Guide">
     </div>
   </main>
 
@@ -274,6 +266,7 @@ h1 .title-sub {
       $('count').textContent = j.ok ? (j.count ?? 0) : '–';
     }catch{ $('count').textContent = '–'; }
   }
+  $('Refresh').addEventListener('click', (e)=>{ e.preventDefault(); refreshCount(); loadRecent(); });
 
   // pagination state
   const pageSize = 3;
@@ -284,7 +277,6 @@ h1 .title-sub {
     const list = $('list');
     if (!itemsAll.length){
       list.innerHTML = '<div class="item">No items yet.</div>';
-      $('pageInfo').textContent = '1 / 1';
       $('prevBtn').disabled = true;
       $('nextBtn').disabled = true;
       return;
@@ -316,7 +308,7 @@ h1 .title-sub {
       list.appendChild(row);
     }
 
-    $('pageInfo').textContent = (pageIndex+1) + ' / ' + totalPages;
+    // 僅控制左右鍵可用狀態
     $('prevBtn').disabled = (pageIndex === 0);
     $('nextBtn').disabled = (pageIndex >= totalPages-1);
   }
@@ -336,7 +328,6 @@ h1 .title-sub {
       renderPage();
     }catch(err){
       list.innerHTML = `<div class="item">Failed to load. <span class="subline">${S(err.message || err)}</span></div>`;
-      $('pageInfo').textContent = '1 / 1';
       $('prevBtn').disabled = true;
       $('nextBtn').disabled = true;
     }
