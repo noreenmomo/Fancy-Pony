@@ -177,6 +177,23 @@
         <div class="item">Loading…</div>
       </div>
     </section>
+
+    <!-- Recent Submissions Section -->
+<h2 style="text-align:center; margin-top:40px;">Recent submissions</h2>
+<div id="submission-list" 
+     style="max-height: 250px; overflow-y: auto; border: 1px solid #ccc; 
+            padding: 10px; border-radius: 8px; background-color: rgba(255, 255, 255, 0.8); 
+            max-width: 800px; margin: 0 auto; font-size: 0.95em; line-height: 1.4;">
+  <!-- Latest submissions will be inserted here by JS -->
+</div>
+
+<!-- Pony Station Image -->
+<div style="text-align:center; margin-top: 20px;">
+  <img src="https://i.postimg.cc/sx6DHKFG/Pony-Station.png" 
+       alt="Pony Station" 
+       style="max-width: 100%; height: auto; border-radius: 8px;">
+</div>
+    
   </main>
 
   <!-- background credit (one line) -->
@@ -332,7 +349,31 @@
         say('err','Upload failed: ' + (err2.message || err2));
       }finally{
         btn.disabled = false;
-      }
+      };
+      // Example: populate submissions (replace with your fetch from Apps Script)
+  const submissions = [
+    { title: "Rainbow Pony", time: "2025-08-12 10:15", description: "Colorful pony with clouds" },
+    { title: "Lunar Pony", time: "2025-08-12 09:50", description: "Moon-inspired design" },
+    { title: "Sunshine Pony", time: "2025-08-11 15:22", description: "Yellow and bright" },
+    { title: "Galaxy Pony", time: "2025-08-11 14:10", description: "Cosmic style" },
+    { title: "Flower Pony", time: "2025-08-11 12:55", description: "Floral patterns" },
+    { title: "Winter Pony", time: "2025-08-11 11:40", description: "Snowflake mane" },
+    { title: "Star Pony", time: "2025-08-10 17:30", description: "Sparkly stars" }
+  ];
+
+  function renderSubmissions() {
+    const list = document.getElementById('submission-list');
+    const latest = submissions.slice(0, 5);
+    list.innerHTML = latest.map(item => `
+      <div style="margin-bottom:8px;">
+        <strong>${item.title}</strong> <small>(${item.time})</small><br>
+        ${item.description}
+      </div>
+    `).join('');
+  }
+  
+  renderSubmissions();
+      
     }
   });
 
