@@ -27,8 +27,7 @@
   .bg-credit{
     position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
     font-size:12px; color:#444; background:rgba(255,255,255,0.55);
-    padding:3px 8px; border-radius:6px; pointer-events:none;
-    white-space:nowrap;  /* keep one line on mobile */
+    padding:3px 8px; border-radius:6px; pointer-events:none; white-space:nowrap;
   }
   .wrap{
     max-width:900px; margin:32px auto; padding:20px 18px;
@@ -43,7 +42,7 @@
   .field{margin:14px 0}
   label{display:block; font-weight:700; margin-bottom:6px}
   input[type="text"], input[type="email"], textarea{
-    width:100%; box-sizing:border-box; padding:20px 14px; margin:20px 0;
+    width:100%; box-sizing:border-box; padding:10px 14px; margin:8px 0;
     border:1px solid #e5e7eb; border-radius:12px; background:#fff; font-size:1rem;
   }
   textarea{min-height:80px; resize:vertical}
@@ -62,18 +61,8 @@
   .file-name{font-size:14px; color:var(--muted)}
 
   .agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
-  .agree input{margin-top:3px}
+  .agree input{margin-top:3px; transform: scale(1.6); margin-right:8px;} /* bigger checkbox */
 
-  input[type="checkbox"] {
-  transform: scale(1.6); /* 調整放大比例，1.0 = 原大小 */
-  margin-right: 8px;     /* 與文字間距 */
-}
-
-  @media (max-width: 600px) {
-  input[type="checkbox"] {
-    transform: scale(1.6);
-  }
-}
   .btn{
     display:inline-block; padding:12px 18px; border-radius:14px; border:none;
     background:var(--brand); color:#fff; font-weight:900; cursor:pointer;
@@ -97,8 +86,12 @@
   .actions{display:flex; gap:12px; align-items:center}
   .a{color:var(--brand); text-decoration:none; font-weight:800}
   .a:hover{text-decoration:underline}
-  .list{display:flex; flex-direction:column; gap:10px}
-  .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
+  .list{
+    display:flex; flex-direction:column; gap:10px;
+    max-height: 360px;           /* 約可見 5 筆，可滾動瀏覽更多 */
+    overflow-y:auto; border:1px solid #e5e7eb; border-radius:12px; padding:10px; background:#fff;
+  }
+  .item{padding:10px; border:1px solid #eef; border-radius:10px; background:#fff}
   .ttl{font-weight:800}
   .desc{margin-top:4px; white-space:pre-wrap}
   .pair{display:flex; align-items:baseline; gap:8px}
@@ -111,8 +104,8 @@
     <img class="logo" src="https://i.postimg.cc/bwYsTGKt/The-unicorn-in-the-sky.png" alt="Fancy Pony logo" />
     <h1>Fancy Pony — Artwork Submission</h1>
     <p style="text-align:center; max-width: 800px; margin: 0 auto 20px auto; font-size: 1.1em; line-height: 1.5;">
-  Unleash your creativity this Lunar New Year by designing your family’s very own Fancy Pony! Kiddos and families are invited to submit colorful letter-sized pony drawings full of imagination and festive spirit. Selected designs will be printed onto paper bags, ready for you to decorate at our special station. After adding your unique touch, showcase your masterpiece on the “Pony Parade Wall” and snap a photo to remember the moment. Let’s fill the celebration with color, fun, and your amazing ideas — submit your artwork today!
-</p>
+      Unleash your creativity this Lunar New Year by designing your family’s very own Fancy Pony! Kiddos and families are invited to submit colorful letter-sized pony drawings full of imagination and festive spirit. Selected designs will be printed onto paper bags, ready for you to decorate at our special station. After adding your unique touch, showcase your masterpiece on the “Pony Parade Wall” and snap a photo to remember the moment. Let’s fill the celebration with color, fun, and your amazing ideas — submit your artwork today!
+    </p>
 
     <form id="form" class="grid" novalidate>
       <div class="field">
@@ -134,7 +127,7 @@
         <label>Upload File *</label>
         <div class="file-row">
           <span class="file-wrap">
-            <button class="btn-file" type="button">Choose File</button>
+            <button id="chooseBtn" class="btn-file" type="button">Choose File</button>
             <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
           </span>
           <span id="fname" class="file-name">no file selected</span>
@@ -178,22 +171,12 @@
       </div>
     </section>
 
-    <!-- Recent Submissions Section -->
-<h2 style="text-align:center; margin-top:40px;">Recent submissions</h2>
-<div id="submission-list" 
-     style="max-height: 250px; overflow-y: auto; border: 1px solid #ccc; 
-            padding: 10px; border-radius: 8px; background-color: rgba(255, 255, 255, 0.8); 
-            max-width: 800px; margin: 0 auto; font-size: 0.95em; line-height: 1.4;">
-  <!-- Latest submissions will be inserted here by JS -->
-</div>
-
-<!-- Pony Station Image -->
-<div style="text-align:center; margin-top: 20px;">
-  <img src="https://i.postimg.cc/sx6DHKFG/Pony-Station.png" 
-       alt="Pony Station" 
-       style="max-width: 100%; height: auto; border-radius: 8px;">
-</div>
-    
+    <!-- Pony Station Image -->
+    <div style="text-align:center; margin-top: 20px;">
+      <img src="https://i.postimg.cc/sx6DHKFG/Pony-Station.png" 
+           alt="Pony Station" 
+           style="max-width: 100%; height: auto; border-radius: 8px;">
+    </div>
   </main>
 
   <!-- background credit (one line) -->
@@ -204,9 +187,15 @@
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
   const $ = id => document.getElementById(id);
-  function setBar(n){ $('bar').style.width = Math.max(0, Math.min(100, n)) + '%'; $('pct').textContent = Math.round(n) + '%'; }
-  function say(cls, msg){ const el=$('status'); el.className='status '+(cls||''); el.textContent = msg || ''; }
   const S = v => v == null ? '' : String(v);
+
+  function setBar(n){
+    $('bar').style.width = Math.max(0, Math.min(100, n)) + '%';
+    $('pct').textContent = Math.round(n) + '%';
+  }
+  function say(cls, msg){
+    const el=$('status'); el.className='status '+(cls||''); el.textContent = msg || '';
+  }
   function timeStr(v){
     try{
       const d = v instanceof Date ? v : new Date(v);
@@ -214,7 +203,8 @@
     }catch{ return ''; }
   }
 
-  // show chosen file name
+  // file UI
+  $('chooseBtn').addEventListener('click', ()=> $('file').click());
   $('file').addEventListener('change', e => $('fname').textContent = e.target.files[0]?.name || 'no file selected');
 
   // counters
@@ -226,12 +216,12 @@
     }catch{ $('count').textContent = '–'; }
   }
 
-  // recent list (text-only)
+  // recent list (text-only), fetch up to 50 but容器只顯示約 5 筆高度，可滑動
   async function loadRecent(){
     const box = $('list');
     box.innerHTML = '<div class="item">Loading…</div>';
     try{
-      const r = await fetch(SCRIPT_URL + '?action=recent&limit=12', { cache:'no-store' });
+      const r = await fetch(SCRIPT_URL + '?action=recent&limit=50', { cache:'no-store' });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || 'API error');
@@ -281,7 +271,7 @@
     });
   }
 
-  // upload: try multipart first, then base64 fallback
+  // upload: multipart → fallback base64
   $('form').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const btn = $('submitBtn');
@@ -296,7 +286,7 @@
     btn.disabled = true;
     say('warn','Uploading…'); setBar(5);
 
-    // 1) multipart (no custom headers => no preflight)
+    // 1) multipart (no custom headers)
     try{
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
@@ -304,7 +294,7 @@
       fd.append('title', $('title').value.trim());
       fd.append('description', $('description').value.trim());
       fd.append('consent', $('consent').checked ? 'true' : 'false');
-      fd.append('file', file, file.name); // field must be "file"
+      fd.append('file', file, file.name); // must be "file"
 
       const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
       setBar(70);
@@ -313,13 +303,13 @@
 
       if (j.ok){
         setBar(100); say('ok','Upload successful.');
-        $('form').reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
+        e.target.reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
         refreshCount(); loadRecent();
         btn.disabled = false; return;
       }
       throw new Error(j.error || 'Server refused');
     }catch(err){
-      // 2) safe fallback (for strict cross-origin networks)
+      // 2) safe fallback
       say('warn','Network is blocking cross-origin upload. Using safe fallback…'); setBar(30);
       try{
         const b64 = await fileToBase64(file);
@@ -340,7 +330,7 @@
 
         if (j2.ok){
           setBar(100); say('ok','Upload sent. Waiting for confirmation…');
-          $('form').reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
+          e.target.reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
           refreshCount(); loadRecent();
         }else{
           say('err','Upload failed: ' + (j2.error || 'Unknown error'));
@@ -349,31 +339,7 @@
         say('err','Upload failed: ' + (err2.message || err2));
       }finally{
         btn.disabled = false;
-      };
-      // Example: populate submissions (replace with your fetch from Apps Script)
-  const submissions = [
-    { title: "Rainbow Pony", time: "2025-08-12 10:15", description: "Colorful pony with clouds" },
-    { title: "Lunar Pony", time: "2025-08-12 09:50", description: "Moon-inspired design" },
-    { title: "Sunshine Pony", time: "2025-08-11 15:22", description: "Yellow and bright" },
-    { title: "Galaxy Pony", time: "2025-08-11 14:10", description: "Cosmic style" },
-    { title: "Flower Pony", time: "2025-08-11 12:55", description: "Floral patterns" },
-    { title: "Winter Pony", time: "2025-08-11 11:40", description: "Snowflake mane" },
-    { title: "Star Pony", time: "2025-08-10 17:30", description: "Sparkly stars" }
-  ];
-
-  function renderSubmissions() {
-    const list = document.getElementById('submission-list');
-    const latest = submissions.slice(0, 5);
-    list.innerHTML = latest.map(item => `
-      <div style="margin-bottom:8px;">
-        <strong>${item.title}</strong> <small>(${item.time})</small><br>
-        ${item.description}
-      </div>
-    `).join('');
-  }
-  
-  renderSubmissions();
-      
+      }
     }
   });
 
