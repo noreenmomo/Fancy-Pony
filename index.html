@@ -97,48 +97,49 @@
   .a{color:var(--brand); text-decoration:none; font-weight:800}
   .a:hover{text-decoration:underline}
 
-  .list-wrap{ position:relative; }
+  /* 預留左右按鈕空間，避免遮到內容 */
+  .list-wrap{
+    position:relative;
+    padding:0 56px;   /* <-- 新增：為左右箭頭預留空間 */
+  }
   .list{display:flex; flex-direction:column; gap:10px; min-height:170px}
   .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
   .ttl{font-weight:800}
   .desc{margin-top:4px; white-space:pre-wrap}
   .subline{font-size:13px; color:var(--muted)}
 
- /* 左右圓形切換鍵 */
-.nav-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48px; /* 原本38px → 放大按鈕 */
-  height: 48px; /* 原本38px → 放大按鈕 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 999px;
-  background: #fff;
-  color: var(--brand);
-  font-weight: 900;
-  font-size: 36px; /* 新增：加大箭頭大小 */
-  box-shadow: 0 4px 12px rgba(0,0,0,.12);
-  cursor: pointer;
-}
-.nav-arrow:disabled {
-  opacity: .45;
-  cursor: not-allowed;
-}
-.nav-arrow.left { left: -12px; }
-.nav-arrow.right { right: -12px; }
-
-@media (max-width: 640px) {
+  /* 左右圓形切換鍵（位置改到內側，不再吃到文字） */
   .nav-arrow {
-    width: 40px;  /* 原本34px → 放大手機版按鈕 */
-    height: 40px; /* 原本34px → 放大手機版按鈕 */
-    font-size: 30px; /* 手機版箭頭大小 */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--brand);
+    font-weight: 900;
+    font-size: 36px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    cursor: pointer;
+    z-index: 2;
   }
-  .nav-arrow.left { left: -8px; }
-  .nav-arrow.right { right: -8px; }
-}
+  .nav-arrow:disabled { opacity: .45; cursor: not-allowed; }
+  .nav-arrow.left  { left: 8px; }   /* <-- 原本 -12px，改 8px */
+  .nav-arrow.right { right: 8px; }  /* <-- 原本 -12px，改 8px */
+
+  @media (max-width: 640px) {
+    .list-wrap{ padding:0 52px; }   /* 手機稍微縮一點 */
+    .nav-arrow {
+      width: 40px; height: 40px; font-size: 30px;
+    }
+    .nav-arrow.left  { left: 8px; }
+    .nav-arrow.right { right: 8px; }
+  }
 
   /* 舊的頁碼條隱藏（若頁面仍保留結構） */
   .pager{ display:none !important; }
