@@ -7,7 +7,6 @@
 <style>
   :root{
     --brand:#2563eb;
-    --brand-600:#1d4ed8;
     --ok:#16a34a;
     --warn:#b45309;
     --err:#b91c1c;
@@ -17,25 +16,29 @@
   }
   html,body{height:100%}
   body{
-    margin:0; font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    margin:0; font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
     color:var(--ink);
     background-image:url('https://i.postimg.cc/jSmGH445/Pony.png');
     background-repeat:repeat;
     background-size:220px auto;
     background-attachment:fixed;
   }
-  /* 背景版權文字 */
+  /* background credit — single line */
   .bg-credit{
-    position:fixed; left:50%; bottom:8px; transform:translateX(-50%);
-    font-size:10px; color:#444; background:rgba(255,255,255,.5);
+    position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
+    font-size:12px; color:#444; background:rgba(255,255,255,0.55);
     padding:3px 8px; border-radius:6px; pointer-events:none;
-    white-space: nowrap; /* 這行可以防止自動換行 */
+    white-space:nowrap;  /* keep one line on mobile */
   }
   .wrap{
     max-width:900px; margin:32px auto; padding:20px 18px;
     background:var(--card-bg); border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08);
   }
-  h1{margin:0 0 4px 0; font-size:clamp(22px,4.5vw,36px); letter-spacing:.3px}
+  /* header */
+  .logo{display:block; margin:0 auto 10px auto; width:128px; max-width:34vw; height:auto}
+  h1{margin:0 0 8px 0; font-size:clamp(22px,4.5vw,36px); letter-spacing:.3px; text-align:center}
+
+  /* form fields */
   .grid{display:block}
   .field{margin:14px 0}
   label{display:block; font-weight:700; margin-bottom:6px}
@@ -44,6 +47,8 @@
     border:1px solid #e5e7eb; border-radius:12px; background:#fff; font-size:1rem;
   }
   textarea{min-height:80px; resize:vertical}
+
+  /* prettier choose-file */
   .file-row{display:flex; align-items:center; gap:12px}
   .file-wrap{position:relative; display:inline-block}
   .file-wrap input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer}
@@ -52,52 +57,66 @@
     background:var(--brand); color:#fff; font-weight:800; border:none; cursor:pointer;
     transition:filter .12s ease, transform .02s ease;
   }
-  .btn-file:hover{filter:brightness(1.05)} .btn-file:active{transform:translateY(1px)}
+  .btn-file:hover{filter:brightness(1.05)}
+  .btn-file:active{transform:translateY(1px)}
   .file-name{font-size:14px; color:var(--muted)}
+
   .agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
+  .agree input{margin-top:3px}
+
   .btn{
     display:inline-block; padding:12px 18px; border-radius:14px; border:none;
     background:var(--brand); color:#fff; font-weight:900; cursor:pointer;
     transition:filter .12s ease, transform .02s ease;
   }
-  .btn:hover{filter:brightness(1.05)} .btn:active{transform:translateY(1px)}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateY(1px)}
   .btn[disabled]{opacity:.6; cursor:not-allowed}
+
   .bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:12px}
   .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
   .status{margin:12px 0 6px 0; font-weight:700}
   .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
-  /* Recent submissions（純文字清單） */
+  .sub{color:var(--muted); font-weight:600}
+
+  /* recent list (text-only) */
   .panel{margin-top:26px; padding:18px; background:var(--card-bg); border-radius:16px}
-  .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px}
+  .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px}
   .panel-header h2{margin:0; font-size:26px}
   .panel-info{color:var(--muted); font-weight:600}
-  .actions{display:flex; align-items:center; gap:12px}
-  .a{color:var(--brand); font-weight:800; text-decoration:none} .a:hover{text-decoration:underline}
+  .actions{display:flex; gap:12px; align-items:center}
+  .a{color:var(--brand); text-decoration:none; font-weight:800}
+  .a:hover{text-decoration:underline}
   .list{display:flex; flex-direction:column; gap:10px}
   .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
   .ttl{font-weight:800}
-  .sub{font-size:13px; color:var(--muted)}
   .desc{margin-top:4px; white-space:pre-wrap}
   .pair{display:flex; align-items:baseline; gap:8px}
 </style>
 </head>
 <body>
+
   <main class="wrap">
+    <!-- centered logo + title -->
+    <img class="logo" src="https://i.postimg.cc/bwYsTGKt/The-unicorn-in-the-sky.png" alt="Fancy Pony logo" />
     <h1>Fancy Pony — Artwork Submission</h1>
 
     <form id="form" class="grid" novalidate>
       <div class="field">
         <label for="name">Your Name *</label>
-        <input id="name" name="name" type="text" required>
+        <input id="name" name="name" type="text" placeholder="e.g., Alex Chen" required>
       </div>
+
       <div class="field">
         <label for="email">Your Email *</label>
-        <input id="email" name="email" type="email" required>
+        <input id="email" name="email" type="email" placeholder="you@example.com" required>
       </div>
+
       <div class="field">
         <label for="title">Pony Name *</label>
-        <input id="title" name="title" type="text" required>
+        <input id="title" name="title" type="text" placeholder="Your pony's name" required>
       </div>
+
       <div class="field">
         <label>Upload File *</label>
         <div class="file-row">
@@ -107,27 +126,30 @@
           </span>
           <span id="fname" class="file-name">no file selected</span>
         </div>
-        <div class="sub" style="margin-top:6px">
+        <div class="sub" style="margin-top:8px">
           File size must be between <strong>1&nbsp;MB</strong> and <strong>5&nbsp;MB</strong>.
           Recommended: <strong>150–300&nbsp;ppi</strong> (Letter size scan typically &gt; 1&nbsp;MB).
         </div>
       </div>
+
       <div class="field">
         <label for="description">Description (optional)</label>
         <textarea id="description" name="description" placeholder="Tell us about your pony…"></textarea>
       </div>
+
       <div class="agree">
         <input id="consent" name="consent" type="checkbox" value="true" required>
         <label for="consent" style="font-weight:600">
           I agree to grant the school marketing rights to print, publicly display, and use my artwork for creative purposes.
         </label>
       </div>
+
       <div class="pair">
         <button id="submitBtn" class="btn" type="submit">Upload</button>
         <div id="status" class="status"></div>
       </div>
       <div class="bar"><i id="bar"></i></div>
-      <div id="pct" class="sub">0%</div>
+      <div id="pct" class="sub" style="margin-top:4px">0%</div>
     </form>
 
     <section class="panel">
@@ -144,49 +166,54 @@
     </section>
   </main>
 
-  <!-- 背景版權提示 -->
-  <div class="bg-credit">Background image designed by Demi Tai</div>
+  <!-- background credit (one line) -->
+  <div class="bg-credit">Illustration designed by Demi Tai</div>
 
 <script>
-  // 換成你的最新版 /exec
+  // === Your Apps Script Web App URL (/exec)
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
-  const $ = id => document.getElementById(id);
 
-  /* 小工具 */
+  const $ = id => document.getElementById(id);
+  function setBar(n){ $('bar').style.width = Math.max(0, Math.min(100, n)) + '%'; $('pct').textContent = Math.round(n) + '%'; }
+  function say(cls, msg){ const el=$('status'); el.className='status '+(cls||''); el.textContent = msg || ''; }
   const S = v => v == null ? '' : String(v);
-  function setBar(n){ $('bar').style.width = Math.max(0,Math.min(100,n))+'%'; $('pct').textContent = Math.round(n)+'%'; }
-  function say(cls,msg){ const el=$('status'); el.className='status '+(cls||''); el.textContent=msg||''; }
   function timeStr(v){
-    try{ const d = (v instanceof Date) ? v : new Date(v); return isNaN(d) ? '' : d.toLocaleString(); }
-    catch{ return ''; }
+    try{
+      const d = v instanceof Date ? v : new Date(v);
+      return isNaN(d.getTime()) ? '' : d.toLocaleString();
+    }catch{ return ''; }
   }
 
-  // 檔名顯示
+  // show chosen file name
   $('file').addEventListener('change', e => $('fname').textContent = e.target.files[0]?.name || 'no file selected');
 
-  // 統計
+  // counters
   async function refreshCount(){
     try{
-      const r = await fetch(SCRIPT_URL+'?action=count',{cache:'no-store'});
+      const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
       const j = await r.json();
       $('count').textContent = j.ok ? (j.count ?? 0) : '–';
     }catch{ $('count').textContent = '–'; }
   }
 
-  // 最近清單（純文字）
+  // recent list (text-only)
   async function loadRecent(){
-    const box = $('list'); box.innerHTML = '<div class="item">Loading…</div>';
+    const box = $('list');
+    box.innerHTML = '<div class="item">Loading…</div>';
     try{
-      const r = await fetch(SCRIPT_URL+'?action=recent&limit=12',{cache:'no-store'});
-      if(!r.ok) throw new Error('HTTP '+r.status);
+      const r = await fetch(SCRIPT_URL + '?action=recent&limit=12', { cache:'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
-      if(!j.ok) throw new Error(j.error || 'API error');
+      if (!j.ok) throw new Error(j.error || 'API error');
 
       const items = Array.isArray(j.items) ? j.items : [];
-      if(!items.length){ box.innerHTML = '<div class="item">No items yet.</div>'; return; }
+      if (!items.length){
+        box.innerHTML = '<div class="item">No items yet.</div>';
+        return;
+      }
 
       box.innerHTML = '';
-      for(const it of items){
+      for (const it of items){
         const title = S(it.title).trim() || 'Untitled';
         const name  = S(it.name).trim()  || 'Anonymous';
         const desc  = S(it.description).trim();
@@ -196,8 +223,10 @@
         const row = document.createElement('div');
         row.className = 'item';
         row.innerHTML = `
-          <div class="ttl">${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}</div>
-          <div class="sub">${[ts,name].filter(Boolean).join(' • ')}</div>
+          <div class="ttl">
+            ${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}
+          </div>
+          <div class="sub">${[ts, name].filter(Boolean).join(' • ')}</div>
           ${desc ? `<div class="desc">${desc}</div>` : ''}
         `;
         box.appendChild(row);
@@ -208,80 +237,88 @@
   }
   $('refresh').addEventListener('click', e => { e.preventDefault(); loadRecent(); });
 
-  // 轉 base64（fallback 用）
+  // base64 helper
   function fileToBase64(file){
-    return new Promise((res,rej)=>{
+    return new Promise((res, rej)=>{
       const fr = new FileReader();
-      fr.onload = () => { const s = String(fr.result||''); const i = s.indexOf('base64,'); res(i>=0 ? s.slice(i+7) : s); };
+      fr.onload = () => {
+        const s = String(fr.result || '');
+        const i = s.indexOf('base64,');
+        res(i>=0 ? s.slice(i+7) : s);
+      };
       fr.onerror = () => rej(fr.error || new Error('File read error'));
       fr.readAsDataURL(file);
     });
   }
 
-  // 上傳：先 multipart，再必要時 fallback base64
+  // upload: try multipart first, then base64 fallback
   $('form').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const btn = $('submitBtn');
     const file = $('file').files[0];
     setBar(0); say('', '');
 
-    if(!file){ say('err','Please choose a file.'); return; }
-    const sizeMB = file.size/(1024*1024);
-    if(sizeMB<1 || sizeMB>5){ say('err','File must be between 1 MB and 5 MB.'); return; }
-    if(!$('consent').checked){ say('err','Please agree to the consent.'); return; }
+    if (!file){ say('err','Please choose a file.'); return; }
+    const sizeMB = file.size / (1024*1024);
+    if (sizeMB < 1 || sizeMB > 5){ say('err','File must be between 1 MB and 5 MB.'); return; }
+    if (!$('consent').checked){ say('err','Please agree to the consent.'); return; }
 
-    btn.disabled = true; say('warn','Uploading…'); setBar(5);
+    btn.disabled = true;
+    say('warn','Uploading…'); setBar(5);
 
+    // 1) multipart (no custom headers => no preflight)
     try{
       const fd = new FormData();
-      fd.append('name',$('name').value.trim());
-      fd.append('email',$('email').value.trim());
-      fd.append('title',$('title').value.trim());
-      fd.append('description',$('description').value.trim());
-      fd.append('consent',$('consent').checked ? 'true' : 'false');
-      fd.append('file',file,file.name);
+      fd.append('name', $('name').value.trim());
+      fd.append('email', $('email').value.trim());
+      fd.append('title', $('title').value.trim());
+      fd.append('description', $('description').value.trim());
+      fd.append('consent', $('consent').checked ? 'true' : 'false');
+      fd.append('file', file, file.name); // field must be "file"
 
-      const r = await fetch(SCRIPT_URL,{method:'POST',body:fd});
+      const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
       setBar(70);
-      if(!r.ok) throw new Error('HTTP '+r.status);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
-      if(j.ok){
+
+      if (j.ok){
         setBar(100); say('ok','Upload successful.');
-        e.target.reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0),800);
+        $('form').reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
         refreshCount(); loadRecent();
-        btn.disabled=false; return;
+        btn.disabled = false; return;
       }
       throw new Error(j.error || 'Server refused');
     }catch(err){
-      // fallback: base64
+      // 2) safe fallback (for strict cross-origin networks)
       say('warn','Network is blocking cross-origin upload. Using safe fallback…'); setBar(30);
       try{
         const b64 = await fileToBase64(file);
         const fd2 = new FormData();
-        fd2.append('name',$('name').value.trim());
-        fd2.append('email',$('email').value.trim());
-        fd2.append('title',$('title').value.trim());
-        fd2.append('description',$('description').value.trim());
-        fd2.append('consent',$('consent').checked ? 'true' : 'false');
-        fd2.append('filebase64',b64);
+        fd2.append('name', $('name').value.trim());
+        fd2.append('email', $('email').value.trim());
+        fd2.append('title', $('title').value.trim());
+        fd2.append('description', $('description').value.trim());
+        fd2.append('consent', $('consent').checked ? 'true' : 'false');
+        fd2.append('filebase64', b64);
         fd2.append('mimetype', file.type || 'application/octet-stream');
         fd2.append('filename', file.name || 'upload.bin');
 
-        const r2 = await fetch(SCRIPT_URL,{method:'POST',body:fd2});
+        const r2 = await fetch(SCRIPT_URL, { method:'POST', body: fd2 });
         setBar(85);
-        if(!r2.ok) throw new Error('HTTP '+r2.status);
+        if (!r2.ok) throw new Error('HTTP ' + r2.status);
         const j2 = await r2.json();
-        if(j2.ok){
+
+        if (j2.ok){
           setBar(100); say('ok','Upload sent. Waiting for confirmation…');
-          e.target.reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0),800);
+          $('form').reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
           refreshCount(); loadRecent();
         }else{
-          say('err','Upload failed: '+(j2.error||'Unknown error'));
+          say('err','Upload failed: ' + (j2.error || 'Unknown error'));
         }
       }catch(err2){
-        say('err','Upload failed: '+(err2.message||err2));
+        say('err','Upload failed: ' + (err2.message || err2));
       }finally{
-        btn.disabled=false;
+        btn.disabled = false;
       }
     }
   });
