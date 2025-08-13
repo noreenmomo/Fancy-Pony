@@ -64,6 +64,16 @@
   .agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
   .agree input{margin-top:3px}
 
+  input[type="checkbox"] {
+  transform: scale(2.4); /* 調整放大比例，1.0 = 原大小 */
+  margin-right: 8px;     /* 與文字間距 */
+}
+
+  @media (max-width: 600px) {
+  input[type="checkbox"] {
+    transform: scale(1.6);
+  }
+}
   .btn{
     display:inline-block; padding:12px 18px; border-radius:14px; border:none;
     background:var(--brand); color:#fff; font-weight:900; cursor:pointer;
