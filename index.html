@@ -104,21 +104,41 @@
   .desc{margin-top:4px; white-space:pre-wrap}
   .subline{font-size:13px; color:var(--muted)}
 
-  /* 左右圓形切換鍵 */
-  .nav-arrow{
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
-    border:none; border-radius:999px; background:#fff; color:var(--brand);
-    font-weight:900; box-shadow:0 4px 12px rgba(0,0,0,.12); cursor:pointer;
+ /* 左右圓形切換鍵 */
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px; /* 原本38px → 放大按鈕 */
+  height: 48px; /* 原本38px → 放大按鈕 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--brand);
+  font-weight: 900;
+  font-size: 40px; /* 新增：加大箭頭大小 */
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  cursor: pointer;
+}
+.nav-arrow:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.nav-arrow.left { left: -12px; }
+.nav-arrow.right { right: -12px; }
+
+@media (max-width: 640px) {
+  .nav-arrow {
+    width: 40px;  /* 原本34px → 放大手機版按鈕 */
+    height: 40px; /* 原本34px → 放大手機版按鈕 */
+    font-size: 34px; /* 手機版箭頭大小 */
   }
-  .nav-arrow:disabled{opacity:.45; cursor:not-allowed}
-  .nav-arrow.left{ left:-12px; }
-  .nav-arrow.right{ right:-12px; }
-  @media (max-width:640px){
-    .nav-arrow{ width:34px; height:34px; }
-    .nav-arrow.left{  left:-8px; }
-    .nav-arrow.right{ right:-8px; }
-  }
+  .nav-arrow.left { left: -8px; }
+  .nav-arrow.right { right: -8px; }
+}
 
   /* 舊的頁碼條隱藏（若頁面仍保留結構） */
   .pager{ display:none !important; }
