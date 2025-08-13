@@ -23,7 +23,7 @@
     background-size:220px auto;
     background-attachment:fixed;
   }
-  /* background credit — single line */
+  /* 背景版權文字（單行置底置中） */
   .bg-credit{
     position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
     font-size:12px; color:#444; background:rgba(255,255,255,0.55);
@@ -36,18 +36,22 @@
   /* header */
   .logo{display:block; margin:0 auto 10px auto; width:128px; max-width:34vw; height:auto}
   h1{margin:0 0 8px 0; font-size:clamp(22px,4.5vw,36px); letter-spacing:.3px; text-align:center}
+  .intro{
+    text-align:center; max-width:800px; margin:0 auto 20px auto;
+    font-size:1.05em; line-height:1.55;
+  }
 
-  /* form fields */
+  /* 表單 */
   .grid{display:block}
   .field{margin:14px 0}
   label{display:block; font-weight:700; margin-bottom:6px}
   input[type="text"], input[type="email"], textarea{
-    width:100%; box-sizing:border-box; padding:10px 14px; margin:8px 0;
+    width:100%; box-sizing:border-box; padding:12px 14px; margin:8px 0;
     border:1px solid #e5e7eb; border-radius:12px; background:#fff; font-size:1rem;
   }
   textarea{min-height:80px; resize:vertical}
 
-  /* prettier choose-file */
+  /* 更好看的檔案選擇 */
   .file-row{display:flex; align-items:center; gap:12px}
   .file-wrap{position:relative; display:inline-block}
   .file-wrap input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer}
@@ -61,7 +65,9 @@
   .file-name{font-size:14px; color:var(--muted)}
 
   .agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
-  .agree input{margin-top:3px; transform: scale(1.6); margin-right:8px;} /* bigger checkbox */
+  .agree input{margin-top:3px}
+  /* 放大核取方塊 */
+  input[type="checkbox"]{ transform:scale(1.35); margin-right:6px }
 
   .btn{
     display:inline-block; padding:12px 18px; border-radius:14px; border:none;
@@ -72,13 +78,14 @@
   .btn:active{transform:translateY(1px)}
   .btn[disabled]{opacity:.6; cursor:not-allowed}
 
-  .bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:12px}
-  .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
   .status{margin:12px 0 6px 0; font-weight:700}
   .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
   .sub{color:var(--muted); font-weight:600}
 
-  /* recent list (text-only) */
+  .bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:10px}
+  .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
+
+  /* Recent submissions（改為左右切頁） */
   .panel{margin-top:26px; padding:18px; background:var(--card-bg); border-radius:16px}
   .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px}
   .panel-header h2{margin:0; font-size:26px}
@@ -86,27 +93,42 @@
   .actions{display:flex; gap:12px; align-items:center}
   .a{color:var(--brand); text-decoration:none; font-weight:800}
   .a:hover{text-decoration:underline}
-  .list{
-    display:flex; flex-direction:column; gap:10px;
-    max-height: 360px;           /* 約可見 5 筆，可滾動瀏覽更多 */
-    overflow-y:auto; border:1px solid #e5e7eb; border-radius:12px; padding:10px; background:#fff;
+
+  .pager{
+    display:flex; align-items:center; gap:10px; margin-top:10px;
   }
-  .item{padding:10px; border:1px solid #eef; border-radius:10px; background:#fff}
+  .pager .btn-mini{
+    padding:8px 12px; border-radius:10px; background:#e5e7eb; border:none; cursor:pointer; font-weight:800;
+  }
+  .pager .btn-mini:disabled{opacity:.5; cursor:not-allowed}
+  .page-indicator{color:var(--muted); font-weight:700}
+
+  .list{display:flex; flex-direction:column; gap:10px; min-height: 170px}
+  .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
   .ttl{font-weight:800}
   .desc{margin-top:4px; white-space:pre-wrap}
-  .pair{display:flex; align-items:baseline; gap:8px}
+  .subline{font-size:13px; color:var(--muted)}
+
+  /* Pony Station 圖 */
+  .poster{ text-align:center; margin-top:20px; }
+  .poster img{ max-width:100%; height:auto; border-radius:8px; }
 </style>
 </head>
 <body>
 
   <main class="wrap">
-    <!-- centered logo + title -->
+    <!-- Logo + Title -->
     <img class="logo" src="https://i.postimg.cc/bwYsTGKt/The-unicorn-in-the-sky.png" alt="Fancy Pony logo" />
     <h1>Fancy Pony — Artwork Submission</h1>
-    <p style="text-align:center; max-width: 800px; margin: 0 auto 20px auto; font-size: 1.1em; line-height: 1.5;">
-      Unleash your creativity this Lunar New Year by designing your family’s very own Fancy Pony! Kiddos and families are invited to submit colorful letter-sized pony drawings full of imagination and festive spirit. Selected designs will be printed onto paper bags, ready for you to decorate at our special station. After adding your unique touch, showcase your masterpiece on the “Pony Parade Wall” and snap a photo to remember the moment. Let’s fill the celebration with color, fun, and your amazing ideas — submit your artwork today!
+    <p class="intro">
+      Unleash your creativity this Lunar New Year by designing your family’s very own Fancy Pony!
+      Kiddos and families are invited to submit colorful letter-sized pony drawings full of imagination and festive spirit.
+      Selected designs will be printed onto paper bags, ready for you to decorate at our special station.
+      After adding your unique touch, showcase your masterpiece on the “Pony Parade Wall” and snap a photo to remember the moment.
+      Let’s fill the celebration with color, fun, and your amazing ideas — submit your artwork today!
     </p>
 
+    <!-- Form -->
     <form id="form" class="grid" novalidate>
       <div class="field">
         <label for="name">Your Name *</label>
@@ -127,7 +149,7 @@
         <label>Upload File *</label>
         <div class="file-row">
           <span class="file-wrap">
-            <button id="chooseBtn" class="btn-file" type="button">Choose File</button>
+            <button class="btn-file" type="button">Choose File</button>
             <input id="file" name="file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
           </span>
           <span id="fname" class="file-name">no file selected</span>
@@ -150,7 +172,7 @@
         </label>
       </div>
 
-      <div class="pair">
+      <div style="display:flex; align-items:baseline; gap:10px">
         <button id="submitBtn" class="btn" type="submit">Upload</button>
         <div id="status" class="status"></div>
       </div>
@@ -158,6 +180,7 @@
       <div id="pct" class="sub" style="margin-top:4px">0%</div>
     </form>
 
+    <!-- Recent submissions with left/right pagination -->
     <section class="panel">
       <div class="panel-header">
         <h2>Recent submissions</h2>
@@ -166,35 +189,43 @@
           <a class="a" href="#" id="refresh">refresh</a>
         </div>
       </div>
-      <div id="list" class="list">
+
+      <div class="list" id="list">
         <div class="item">Loading…</div>
+      </div>
+
+      <div class="pager">
+        <button class="btn-mini" id="prevBtn" aria-label="Previous page">&lt;</button>
+        <span class="page-indicator" id="pageInfo">1 / 1</span>
+        <button class="btn-mini" id="nextBtn" aria-label="Next page">&gt;</button>
       </div>
     </section>
 
     <!-- Pony Station Image -->
-    <div style="text-align:center; margin-top: 20px;">
-      <img src="https://i.postimg.cc/sx6DHKFG/Pony-Station.png" 
-           alt="Pony Station" 
-           style="max-width: 100%; height: auto; border-radius: 8px;">
+    <div class="poster">
+      <img src="https://i.postimg.cc/sx6DHKFG/Pony-Station.png" alt="Pony Station">
     </div>
   </main>
 
-  <!-- background credit (one line) -->
-  <div class="bg-credit">Illustration designed by Demi Tai</div>
+  <!-- 背景版權提示 -->
+  <div class="bg-credit">Background image designed by Demi Tai</div>
 
 <script>
-  // === Your Apps Script Web App URL (/exec)
+  // === Replace with your Web App /exec URL ===
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqnplLlJsrf1rgLQmocmeLOTmyub-tj6jNeaMscqG5v7QfxuDZ_sR-D8sjLv3fDPkO_w/exec';
 
   const $ = id => document.getElementById(id);
   const S = v => v == null ? '' : String(v);
 
+  // progress/status helpers
   function setBar(n){
     $('bar').style.width = Math.max(0, Math.min(100, n)) + '%';
     $('pct').textContent = Math.round(n) + '%';
   }
   function say(cls, msg){
-    const el=$('status'); el.className='status '+(cls||''); el.textContent = msg || '';
+    const el = $('status');
+    el.className = 'status ' + (cls||'');
+    el.textContent = msg || '';
   }
   function timeStr(v){
     try{
@@ -203,11 +234,10 @@
     }catch{ return ''; }
   }
 
-  // file UI
-  $('chooseBtn').addEventListener('click', ()=> $('file').click());
-  $('file').addEventListener('change', e => $('fname').textContent = e.target.files[0]?.name || 'no file selected');
+  // show chosen file name
+  $('file').addEventListener('change', e => { $('fname').textContent = e.target.files[0]?.name || 'no file selected'; });
 
-  // counters
+  // count
   async function refreshCount(){
     try{
       const r = await fetch(SCRIPT_URL + '?action=count', {cache:'no-store'});
@@ -216,46 +246,89 @@
     }catch{ $('count').textContent = '–'; }
   }
 
-  // recent list (text-only), fetch up to 50 but容器只顯示約 5 筆高度，可滑動
+  // pagination state
+  const pageSize = 5;
+  let itemsAll = [];      // 全部最近資料
+  let pageIndex = 0;      // 目前頁次（0-based）
+
+  function renderPage(){
+    const list = $('list');
+    if (!itemsAll.length){
+      list.innerHTML = '<div class="item">No items yet.</div>';
+      $('pageInfo').textContent = '1 / 1';
+      $('prevBtn').disabled = true;
+      $('nextBtn').disabled = true;
+      return;
+    }
+    const totalPages = Math.max(1, Math.ceil(itemsAll.length / pageSize));
+    pageIndex = Math.max(0, Math.min(pageIndex, totalPages-1));
+
+    const start = pageIndex * pageSize;
+    const end = start + pageSize;
+    const pageItems = itemsAll.slice(start, end);
+
+    list.innerHTML = '';
+    for (const it of pageItems){
+      const title = S(it.title).trim() || 'Untitled';
+      const name  = S(it.name).trim()  || 'Anonymous';
+      const desc  = S(it.description).trim();
+      const url   = S(it.fileUrl).trim();
+      const ts    = timeStr(it.timestamp);
+
+      const row = document.createElement('div');
+      row.className = 'item';
+      row.innerHTML = `
+        <div class="ttl">
+          ${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}
+        </div>
+        <div class="subline">${[ts, name].filter(Boolean).join(' • ')}</div>
+        ${desc ? `<div class="desc">${desc}</div>` : ''}
+      `;
+      list.appendChild(row);
+    }
+
+    $('pageInfo').textContent = (pageIndex+1) + ' / ' + totalPages;
+    $('prevBtn').disabled = (pageIndex === 0);
+    $('nextBtn').disabled = (pageIndex >= totalPages-1);
+  }
+
+  // load recent items (fetch > store > renderPage)
   async function loadRecent(){
-    const box = $('list');
-    box.innerHTML = '<div class="item">Loading…</div>';
+    const list = $('list');
+    list.innerHTML = '<div class="item">Loading…</div>';
     try{
       const r = await fetch(SCRIPT_URL + '?action=recent&limit=50', { cache:'no-store' });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || 'API error');
 
-      const items = Array.isArray(j.items) ? j.items : [];
-      if (!items.length){
-        box.innerHTML = '<div class="item">No items yet.</div>';
-        return;
-      }
-
-      box.innerHTML = '';
-      for (const it of items){
-        const title = S(it.title).trim() || 'Untitled';
-        const name  = S(it.name).trim()  || 'Anonymous';
-        const desc  = S(it.description).trim();
-        const url   = S(it.fileUrl).trim();
-        const ts    = timeStr(it.timestamp);
-
-        const row = document.createElement('div');
-        row.className = 'item';
-        row.innerHTML = `
-          <div class="ttl">
-            ${url ? `<a class="a" target="_blank" rel="noopener" href="${url}">${title}</a>` : title}
-          </div>
-          <div class="sub">${[ts, name].filter(Boolean).join(' • ')}</div>
-          ${desc ? `<div class="desc">${desc}</div>` : ''}
-        `;
-        box.appendChild(row);
-      }
+      itemsAll = Array.isArray(j.items) ? j.items : [];
+      pageIndex = 0;   // 顯示最新頁
+      renderPage();
     }catch(err){
-      box.innerHTML = `<div class="item">Failed to load. <span class="sub">${S(err.message || err)}</span></div>`;
+      list.innerHTML = `<div class="item">Failed to load. <span class="subline">${S(err.message || err)}</span></div>`;
+      $('pageInfo').textContent = '1 / 1';
+      $('prevBtn').disabled = true;
+      $('nextBtn').disabled = true;
     }
   }
-  $('refresh').addEventListener('click', e => { e.preventDefault(); loadRecent(); });
+
+  // pager buttons
+  $('prevBtn').addEventListener('click', ()=>{ pageIndex = Math.max(0, pageIndex-1); renderPage(); });
+  $('nextBtn').addEventListener('click', ()=>{ pageIndex = pageIndex+1; renderPage(); });
+
+  // touch swipe（簡易左右滑動切頁）
+  (() => {
+    let startX = 0, dx = 0;
+    const area = $('list');
+    area.addEventListener('touchstart', e => { startX = e.touches[0].clientX; dx = 0; }, {passive:true});
+    area.addEventListener('touchmove',  e => { dx = e.touches[0].clientX - startX; }, {passive:true});
+    area.addEventListener('touchend',   () => {
+      const threshold = 40; // 滑超過 40px 就換頁
+      if (dx > threshold){ $('prevBtn').click(); }
+      else if (dx < -threshold){ $('nextBtn').click(); }
+    }, {passive:true});
+  })();
 
   // base64 helper
   function fileToBase64(file){
@@ -271,7 +344,7 @@
     });
   }
 
-  // upload: multipart → fallback base64
+  // submit upload (multipart first, then base64 fallback)
   $('form').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const btn = $('submitBtn');
@@ -286,7 +359,7 @@
     btn.disabled = true;
     say('warn','Uploading…'); setBar(5);
 
-    // 1) multipart (no custom headers)
+    // (1) multipart
     try{
       const fd = new FormData();
       fd.append('name', $('name').value.trim());
@@ -294,7 +367,7 @@
       fd.append('title', $('title').value.trim());
       fd.append('description', $('description').value.trim());
       fd.append('consent', $('consent').checked ? 'true' : 'false');
-      fd.append('file', file, file.name); // must be "file"
+      fd.append('file', file, file.name); // 必須叫 file
 
       const r = await fetch(SCRIPT_URL, { method:'POST', body: fd });
       setBar(70);
@@ -303,13 +376,13 @@
 
       if (j.ok){
         setBar(100); say('ok','Upload successful.');
-        e.target.reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
+        $('form').reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0), 900);
         refreshCount(); loadRecent();
         btn.disabled = false; return;
       }
       throw new Error(j.error || 'Server refused');
     }catch(err){
-      // 2) safe fallback
+      // (2) fallback: base64
       say('warn','Network is blocking cross-origin upload. Using safe fallback…'); setBar(30);
       try{
         const b64 = await fileToBase64(file);
@@ -330,7 +403,7 @@
 
         if (j2.ok){
           setBar(100); say('ok','Upload sent. Waiting for confirmation…');
-          e.target.reset(); $('fname').textContent = 'no file selected'; setTimeout(()=>setBar(0), 900);
+          $('form').reset(); $('fname').textContent='no file selected'; setTimeout(()=>setBar(0), 900);
           refreshCount(); loadRecent();
         }else{
           say('err','Upload failed: ' + (j2.error || 'Unknown error'));
@@ -346,6 +419,9 @@
   // init
   refreshCount();
   loadRecent();
+
+  // 點「Choose File」時觸發實際 input
+  document.querySelector('.btn-file').addEventListener('click', ()=> $('file').click());
 </script>
 </body>
 </html>
