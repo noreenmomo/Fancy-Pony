@@ -11,7 +11,7 @@
     --warn:#b45309;
     --err:#b91c1c;
     --ink:#0f172a;
-    --muted:#6b7280;
+    --muted:#43C7C7;
     --card-bg: rgba(255,255,255,0.92);
   }
   html,body{height:100%}
@@ -39,7 +39,25 @@
   .intro{
     text-align:center; max-width:800px; margin:0 auto 20px auto;
     font-size:1.05em; line-height:1.55;
-  }
+  };
+  h1 {
+  margin: 0 0 8px 0;
+  text-align: center;
+  letter-spacing: .3px;
+}
+
+h1 .title-main {
+  display: block;
+  font-size: clamp(28px, 5vw, 44px); /* 主標字體大 */
+  font-weight: 900;
+}
+
+h1 .title-sub {
+  display: block;
+  font-size: clamp(18px, 3vw, 26px); /* 副標字體較小 */
+  font-weight: 600;
+  color: var(--muted); /* 副標可用次要顏色 */
+}
 
   /* 表單 */
   .grid{display:block}
@@ -98,7 +116,7 @@
     display:flex; align-items:center; gap:10px; margin-top:10px;
   }
   .pager .btn-mini{
-    padding:8px 12px; border-radius:10px; background:#e5e7eb; border:none; cursor:pointer; font-weight:800;
+    padding:8px 12px; border-radius:10px; background:#fff; border:none; cursor:pointer; font-weight:800;
   }
   .pager .btn-mini:disabled{opacity:.5; cursor:not-allowed}
   .page-indicator{color:var(--muted); font-weight:700}
@@ -119,7 +137,8 @@
   <main class="wrap">
     <!-- Logo + Title -->
     <img class="logo" src="https://i.postimg.cc/xdB0mqvM/The-unicorn-in-the-sky.png" alt="Fancy Pony logo" />
-    <h1>Fancy Pony — Artwork Submission</h1>
+    <h1><span class="title-main">Fancy Pony</span>
+  <span class="title-sub">Artwork Submission</span></h1>
     <p class="intro">
       Unleash your creativity this Lunar New Year by designing your family’s very own Fancy Pony!
       Kiddos and families are invited to submit colorful letter-sized pony drawings full of imagination and festive spirit.
