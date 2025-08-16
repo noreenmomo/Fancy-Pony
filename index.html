@@ -6,163 +6,165 @@
 <title>Fancy Pony Parade — Artwork Submission</title>
 <style>
   :root{
-    --DCES:#2563EB;
-    --brand:#43C7C7;
-    --ok:#16a34a;
-    --warn:#b45309;
-    --err:#b91c1c;
-    --ink:#0f172a;
-    --muted:#3A3A3A;
-    --card-bg: rgba(255,255,255,0.92);
-  }
-  html,body{height:100%}
-  body{
-    margin:0; font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
-    color:var(--ink);
-    background-image:url('https://i.postimg.cc/jSmGH445/Pony.png');
-    background-repeat:repeat;
-    background-size:220px auto;
-    background-attachment:fixed;
-  }
-  p {
-  font-size: 0.9em; /* 改成你要的大小 */
-  line-height: 1.4; /* 行距建議一起調整 */
+  --DCES:#2563EB;
+  --brand:#43C7C7;
+  --ok:#16a34a;
+  --warn:#b45309;
+  --err:#b91c1c;
+  --ink:#0f172a;
+  --muted:#3A3A3A;
+  --card-bg: rgba(255,255,255,0.92);
 }
-  .highlight-text {
-  color: #43C7C7;   /* 紅色 */
-  font-size: 1.2em;  /* 單獨變大 */
-  font-weight: bold; /* 可以再加粗 */
+
+/* base */
+html,body{height:100%}
+body{
+  margin:0;
+  font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+  color:var(--ink);
+  background-image:url('https://i.postimg.cc/jSmGH445/Pony.png');
+  background-repeat:repeat;
+  background-size:220px auto;
+  background-attachment:fixed;
 }
-  .highlight-text1 {
-  color: #3A3A3A;   /* 紅色 */
-  font-size: 1.2em;  /* 單獨變大 */
-  font-weight: Semi Bold; /* 可以再加粗 */
+p{ font-size:.9em; line-height:1.4; }
+
+/* 內文區：單一定義 */
+.intro{
+  max-width:42rem;
+  margin:0 auto 1.25rem auto;
+  text-align:center;
+  font-size:clamp(16px,2.2vw,18px);
+  line-height:1.55;
 }
-  /* 背景版權文字（單行置底置中） */
-  .bg-credit{
-    position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
-    font-size:12px; color:#444; background:rgba(255,255,255,0.55);
-    padding:3px 8px; border-radius:6px; pointer-events:none; white-space:nowrap;
-  }
-  .wrap{
-    max-width:900px; margin:32px auto; padding:20px 18px;
-    background:var(--card-bg); border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08);
-  }
-  /* header */
-  .logo{display:block; margin:0 auto 10px auto; width: clamp(200px, 80%, 300px); /* 最小200px，最大300px，中間隨螢幕寬度變化 */ height:auto}
-  h1{margin:0 0 8px 0; font-size:clamp(22px,4.5vw,36px); letter-spacing:.3px; text-align:center}
-  .intro{
-    text-align:center; max-width:800px; margin:0 auto 20px auto;
-    font-size:1em; line-height:1.4;
-  }
-  h1 { margin: 0 0 8px 0; text-align: center; letter-spacing: .3px; }
-  h1 .title-main-DCES { display:block; font-size:clamp(0.8em, 5vw, 1em); font-weight:900; color:var(--DCES);}
-  h1 .title-main { display:block; font-size:clamp(1.6em, 5vw, 1.8em); font-weight:900; }
-  h1 .title-sub  { display:block; font-size:clamp(1.2em, 3vw, 1.4em); font-weight:600; color:var(--muted); }
 
-  /* 表單 */
-  .grid{display:block}
-  .field{margin:14px 0}
-  label{display:block; font-weight:700; margin-bottom:6px}
-  input[type="text"], input[type="email"], textarea{
-    width:100%; box-sizing:border-box; padding:12px 14px; margin:8px 0;
-    border:1px solid #e5e7eb; border-radius:12px; background:#fff; font-size:1rem;
-  }
-  textarea{min-height:80px; resize:vertical}
+/* 三步驟 & 成果清單 */
+.list{ list-style:none; padding:0; margin:.5rem 0 1rem 0; }
+.list li{ margin:.15rem 0; }
+.list li::before{ content:"• "; font-weight:800; color:var(--brand); }
 
-  /* 更好看的檔案選擇 */
-  .file-row{display:flex; align-items:center; gap:12px}
-  .file-wrap{position:relative; display:inline-block}
-  .file-wrap input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer}
-  .btn-file{
-    display:inline-block; padding:10px 16px; border-radius:12px;
-    background:var(--brand); color:#fff; font-weight:800; border:none; cursor:pointer;
-    transition:filter .12s ease, transform .02s ease;font-size: 1.1em;
-  }
-  .btn-file:hover{filter:brightness(1.05)}
-  .btn-file:active{transform:translateY(1px)}
-  .file-name{font-size:14px; color:var(--muted)}
+/* 只在大螢幕顯示換行 */
+.br-lg{ display:none; }
+@media (min-width:900px){ .br-lg{ display:inline; } }
 
-  .agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
-  .agree input{margin-top:3px}
-  /* 放大核取方塊 */
-  input[type="checkbox"]{ transform:scale(1.35); margin-right:6px }
+/* CTA 強調 */
+.highlight-text{
+  display:inline-block;
+  font-weight:800;
+  color:#08b3b3;
+}
+.highlight-text1{
+  color:var(--muted);
+  font-size:1.2em;
+  font-weight:600; /* 修正合法值 */
+}
 
-  .btn{
-    display:inline-block; padding:12px 18px; border-radius:14px; border:none;
-    background:var(--brand); color:#fff; font-weight:900; cursor:pointer;
-    transition:filter .12s ease, transform .02s ease;font-size: 1.1em;
-  }
-  .btn:hover{filter:brightness(1.05)}
-  .btn:active{transform:translateY(1px)}
-  .btn[disabled]{opacity:.6; cursor:not-allowed}
+/* 背景版權 */
+.bg-credit{
+  position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
+  font-size:12px; color:#444; background:rgba(255,255,255,0.55);
+  padding:3px 8px; border-radius:6px; pointer-events:none; white-space:nowrap;
+}
 
-  .status{margin:12px 0 6px 0; font-weight:700}
-  .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
-  .sub{color:var(--muted); font-weight:600}
+/* 外框 */
+.wrap{
+  max-width:900px; margin:32px auto; padding:20px 18px;
+  background:var(--card-bg); border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08);
+}
 
-  .bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:10px}
-  .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
+/* header（合併 h1 定義） */
+.logo{ display:block; margin:0 auto 10px; width:clamp(200px,80%,300px); height:auto; }
+h1{ margin:0 0 8px 0; text-align:center; letter-spacing:.3px; }
+h1 .title-main-DCES{ display:block; font-size:clamp(.8em,5vw,1em); font-weight:900; color:var(--DCES); }
+h1 .title-main{ display:block; font-size:clamp(1.6em,5vw,1.8em); font-weight:900; }
+h1 .title-sub{ display:block; font-size:clamp(1.2em,3vw,1.4em); font-weight:600; color:var(--muted); }
 
-  /* Recent submissions（左右切頁版本） */
-  .panel{margin-top:26px; padding:18px; background:var(--card-bg); border-radius:16px}
-  .panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px}
-  .panel-header h2{margin:0; font-size:26px}
-  .panel-info{color:var(--muted); font-weight:600}
-  .actions{display:flex; gap:12px; align-items:center}
-  .a{color:var(--brand); text-decoration:none; font-weight:800}
-  .a:hover{text-decoration:underline}
+/* 表單 */
+.grid{display:block}
+.field{margin:14px 0}
+label{display:block; font-weight:700; margin-bottom:6px}
+input[type="text"], input[type="email"], textarea{
+  width:100%; box-sizing:border-box; padding:12px 14px; margin:8px 0;
+  border:1px solid #e5e7eb; border-radius:12px; background:#fff; font-size:1rem;
+}
+textarea{min-height:80px; resize:vertical}
 
-  /* 預留左右按鈕空間，避免遮到內容 */
-  .list-wrap{
-    position:relative;
-    padding:0 50px;   /* <-- 新增：為左右箭頭預留空間 */
-  }
-  .list{display:flex; flex-direction:column; gap:10px; min-height:170px}
-  .item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
-  .ttl{font-weight:800}
-  .desc{margin-top:4px; white-space:pre-wrap}
-  .subline{font-size:13px; color:var(--muted)}
+/* 檔案選擇 */
+.file-row{display:flex; align-items:center; gap:12px}
+.file-wrap{position:relative; display:inline-block}
+.file-wrap input[type="file"]{position:absolute; inset:0; opacity:0; cursor:pointer}
+.btn-file{
+  display:inline-block; padding:10px 16px; border-radius:12px;
+  background:var(--brand); color:#fff; font-weight:800; border:none; cursor:pointer;
+  transition:filter .12s ease, transform .02s ease; font-size:1.1em;
+}
+.btn-file:hover{filter:brightness(1.05)}
+.btn-file:active{transform:translateY(1px)}
+.file-name{font-size:14px; color:var(--muted)}
 
-  /* 左右圓形切換鍵（位置改到內側，不再吃到文字） */
-  .nav-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 999px;
-    background: #fff;
-    color: var(--brand);
-    font-weight: 900;
-    font-size: 36px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.12);
-    cursor: pointer;
-    z-index: 2;
-  }
-  .nav-arrow:disabled { opacity: .45; cursor: not-allowed; }
-  .nav-arrow.left  { left: 8px; }   /* <-- 原本 -12px，改 8px */
-  .nav-arrow.right { right: 8px; }  /* <-- 原本 -12px，改 8px */
+.agree{display:flex; gap:10px; align-items:flex-start; margin:18px 0}
+.agree input{margin-top:3px}
+input[type="checkbox"]{ transform:scale(1.35); margin-right:6px }
 
-  @media (max-width: 640px) {
-    .list-wrap{ padding:0 52px; }   /* 手機稍微縮一點 */
-    .nav-arrow {
-      width: 40px; height: 40px; font-size: 30px;
-    }
-    .nav-arrow.left  { left: 8px; }
-    .nav-arrow.right { right: 8px; }
-  }
+/* 主要按鈕 */
+.btn{
+  display:inline-block; padding:12px 18px; border-radius:14px; border:none;
+  background:var(--brand); color:#fff; font-weight:900; cursor:pointer;
+  transition:filter .12s ease, transform .02s ease; font-size:1.1em;
+}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.6; cursor:not-allowed}
 
-  /* 舊的頁碼條隱藏（若頁面仍保留結構） */
-  .pager{ display:none !important; }
+/* 狀態與進度條 */
+.status{margin:12px 0 6px 0; font-weight:700}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
+.sub{color:var(--muted); font-weight:600}
+.bar{height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:10px}
+.bar>i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--brand),var(--ok)); transition:width .2s ease}
 
-  /* Pony Station 圖 */
-  .poster{ text-align:center; margin-top:20px; }
-  .poster img{ max-width:100%; height:auto; border-radius:8px; }
+/* Recent submissions（左右切頁） */
+.panel{margin-top:26px; padding:18px; background:var(--card-bg); border-radius:16px}
+.panel-header{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px}
+.panel-header h2{margin:0; font-size:26px}
+.panel-info{color:var(--muted); font-weight:600}
+.actions{display:flex; gap:12px; align-items:center}
+.a{color:var(--brand); text-decoration:none; font-weight:800}
+.a:hover{text-decoration:underline}
+
+/* 為箭頭預留左右空間 */
+.list-wrap{ position:relative; padding:0 50px; }
+.list{display:flex; flex-direction:column; gap:10px; min-height:170px}
+.item{padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff}
+.ttl{font-weight:800}
+.desc{margin-top:4px; white-space:pre-wrap}
+.subline{font-size:13px; color:var(--muted)}
+
+/* 左右圓形切換鍵 */
+.nav-arrow{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+  border:none; border-radius:999px; background:#fff; color:var(--brand);
+  font-weight:900; font-size:36px; box-shadow:0 4px 12px rgba(0,0,0,.12);
+  cursor:pointer; z-index:2;
+}
+.nav-arrow:disabled{opacity:.45; cursor:not-allowed}
+.nav-arrow.left{ left:8px; }
+.nav-arrow.right{ right:8px; }
+
+@media (max-width:640px){
+  .list-wrap{ padding:0 52px; }
+  .nav-arrow{ width:40px; height:40px; font-size:30px; }
+  .nav-arrow.left{ left:8px; }
+  .nav-arrow.right{ right:8px; }
+}
+
+/* 隱藏舊頁碼列（若仍存在） */
+.pager{ display:none !important; }
+
+/* Pony Station 圖 */
+.poster{ text-align:center; margin-top:20px; }
+.poster img{ max-width:100%; height:auto; border-radius:8px; }
 </style>
 </head>
 <body>
@@ -178,23 +180,40 @@
       <span class="title-sub">Artwork Submission</span>
     </h1>
     <p class="intro">
-      Saddle Up for Creativity Where Ponies Meet Imagination!<br>
-      This Lunar New Year, create your very own Fancy Pony! <br>
-      Families and young artists are invited to<br>  
-      design a colorful, letter-sized pony drawing<br> 
-      bursting with festive spirit!<br> 
-      <span class="highlight-text1">The Magic in 3 Steps:</span><br>
-      <span class="highlight-text1">Create. Celebrate. Capture.</span><br> 
-      Submit your pony artwork,<br> 
-      see it feature on our paper bags,<br>
-      and showcase it on the Pony Parade Wall. <br> 
-      Don’t forget your photo finish!</b> 
-      Let’s fill the celebration with<br>  
-      color, creativity, and joy.<br>
-      <span class="highlight-text">Submit your Fancy Pony today</span><br> 
-      <span class="highlight-text">and join the parade!</span>
-    </p>
+  Saddle Up for Creativity Where Ponies Meet Imagination!
+  <span class="br-lg"><br></span>
+  This Lunar New Year, create your very own Fancy Pony!
+</p>
 
+<p class="intro">
+  Families and young artists are invited to design a colorful, letter-sized
+  pony drawing bursting with festive spirit!
+</p>
+
+<p class="intro"><strong>The Magic in 3 Steps:</strong></p>
+<ul class="intro list">
+  <li>Create</li>
+  <li>Celebrate</li>
+  <li>Capture</li>
+</ul>
+
+<p class="intro"><strong>Submit your pony artwork to:</strong></p>
+<ul class="intro list">
+  <li>Feature on our paper bags</li>
+  <li>Showcase on the Pony Parade Wall</li>
+  <li>Be part of the celebration!</li>
+</ul>
+
+<p class="intro">
+  Don’t forget your photo finish! Let’s fill the celebration with
+  color, creativity, and joy.
+</p>
+
+<p class="intro">
+  <span class="highlight-text">Submit your Fancy Pony today</span>
+  <span class="br-lg"><br></span>
+  <span class="highlight-text">and join the parade!</span>
+</p>
     <!-- Form -->
     <form id="form" class="grid" novalidate>
       <div class="field">
